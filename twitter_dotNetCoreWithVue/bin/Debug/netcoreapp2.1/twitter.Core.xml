@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>twitter_dotNetCoreWithVue</name>
+    </assembly>
+    <members>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.ValuesController.Get">
+            <summary>
+            得到值
+            </summary>
+            <returns>string</returns>
+        </member>
+    </members>
+</doc>
