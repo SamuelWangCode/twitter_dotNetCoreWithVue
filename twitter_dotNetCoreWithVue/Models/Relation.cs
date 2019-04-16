@@ -11,14 +11,8 @@ namespace twitter_dotNetCoreWithVue.Models
         [Display(Name = "关注id")]
         public int relation_id { set; get; }
 
-        [Display(Name = "关注类型")]
-        public string relation_type { set; get; }
-
         [Display(Name = "关注创建时间")]
         public string relation_create_time { set; get; }
-
-        [Display(Name = "关系分组")]
-        public string relation_group_name { set; get; }
 
         [Display(Name = "关注者id")]
         public int relation_user_follower_id { set; get; }
