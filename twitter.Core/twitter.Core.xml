@@ -4,6 +4,42 @@
         <name>twitter_dotNetCoreWithVue</name>
     </assembly>
     <members>
+        <member name="T:twitter_dotNetCoreWithVue.Controllers.UserController">
+            <summary>
+            User controller.
+            此控制器定义注册，登录，个人信息的增删改查等操作api接口
+            </summary>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.UserController.SignUp(twitter_dotNetCoreWithVue.Controllers.UserController.UserInfoForSignUp)">
+            <summary>
+            此接口在注册时使用。
+            使用POST方法，传递邮箱，密码，昵称即可，其他用户信息在个人界面处修改和添加。
+            </summary>
+            <returns>JsonResult</returns>
+            <param name="userInfoForSignUp">注册时需要的信息</param>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.UserController.SignIn(twitter_dotNetCoreWithVue.Controllers.UserController.UserInfoForSignIn)">
+            <summary>
+            此接口用于登录
+            </summary>
+            <returns>success or not</returns>
+            <param name="userInfoForSignIn">登录时需要的信息</param>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.UserController.EditInfo(System.Int32,twitter_dotNetCoreWithVue.Controllers.UserController.UserInfoEdit)">
+            <summary>
+            此接口用于编辑个人信息界面
+            </summary>
+            <returns>success or not</returns>
+            <param name="userInfoEdit">用户可以被直接修改的信息</param>
+            <param name="user_id">User id</param>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.UserController.ChangeAvatar(System.Int32)">
+            <summary>
+            设置当前使用哪一个头像作为主要头像
+            </summary>
+            <returns>success or not</returns>
+            <param name="avatar_id">用户的头像图片id</param>
+        </member>
         <member name="M:twitter_dotNetCoreWithVue.Controllers.ValuesController.Get">
             <summary>
             得到值

@@ -19,7 +19,6 @@ namespace twitter_dotNetCoreWithVue.Models
         [Required]
         public string user_register_time { get; set; }
 
-        
         [Display(Name = "头像表id")]
         [Required]
         public int user_avatar_image_id { get; set; }
