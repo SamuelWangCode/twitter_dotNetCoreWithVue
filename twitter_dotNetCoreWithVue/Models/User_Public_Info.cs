@@ -9,17 +9,19 @@ namespace twitter_dotNetCoreWithVue.Models
     public class User_Public_Info
     {
         [Display(Name = "用户id")]
-        [Required]
         public int user_id { get; set; }
 
+        [Display(Name ="用户昵称")]
         [Required]
         public string user_nickname { get; set; }
 
         [Display(Name = "用户注册时间")]
+        [Required]
         public string user_register_time { get; set; }
 
-        [Required]
+        
         [Display(Name = "头像表id")]
+        [Required]
         public int user_avatar_image_id { get; set; }
 
         [Display(Name = "用户自我介绍")]

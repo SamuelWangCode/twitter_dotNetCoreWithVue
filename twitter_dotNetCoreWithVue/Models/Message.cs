@@ -41,7 +41,6 @@ namespace twitter_dotNetCoreWithVue.Models
         public bool message_is_transpond { get; set; }
 
         [Display(Name = "发布人ID")]
-        [Required]
         public int message_sender_user_id { get; set; }
 
         [Display(Name = "推特热度")]

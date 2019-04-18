@@ -12,6 +12,7 @@ namespace twitter_dotNetCoreWithVue.Models
         public int relation_id { set; get; }
 
         [Display(Name = "关注创建时间")]
+        [Required]
         public string relation_create_time { set; get; }
 
         [Display(Name = "关注者id")]

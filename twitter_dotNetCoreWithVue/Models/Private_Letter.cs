@@ -21,6 +21,7 @@ namespace twitter_dotNetCoreWithVue.Models
         public int private_letter_is_read { get; set; }
 
         [Display(Name = "私信创建时间")]
+        [Required]
         public string private_letter_create_time { get; set; }
 
         [Display(Name = "发送者id")]

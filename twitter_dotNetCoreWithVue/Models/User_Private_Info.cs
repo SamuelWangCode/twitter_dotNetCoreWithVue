@@ -9,7 +9,6 @@ namespace twitter_dotNetCoreWithVue.Models
     public class User_Private_Info
     {
         [Display(Name = "用户id")]
-        [Required]
         public int user_id { get; set; }
 
         [Display(Name = "性别")]

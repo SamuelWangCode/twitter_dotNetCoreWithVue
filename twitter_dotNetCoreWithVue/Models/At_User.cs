@@ -18,6 +18,7 @@ namespace twitter_dotNetCoreWithVue.Models
         public int user_id { set; get; }
 
         [Display(Name = "艾特的时间")]
+        [Required]
         public string at_time { set; get; }
     }
 }
