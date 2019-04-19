@@ -59,11 +59,11 @@ CACHE 10;
 CREATE TABLE User_Public_Info (
   user_id INTEGER PRIMARY KEY,
   user_nickname VARCHAR2(20) NOT NULL,
-  user_register_time DATE,
+  user_register_time DATE NOT NULL,
   user_avatar_image_id INTEGER NOT NULL,
   user_self_introduction VARCHAR2(255) NOT NULL,
-  user_followers_num INTEGER,
-  user_follows_num INTEGER,
+  user_followers_num INTEGER NOT NULL,
+  user_follows_num INTEGER NOT NULL,
   CONSTRAINT fk_user_public_info 
     FOREIGN KEY (user_avatar_image_id) 
       REFERENCES Avatar_Image(avatar_image_id)
@@ -89,12 +89,13 @@ CREATE TABLE User_Private_Info(
   user_password VARCHAR2(20) NOT NULL,
   user_gender VARCHAR2(4),
   user_real_name VARCHAR2(20),
-  user_email VARCHAR2(50),
+  user_email VARCHAR2(50) NOT NULL UNIQUE,
   CONSTRAINT fk_user_private_info FOREIGN KEY (user_id)
       REFERENCES User_Public_Info (user_id)
         ON DELETE CASCADE
 );
 
+CREATE INDEX upi_user_email_index ON User_Private_Info(user_email);
 --INSERT INTO USER_PRIVATE_INFO (
 --  user_id,
 --  user_password,
@@ -115,11 +116,11 @@ CACHE 10;
 
 CREATE TABLE Private_Letter(
   private_letter_id INTEGER PRIMARY KEY,
-  private_letter_content VARCHAR2(255),
-  private_letter_is_read INTEGER,
-  private_letter_create_time DATE,
-  private_letter_sender_id INTEGER,
-  private_letter_receiver_id INTEGER,
+  private_letter_content VARCHAR2(255) NOT NULL,
+  private_letter_is_read INTEGER NOT NULL,
+  private_letter_create_time DATE NOT NULL,
+  private_letter_sender_id INTEGER NOT NULL,
+  private_letter_receiver_id INTEGER NOT NULL,
   CONSTRAINT fk_private_letter_1
     FOREIGN KEY (private_letter_sender_id)
       REFERENCES User_Public_Info(user_id)
@@ -145,11 +146,9 @@ CACHE 10;
 
 CREATE TABLE Relation(
   relation_id INTEGER PRIMARY KEY,
-  relation_type VARCHAR2(10),
-  relation_create_time DATE,
-  relation_group_name VARCHAR2(20),
-  relation_user_follower_id INTEGER,
-  relation_user_be_followed_id INTEGER,
+  relation_create_time DATE NOT NULL,
+  relation_user_follower_id INTEGER NOT NULL,
+  relation_user_be_followed_id INTEGER NOT NULL,
   CONSTRAINT fk_relation_1
     FOREIGN KEY (relation_user_follower_id)
       REFERENCES User_Public_Info(user_id)
@@ -175,15 +174,15 @@ CACHE 10;
 CREATE TABLE Message(
   message_id INTEGER PRIMARY KEY,
   message_content VARCHAR(280) NOT NULL,
-  message_create_time DATE,
-  message_agree_num INTEGER,
-  message_transpond_num INTEGER,
-  message_comment_num INTEGER,
-  message_view_num INTEGER,
-  message_has_image INTEGER,
+  message_create_time DATE NOT NULL,
+  message_agree_num INTEGER NOT NULL,
+  message_transpond_num INTEGER NOT NULL,
+  message_comment_num INTEGER NOT NULL,
+  message_view_num INTEGER NOT NULL,
+  message_has_image INTEGER NOT NULL,
   message_is_transpond INTEGER NOT NULL,
   message_sender_user_id INTEGER NOT NULL,
-  message_heat INTEGER,
+  message_heat INTEGER NOT NULL,
   message_transpond_message_id INTEGER,
   CONSTRAINT fk_message
     FOREIGN KEY (message_sender_user_id)
@@ -235,6 +234,7 @@ CREATE TABLE At_User(
   message_id INTEGER NOT NULL,
   user_id INTEGER NOT NULL,
   at_time DATE NOT NULL,
+  at_is_read INTEGER NOT NULL,
   CONSTRAINT fk_at_user_1 FOREIGN KEY
     (message_id) REFERENCES
       Message(message_id)
@@ -260,7 +260,7 @@ CREATE TABLE Likes(
   likes_id INTEGER PRIMARY KEY,
   likes_user_id INTEGER NOT NULL,
   likes_message_id INTEGER NOT NULL,
-  likes_time DATE,
+  likes_time DATE NOT NULL,
   CONSTRAINT fk_likes_1 FOREIGN KEY
     (likes_user_id) REFERENCES
       User_Public_Info(user_id)

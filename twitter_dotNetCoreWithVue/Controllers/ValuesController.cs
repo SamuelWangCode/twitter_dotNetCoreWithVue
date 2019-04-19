@@ -18,16 +18,16 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// </summary>
         /// <returns>string</returns>
         [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
+        public IActionResult Get()
         {
-            return new string[] { "value1", "value2" };
+            return Redirect("/api/values/5");
         }
 
         // GET api/values/5
         [HttpGet("{id}", Name = "GetTodo")]
         public ActionResult<string> Get(int id)
         {
-            return "value";
+            return Ok(id);
         }
 
         // POST api/values

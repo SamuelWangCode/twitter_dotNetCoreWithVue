@@ -4,6 +4,201 @@
         <name>twitter_dotNetCoreWithVue</name>
     </assembly>
     <members>
+        <member name="T:twitter_dotNetCoreWithVue.Controllers.AtController">
+            <summary>
+            用于艾特用户相关信息的api
+            </summary>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.AtController.Query(twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
+            <summary>
+            根据Range查找最近几条At自己的message_id列表
+            </summary>
+            <returns>包含 message_id组成的列表 的Json对象</returns>
+            <param name="range">Range.</param>
+        </member>
+        <member name="T:twitter_dotNetCoreWithVue.Controllers.CollectionController">
+            <summary>
+            这个控制器定义用户收藏推特的相关api
+            </summary>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.CollectionController.Add(System.Int32)">
+            <summary>
+            添加收藏
+            </summary>
+            <returns>是否成功</returns>
+            <param name="message_id">Message identifier.</param>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.CollectionController.Query(twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
+            <summary>
+            查询收藏的列表
+            需要Range作为参数限制
+            </summary>
+            <returns>包含所有收藏的推特id的Json数据</returns>
+            <param name="range">Range.</param>
+        </member>
+        <member name="T:twitter_dotNetCoreWithVue.Controllers.CommentController">
+            <summary>
+            有关评论推特的api
+            </summary>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.CommentController.Add(System.Int32,twitter_dotNetCoreWithVue.Controllers.CommentController.CommentForSender)">
+            <summary>
+            给某个推特添加评论时调用
+            </summary>
+            <returns>是否成功</returns>
+            <param name="message_id">Message identifier.</param>
+            <param name="comment">Comment.</param>
+        </member>
+        <member name="T:twitter_dotNetCoreWithVue.Controllers.LikeController">
+            <summary>
+            点赞api
+            </summary>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.LikeController.Like(System.Int32)">
+            <summary>
+            为某个推特点赞
+            客户端不要等信息返回再更新页面状态。点下去就更新，看起来会效果好一点
+            </summary>
+            <returns>是否成功</returns>
+            <param name="message_id">Message identifier.</param>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.LikeController.CancelLike(System.Int32)">
+            <summary>
+            取消点赞
+            建议同上
+            </summary>
+            <returns>是否成功</returns>
+            <param name="message_id">Message identifier.</param>
+        </member>
+        <member name="T:twitter_dotNetCoreWithVue.Controllers.MessageController">
+            <summary>
+            定义有关推特信息的api
+            包括发送，转发，删除，查询
+            以及点赞，评论。
+            以及根据话题Topic来查询
+            </summary>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.MessageController.Query(System.Int32)">
+            <summary>
+            查看推特详情时调用的api
+            前端需要根据是否转发来改变视图的具体类型
+            为减轻前端工作量，我们把推特含有的图片列表同时传送过去
+            </summary>
+            <returns>The message.</returns>
+            <param name="message_id">Message identifier.</param>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.MessageController.QueryForIndex(twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
+            <summary>
+            此api用于首页，需要查找所有的显示在首页的推特时调用
+            根据range来返回前几条推荐的信息
+            实际上我们返回的是自己的以及关注者的推特
+            按照时间排序
+            </summary>
+            <returns>The messages for index.</returns>
+            <param name="range">Range.</param>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.MessageController.Send(twitter_dotNetCoreWithVue.Controllers.MessageController.MessageForSender)">
+            <summary>
+            调用api发送推特
+            若推特还含有图片，还需要另外调用图片上传的接口
+            </summary>
+            <returns>The message.</returns>
+            <param name="message">Message.</param>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.MessageController.Transpond(System.Int32,twitter_dotNetCoreWithVue.Controllers.MessageController.MessageForTransponder)">
+            <summary>
+            转发消息时调用的api
+            </summary>
+            <returns>成功与否</returns>
+            <param name="message_id">Message identifier.</param>
+            <param name="message">Message.</param>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.MessageController.UploadImgs">
+            <summary>
+            上传图片的接口
+            暂时不清楚前端是通过怎样的方式来上传的
+            看网上说有用IFormFile
+            也有说用Requet.Form.Files来获取的
+            具体再议
+            </summary>
+            <returns>success or not</returns>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.MessageController.Delete(System.Int32)">
+            <summary>
+            删除推特时使用
+            </summary>
+            <returns>The message.</returns>
+            <param name="message_id">Message identifier.</param>
+        </member>
+        <member name="T:twitter_dotNetCoreWithVue.Controllers.PrivateLetterController">
+            <summary>
+            该控制器定义有关私信的api
+            </summary>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.PrivateLetterController.QueryForMe(twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
+            <summary>
+            查询发送给自己的私信列表
+            需要长度的参数
+            </summary>
+            <returns>私信列表</returns>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.PrivateLetterController.Send(System.Int32,twitter_dotNetCoreWithVue.Controllers.PrivateLetterController.SendingPrivateLetter)">
+            <summary>
+            给某人发送私信
+            </summary>
+            <returns>success or not</returns>
+            <param name="user_id">User identifier.</param>
+            <param name="letterInfo">Letter Info</param>
+        </member>
+        <member name="T:twitter_dotNetCoreWithVue.Controllers.RelationController">
+            <summary>
+            此控制器定义用户之间互相关注的相关api
+            </summary>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.RelationController.FollowUser(System.Int32)">
+            <summary>
+            关注某人时使用
+            </summary>
+            <returns>success or not</returns>
+            <param name="user_id">User identifier.</param>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.RelationController.QueryFollowingFor(System.Int32,twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
+            <summary>
+            查询某人的关注列表
+            需要user_id和range作为参数
+            </summary>
+            <returns>Json</returns>
+            <param name="user_id">User identifier.</param>
+            <param name="range">Range</param>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.RelationController.QueryFollowersForMe(twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
+            <summary>
+            查询关注自己的用户列表
+            需要range作为参数
+            </summary>
+            <returns>Json</returns>
+            <param name="range">Range</param>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.RelationController.CancelFollowingTo(System.Int32)">
+            <summary>
+            取关
+            </summary>
+            <returns>是否成功</returns>
+            <param name="user_id">User identifier.</param>
+        </member>
+        <member name="T:twitter_dotNetCoreWithVue.Controllers.TopicController">
+            <summary>
+            定义用于有关话题Topic的api
+            </summary>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.TopicController.QueryMessageIdsContains(System.Int32,twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
+            <summary>
+            查找包含topic_id的最近range范围内的message_id组成的列表
+            </summary>
+            <returns>返回包含message_id列表的Json对象</returns>
+            <param name="topic_id">Topic identifier.</param>
+            <param name="range">Range.</param>
+        </member>
         <member name="T:twitter_dotNetCoreWithVue.Controllers.UserController">
             <summary>
             User controller.
@@ -15,23 +210,24 @@
             此接口在注册时使用。
             使用POST方法，传递邮箱，密码，昵称即可，其他用户信息在个人界面处修改和添加。
             </summary>
-            <returns>JsonResult</returns>
+            <returns>是否成功</returns>
             <param name="userInfoForSignUp">注册时需要的信息</param>
         </member>
         <member name="M:twitter_dotNetCoreWithVue.Controllers.UserController.SignIn(twitter_dotNetCoreWithVue.Controllers.UserController.UserInfoForSignIn)">
             <summary>
             此接口用于登录
+            !!!!!!!!!!!!!!!!!!!此接口十分重要
+            
             </summary>
-            <returns>success or not</returns>
+            <returns>返回用户的user_id</returns>
             <param name="userInfoForSignIn">登录时需要的信息</param>
         </member>
-        <member name="M:twitter_dotNetCoreWithVue.Controllers.UserController.EditInfo(System.Int32,twitter_dotNetCoreWithVue.Controllers.UserController.UserInfoEdit)">
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.UserController.EditInfo(twitter_dotNetCoreWithVue.Controllers.UserController.UserInfoEdit)">
             <summary>
             此接口用于编辑个人信息界面
             </summary>
             <returns>success or not</returns>
             <param name="userInfoEdit">用户可以被直接修改的信息</param>
-            <param name="user_id">User id</param>
         </member>
         <member name="M:twitter_dotNetCoreWithVue.Controllers.UserController.ChangeAvatar(System.Int32)">
             <summary>
@@ -40,11 +236,62 @@
             <returns>success or not</returns>
             <param name="avatar_id">用户的头像图片id</param>
         </member>
-        <member name="M:twitter_dotNetCoreWithVue.Controllers.ValuesController.Get">
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.UserController.GetAvatar(System.Int32)">
             <summary>
-            得到值
+            获得用户正在使用的头像图片url
+            <returns>用户的头像url</returns>
             </summary>
-            <returns>string</returns>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.UserController.LogOut">
+            <summary>
+            用户注销时调用的api
+            </summary>
+            <returns>success</returns>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.UserController.QueryUser(System.Int32)">
+            <summary>
+            查看某个人的可公开信息
+            </summary>
+            <returns>User_Public_Info的实例</returns>
+            <param name="user_id">User identifier.</param>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.UserController.UploadAvatar">
+            <summary>
+            上传头像图片的api, 目前不知道前端如何上传，待议
+            </summary>
+            <returns>返回是否成功</returns>
+        </member>
+        <member name="P:twitter_dotNetCoreWithVue.Controllers.Utils.RestfulResult.RestfulData.Code">
+            <summary>
+            <![CDATA[错误码]]>
+            </summary>
+        </member>
+        <member name="P:twitter_dotNetCoreWithVue.Controllers.Utils.RestfulResult.RestfulData.Message">
+             <summary>
+            <![CDATA[消息]]>
+             </summary>
+        </member>
+        <member name="P:twitter_dotNetCoreWithVue.Controllers.Utils.RestfulResult.RestfulData.Url">
+            <summary>
+            <![CDATA[相关的链接帮助地址]]>
+            </summary>
+        </member>
+        <member name="T:twitter_dotNetCoreWithVue.Controllers.Utils.RestfulResult.RestfulData`1">
+             <summary>
+            
+             </summary>
+             <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:twitter_dotNetCoreWithVue.Controllers.Utils.RestfulResult.RestfulData`1.Data">
+            <summary>
+            <![CDATA[数据]]>
+            </summary>
+        </member>
+        <member name="T:twitter_dotNetCoreWithVue.Controllers.Utils.RestfulResult.RestfulArray`1">
+            <summary>
+            <![CDATA[返回数组]]>
+            </summary>
+            <typeparam name="T"></typeparam>
         </member>
     </members>
 </doc>
