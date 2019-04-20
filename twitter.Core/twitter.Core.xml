@@ -199,6 +199,14 @@
             <param name="topic_id">Topic identifier.</param>
             <param name="range">Range.</param>
         </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.TopicController.QueryTopicsBaseOnHeat(twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
+            <summary>
+            查找最热的几条话题
+            根据range
+            </summary>
+            <returns>Json 包含Topics</returns>
+            <param name="range">Range.</param>
+        </member>
         <member name="T:twitter_dotNetCoreWithVue.Controllers.UserController">
             <summary>
             User controller.

@@ -40,6 +40,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         //该模型用于在个人界面修改资料时使用
         public class UserInfoEdit
         {
+            [Required]
             public string nickname { get; set; }
             public string password { get; set; }
             public string realname { get; set; }

@@ -22,12 +22,6 @@ namespace twitter_dotNetCoreWithVue.Controllers
             [Display(Name = "私信内容")]
             [Required]
             public string private_letter_content { get; set; }
-
-            [Display(Name = "发送者id")]
-            public int private_letter_sender_id { get; set; }
-
-            [Display(Name = "接受者id")]
-            public int private_letter_reveiver_id { get; set; }
         }
 
 
@@ -53,8 +47,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// 给某人发送私信
         /// </summary>
         /// <returns>success or not</returns>
-        /// <param name="user_id">User identifier.</param>
-        /// <param name="letterInfo">Letter Info</param>
+        /// <param name="user_id">接收私信用户的id</param>
+        /// <param name="letterInfo">私信内容</param>
         [HttpPost("send/{user_id}")]
         public IActionResult Send([Required]int user_id, [Required][FromBody]SendingPrivateLetter letterInfo)
         {
