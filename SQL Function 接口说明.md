@@ -49,8 +49,8 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 
 * 接口样例
 
-		create or replace` 
-		function FUNC_SEARCH_TOPIC_BY_HEAT(heat in INTEGER, search_result out sys_refcursor)`
+		create or replace 
+		function FUNC_SEARCH_TOPIC_BY_HEAT(heat in INTEGER, search_result out sys_refcursor)
 		return INTEGER
 		is
 		result_size INTEGER :=0;
