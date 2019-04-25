@@ -16,11 +16,8 @@ DROP SEQUENCE SEQ_AT_USER;
 DROP SEQUENCE SEQ_AVATAR_IMAGE;
 DROP SEQUENCE SEQ_COMMENT_ON_MESSAGE;
 DROP SEQUENCE SEQ_MESSAGE;
-DROP SEQUENCE SEQ_MESSAGE_COLLECTION;
 DROP SEQUENCE SEQ_MESSAGE_IMAGE;
-DROP SEQUENCE SEQ_MESSAGE_OWNS_TOPIC;
 DROP SEQUENCE SEQ_PRIVATE_LETTER;
-DROP SEQUENCE SEQ_RELATION;
 DROP SEQUENCE SEQ_TOPIC;
 DROP SEQUENCE SEQ_LIKES;
 DROP SEQUENCE SEQ_USER_PUBLIC_INFO;
@@ -37,11 +34,6 @@ CREATE TABLE Avatar_Image (
   avatar_image_id INTEGER PRIMARY KEY,
   avatar_image_in_use INTEGER NOT NULL
 );
-
---INSERT INTO Avatar_Image(
---  avatar_image_id,
---  avatar_image_name
---) VALUES (seq_avatar_image.NEXTVAL, 'avatar_name');
 
 ------------------------------------------
 
@@ -71,14 +63,6 @@ CREATE TABLE User_Public_Info (
 );
 
 
---INSERT INTO USER_PUBLIC_INFO (
---  user_id,
---  user_nickname,
---  user_register_time,
---  user_avatar_image_id,
---  user_self_introduction,
---  user_followers_num,
---  user_follows_num) VALUES (seq_user_public_info.NEXTVAL, 'nickname', to_date('2019-01-01', 'yyyy-mm-dd'), 1, 'my_introduction', 0, 0);
 
 -------------------------------------------
 --------------User_Private_Info------------
@@ -94,15 +78,6 @@ CREATE TABLE User_Private_Info(
       REFERENCES User_Public_Info (user_id)
         ON DELETE CASCADE
 );
-
-CREATE INDEX upi_user_email_index ON User_Private_Info(user_email);
---INSERT INTO USER_PRIVATE_INFO (
---  user_id,
---  user_password,
---  user_gender,
---  user_real_name,
---  user_email
---  ) VALUES (2, '123456', '男', 'yzc', '1021777674@qq.com');
 
 ------------------------------------------
 -----------------Private_Letter-----------
@@ -136,19 +111,12 @@ CREATE INDEX pl_receiver_index ON Private_Letter(private_letter_receiver_id);
 CREATE INDEX pl_create_time ON Private_Letter(private_letter_create_time);
 ---------------------------------------------
 ----------------Relation---------------------
-CREATE SEQUENCE seq_relation
-MINVALUE 1
-NOMAXVALUE
-NOCYCLE
-START WITH 1
-INCREMENT BY 1
-CACHE 10;
-
 CREATE TABLE Relation(
-  relation_id INTEGER PRIMARY KEY,
   relation_create_time DATE NOT NULL,
   relation_user_follower_id INTEGER NOT NULL,
   relation_user_be_followed_id INTEGER NOT NULL,
+  CONSTRAINT pk_relation
+    PRIMARY KEY (relation_user_follower_id, relation_user_be_followed_id),
   CONSTRAINT fk_relation_1
     FOREIGN KEY (relation_user_follower_id)
       REFERENCES User_Public_Info(user_id)
@@ -158,9 +126,6 @@ CREATE TABLE Relation(
       REFERENCES User_Public_Info(user_id)
         ON DELETE CASCADE
 );
-
-CREATE INDEX r_user_follower_id ON Relation(relation_user_follower_id);
-CREATE INDEX r_user_be_followed_id ON Relation(relation_user_be_followed_id);
 ---------------------------------------------
 -------------Message-------------------------
 CREATE SEQUENCE seq_message
@@ -176,26 +141,17 @@ CREATE TABLE Message(
   message_content VARCHAR(280) NOT NULL,
   message_create_time DATE NOT NULL,
   message_agree_num INTEGER NOT NULL,
-  message_transpond_num INTEGER NOT NULL,
+  message_transponded_num INTEGER NOT NULL,
   message_comment_num INTEGER NOT NULL,
   message_view_num INTEGER NOT NULL,
   message_has_image INTEGER NOT NULL,
-  message_is_transpond INTEGER NOT NULL,
   message_sender_user_id INTEGER NOT NULL,
   message_heat INTEGER NOT NULL,
   message_transpond_message_id INTEGER,
   CONSTRAINT fk_message
     FOREIGN KEY (message_sender_user_id)
       REFERENCES User_Public_Info(user_id)
-        ON DELETE CASCADE,
-  --检测转发的消息id是否存在
-  CHECK (
-    (message_is_transpond = 0)
-    OR
-    (message_is_transpond = 1 
-      AND
-    message_transpond_message_id IS NOT NULL
-    ))
+        ON DELETE CASCADE
 );
 
 
@@ -303,18 +259,10 @@ CREATE TABLE Comment_On_Message(
 CREATE INDEX c_message_id_index ON Comment_On_Message(comment_message_id, comment_create_time);
 ---------------------------------------------------
 ---------------------Message_Collection------------
-CREATE SEQUENCE seq_message_collection
-MINVALUE 1
-NOMAXVALUE
-NOCYCLE
-START WITH 1
-INCREMENT BY 1
-CACHE 10;
-
 CREATE TABLE Message_Collection(
-  collection_id INTEGER PRIMARY KEY,
   user_id INTEGER NOT NULL,
   message_id INTEGER NOT NULL,
+  CONSTRAINT pk_m_c PRIMARY KEY (user_id, message_id),
   CONSTRAINT fk_m_c_1 FOREIGN KEY
     (user_id) REFERENCES
       User_Public_Info(user_id)
@@ -324,8 +272,6 @@ CREATE TABLE Message_Collection(
       Message(message_id)
         ON DELETE CASCADE
 );
-
-CREATE INDEX m_c_user_index ON Message_Collection(user_id);
 ---------------------------------------------------
 --------------------Topic--------------------------
 CREATE SEQUENCE seq_topic
@@ -345,18 +291,10 @@ CREATE TABLE Topic(
 CREATE INDEX t_heat_index ON TOPIC(topic_heat);
 ----------------------------------------------------
 ----------------------Message_Owns_Topic------------
-CREATE SEQUENCE seq_message_owns_topic
-MINVALUE 1
-NOMAXVALUE
-NOCYCLE
-START WITH 1
-INCREMENT BY 1
-CACHE 10;
-
 CREATE TABLE Message_Owns_Topic(
-  message_owns_topic_id INTEGER PRIMARY KEY,
   message_id INTEGER NOT NULL,
   topic_id INTEGER NOT NULL,
+  CONSTRAINT pk_m_o_t PRIMARY KEY (message_id, topic_id),
   CONSTRAINT fk_m_o_t_1 FOREIGN KEY
     (message_id) REFERENCES
       Message(message_id)
@@ -366,5 +304,3 @@ CREATE TABLE Message_Owns_Topic(
       Topic(topic_id)
         ON DELETE CASCADE
 );
-
-CREATE INDEX m_o_t_topic_id_index ON Message_Owns_Topic(topic_id);

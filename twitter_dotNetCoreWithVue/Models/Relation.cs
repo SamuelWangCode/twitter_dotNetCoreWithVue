@@ -8,8 +8,6 @@ namespace twitter_dotNetCoreWithVue.Models
 {
     public class Relation
     {
-        [Display(Name = "关注id")]
-        public int relation_id { set; get; }
 
         [Display(Name = "关注创建时间")]
         [Required]

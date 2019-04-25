@@ -8,8 +8,6 @@ namespace twitter_dotNetCoreWithVue.Models
 {
     public class Message_owns_topic
     {
-        [Display(Name = "Message_owns_topic表主键ID")]
-        public int message_own_topic_id { get; set; }
 
         [Display(Name = "推特ID")]
         public int message_id { get; set; }

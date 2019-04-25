@@ -8,8 +8,6 @@ namespace twitter_dotNetCoreWithVue.Models
 {
     public class Message_Collection
     {
-        [Display(Name = "收藏id")]
-        public int collection_id { get; set; }
 
         [Display(Name = "收藏的用户id")]
         public int user_id { get; set; }
