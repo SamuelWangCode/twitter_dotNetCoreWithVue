@@ -103,7 +103,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p4.Direction = ParameterDirection.Input;
                 //Add input parameter search_result
                 OracleParameter p5 = new OracleParameter();
-                p5 = cmd.Parameters.Add("result", OracleDbType.RefCursor);
+                p5 = cmd.Parameters.Add("search_result", OracleDbType.RefCursor);
                 p5.Direction = ParameterDirection.Output;
 
                 OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
@@ -160,7 +160,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             }
 
             return Wrapper.wrap((OracleConnection conn) => {
-                //FUNC_ADD_PRIVATE_LETTER(sender_user_id in INTEGER, receiver_user_id in INTEGER, content in VARCHAR(255))
+                //FUNC_ADD_PRIVATE_LETTER(sender_user_id in INTEGER, receiver_user_id in INTEGER, content in VARCHAR2(255))
                 //return INTEGER
                 string procudureName = "FUNC_ADD_PRIVATE_LETTER";
                 OracleCommand cmd = new OracleCommand(procudureName, conn);
@@ -170,16 +170,21 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 OracleParameter p1 = new OracleParameter();
                 p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
                 p1.Direction = ParameterDirection.ReturnValue;
-                //Add first parameter follower_id
+                //Add input parameter sender_user_id
                 OracleParameter p2 = new OracleParameter();
-                p2 = cmd.Parameters.Add("follower_id", OracleDbType.Int32);
+                p2 = cmd.Parameters.Add("sender_user_id", OracleDbType.Int32);
                 p2.Direction = ParameterDirection.Input;
                 p2.Value = my_user_id;
                 OracleParameter p3 = new OracleParameter();
-                //Add second parameter be_followed_id
-                p3 = cmd.Parameters.Add("be_followed_id", OracleDbType.Int32);
+                //Add input parameter receiver_user_id
+                p3 = cmd.Parameters.Add("receiver_user_id", OracleDbType.Int32);
                 p3.Value = user_id;
                 p3.Direction = ParameterDirection.Input;
+                OracleParameter p4 = new OracleParameter();
+                //Add input parameter content
+                p4 = cmd.Parameters.Add("content", OracleDbType.Varchar2);
+                p4.Value = letterInfo.private_letter_content;
+                p4.Direction = ParameterDirection.Input;
 
                 cmd.ExecuteReader();
                 Console.WriteLine(p1.Value);
@@ -189,7 +194,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     throw new Exception("failed");
                 }
 
-                RestfulResult.RestfulData rr = new RestfulResult.RestfulData(500, "fail");
+                RestfulResult.RestfulData rr = new RestfulResult.RestfulData(200, "success");
                 return new JsonResult(rr);
             });
         }
