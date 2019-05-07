@@ -45,6 +45,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 注意事项
 
 	> * 若使用select into语句来对单值输出参数赋值时应考虑到检索结果为空或多项结果的情况
+	> * 对于位模式mode可以使用bitand函数来判断要进行的步骤
 	> * 小组成员可自行将编写过程中踩过的坑添加到注意事项中
 
 * 接口样例
@@ -98,5 +99,57 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* password：VARCHAR类型，存放用户密码
 
 * 输出参数：无
+
+### FUNC\_USER\_SIGN\_IN\_BY\_EMAIL(email in VARCHAR, password in VARCHAR, user_id out INTEGER)
+* 接口功能：通过用户Email和密码判断是否登录成功
+* 返回值：登录成功返回1，失败返回0
+* 输入参数：
+	* email：VARCHAR类型，存放用户Email
+	* password：VARCHAR类型，存放用户密码
+
+* 输出参数：
+	* user_id：登录用户的id值
+
+### FUNC\_SET\_USER\_INFO(nickname in VARCHAR, password in VARCHAR, realname in VARCHAR, gender in VARCHAR, self\_introduction in VARCHAR,user\_id in INTEGER, mode in INTEGER)
+* 接口功能：修改用户id为user_id的用户的个人信息
+* 返回值：修改成功返回1，失败返回0
+* 输入参数：
+	* nickname：VARCHAR类型，存放用户昵称
+	* password：VARCHAR类型，存放用户密码
+	* realname：VARCHAR类型，存放用户真实姓名
+	* gender：VARCHAR类型，存放用户性别
+	* self\_introduction：VARCHAR类型，存放用户个人介绍
+	* user\_id：INTERGER类型，待修改用户的user_id
+	* mode：INTERGER类型，判断修改哪几个信息，数值范围为1~31，当mode&(1<<i)==(1<<i)时，代表修改第i+1个输入参数所代表的信息
+
+* 输出参数：无
+
+### FUNC\_SET\_MAIN\_AVATAR(user\_id in INTEGER, avatar\_id in INTEGER)
+* 接口功能：设置用户的主要头像
+* 返回值：修改成功返回1，失败返回0
+* 输入参数：
+	* user\_id：INTERGER类型，待修改用户的user_id
+	* avatar\_id：INTEGER类型，用户选择的头像
+
+* 输出参数：无
+
+### FUNC\_GET\_USER\_AVATAR(user\_id in INTEGER, avatar\_id out INTEGER)
+* 接口功能：通过用户id获取用户主要头像的id
+* 返回值：获得头像成功返回1，失败返回0
+* 输入参数：
+	* user\_id：INTERGER类型，用户id
+
+* 输出参数：
+	* avatar\_id：INTEGER类型，用户的头像id
+
+### FUNC\_GET\_USER\_PUBLIC\_INFO(user\_id in INTEGER, info out sys_refcursor)
+* 接口功能：通过用户id获取用户公开信息
+* 返回值：获得成功返回1，失败返回0
+* 输入参数：
+	* user\_id：INTERGER类型，用户id
+
+* 输出参数：
+	* info：sys_refcursor类型，用户信息，table属性为(user\_id,user\_nickname,user\_register\_time,user\_avatar\_image\_id,user\_self\_introduction,user\_followers\_num,user\_follows\_num)
+
 
 		
