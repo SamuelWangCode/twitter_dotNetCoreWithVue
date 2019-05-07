@@ -12,6 +12,7 @@
   <ItemGroup>
     <Folder Include="wwwroot\" />
     <Folder Include="Controllers\Utils\" />
+    <Folder Include="wwwroot\avatars\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,5 +25,6 @@
   <ItemGroup>
     <Compile Remove="Controllers\Utils\EmptyClass.cs" />
     <Compile Remove="Controllers\ValuesController.cs" />
+    <Compile Remove="Controllers\Utils\Auth.cs" />
   </ItemGroup>
 </Project>
