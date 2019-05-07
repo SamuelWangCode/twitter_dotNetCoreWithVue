@@ -7,6 +7,16 @@ namespace twitter_dotNetCoreWithVue.Controllers.Utils
     {
         public class RestfulData
         {
+            public RestfulData()
+            {
+            }
+
+            public RestfulData(int v1, string v2)
+            {
+                this.Code = v1;
+                this.Message = v2;
+            }
+
             /// <summary>
             /// <![CDATA[错误码]]>
             /// </summary>
@@ -16,11 +26,6 @@ namespace twitter_dotNetCoreWithVue.Controllers.Utils
             ///<![CDATA[消息]]>
             /// </summary>
             public string Message { get; set; }
-
-            /// <summary>
-            /// <![CDATA[相关的链接帮助地址]]>
-            /// </summary>
-            public string Url { get; set; }
 
         }
 

@@ -147,8 +147,8 @@
             给某人发送私信
             </summary>
             <returns>success or not</returns>
-            <param name="user_id">User identifier.</param>
-            <param name="letterInfo">Letter Info</param>
+            <param name="user_id">接收私信用户的id</param>
+            <param name="letterInfo">私信内容</param>
         </member>
         <member name="T:twitter_dotNetCoreWithVue.Controllers.RelationController">
             <summary>
@@ -278,11 +278,6 @@
              <summary>
             <![CDATA[消息]]>
              </summary>
-        </member>
-        <member name="P:twitter_dotNetCoreWithVue.Controllers.Utils.RestfulResult.RestfulData.Url">
-            <summary>
-            <![CDATA[相关的链接帮助地址]]>
-            </summary>
         </member>
         <member name="T:twitter_dotNetCoreWithVue.Controllers.Utils.RestfulResult.RestfulData`1">
              <summary>

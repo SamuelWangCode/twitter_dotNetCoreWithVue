@@ -72,7 +72,7 @@ namespace twitter_dotNetCoreWithVue
             });
             #endregion
             app.UseAuthentication();//配置授权
-
+            app.UseStaticFiles();
             app.UseMvc();
         }
     }
