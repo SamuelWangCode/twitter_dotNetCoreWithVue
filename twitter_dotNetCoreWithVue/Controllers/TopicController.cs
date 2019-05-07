@@ -126,7 +126,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p4.Direction = ParameterDirection.Input;
                 //Add input parameter search_result
                 OracleParameter p5 = new OracleParameter();
-                p5 = cmd.Parameters.Add("result", OracleDbType.RefCursor);
+                p5 = cmd.Parameters.Add("search_result", OracleDbType.RefCursor);
                 p5.Direction = ParameterDirection.Output;
 
                 OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
