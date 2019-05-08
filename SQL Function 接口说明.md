@@ -35,7 +35,11 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	> * 输出参数类型保证为Oracle数据库内置基本类型或数据表
 	> * 输出参数保证显式指明为out模式，且不存在 in out模式
 	> * 输出参数在参数列表中位置保证处于输入参数（如输入参数存在）后
-	> * 对于输出参数为数据表的函数，输出参数类型应为sys_refcursor
+	> * 对于输出参数为数据表的函数，输出参数类型应为sys\_refcursor
+
+* 已完成
+
+	> * 标记该函数是否已经实现，方便SQL编写者区分
 
 * 异常处理
 
@@ -110,6 +114,8 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 输出参数：
 	* user_id：登录用户的id值
 
+* 已完成：否
+
 ### FUNC\_SET\_USER\_INFO(nickname in VARCHAR, password in VARCHAR, realname in VARCHAR, gender in VARCHAR, self\_introduction in VARCHAR,user\_id in INTEGER, mode in INTEGER)
 * 接口功能：修改用户id为user_id的用户的个人信息
 * 返回值：修改成功返回1，失败返回0
@@ -123,6 +129,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* mode：INTERGER类型，判断修改哪几个信息，数值范围为1~31，当mode&(1<<i)==(1<<i)时，代表修改第i+1个输入参数所代表的信息
 
 * 输出参数：无
+* 已完成：否
 
 ### FUNC\_SET\_MAIN\_AVATAR(user\_id in INTEGER, avatar\_id in INTEGER)
 * 接口功能：设置用户的主要头像
@@ -132,24 +139,206 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* avatar\_id：INTEGER类型，用户选择的头像
 
 * 输出参数：无
+* 已完成：否
 
 ### FUNC\_GET\_USER\_AVATAR(user\_id in INTEGER, avatar\_id out INTEGER)
 * 接口功能：通过用户id获取用户主要头像的id
 * 返回值：获得头像成功返回1，失败返回0
 * 输入参数：
 	* user\_id：INTERGER类型，用户id
-
 * 输出参数：
 	* avatar\_id：INTEGER类型，用户的头像id
+* 已完成：否
 
 ### FUNC\_GET\_USER\_PUBLIC\_INFO(user\_id in INTEGER, info out sys_refcursor)
 * 接口功能：通过用户id获取用户公开信息
 * 返回值：获得成功返回1，失败返回0
 * 输入参数：
 	* user\_id：INTERGER类型，用户id
-
 * 输出参数：
 	* info：sys_refcursor类型，用户信息，table属性为(user\_id,user\_nickname,user\_register\_time,user\_avatar\_image\_id,user\_self\_introduction,user\_followers\_num,user\_follows\_num)
+* 已完成：否
+
+** 以下更新于5.8 by 杨紫超 **
+
+### FUNC\_ADD\_RELATION(follower_id in INTEGER, be_followed_id in INTEGER)
+* 接口功能：给定关注者id follower_id 以及被关注者id be_followed_id，添加一个从关注者到被关注者的关系。同时被关注者的“被关注数”需要+1，关注者的“关注别人的数量"需要+1
+* 返回值：同上
+* 输入参数：
+	* follower\_id: INTEGER类型， 关注者id
+	* be\_followed\_id: INTEGER类型，被关注者id
+* 输出参数：无
+* 已完成：否
+
+### FUNC\_REMOVE\_RELATION(follower\_id in INTEGER, be\_followed\_id in INTEGER)
+* 接口功能：给定关注者id follower_id 以及被关注者id be_followed_id，删除一个从关注者到被关注者的关系。同时被关注者的“被关注数”需要-1，关注者的“关注别人的数量"需要-1
+* 返回值：同上
+* 输入参数：
+	* follower\_id: INTEGER类型， 关注者id
+	* be\_followed\_id: INTEGER类型，被关注者id
+* 输出参数：无
+* 已完成：否
+
+### FUNC\_QUERY\_FOLLOWING\_LIST(user\_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result in INTEGER)
+* 接口功能：给定用户id:user\_id，查找出他关注的人的，从startFrom开始，长度为limitation的user信息列表，按照时间降序排序
+* 返回值：同上
+* 输入参数：
+	* user\_id: INTEGER类型，被查找的人的id
+	* startFrom: INTEGER类型，查找的起点
+	* limitation: INTEGER类型，查找结果的长度
+* 输出参数：
+	* search\_result: sys_refcursor类型。用户的简单信息表格，包括用户的user\_id，用户昵称user\_nickname，用户的使用中头像avatar_id。table的属性为
+	(user\_id, user_nickname, avatar_id)
+* 已完成：否
+
+### FUNC\_QUERY\_FOLLOWERS\_LIST(user\_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result in INTEGER)
+* 接口功能：给定用户id:user\_id，查找出关注他的人 的，从startFrom开始，长度为limitation的user信息列表，按照时间降序排序
+* 返回值：同上
+* 输入参数：
+	* user\_id: INTEGER类型，被查找的人的id
+	* startFrom: INTEGER类型，查找的起点
+	* limitation: INTEGER类型，查找结果的长度
+* 输出参数：
+	* search\_result: sys_refcursor类型。用户的简单信息表格，包括用户的user\_id，用户昵称user\_nickname，用户的使用中头像avatar_id。table的属性为
+	(user\_id, user\_nickname, avatar\_id)
+* 已完成：否
 
 
-		
+### FUNC\_ADD\_PRIVATE\_LETTER(sender\_user\_id in INTEGER, receiver\_user_id in INTEGER, content in VARCHAR2)
+* 接口功能：给定发送者的id:sender\_user\_id，以及接受者id:receiver\_user\_id，给定内容content，添加一条私信消息。
+* 返回值：同上
+* 输入参数：
+	* sender\_user\_id: INTEGER类型，发送者的id
+	* receiver\_user\_id: INTEGER类型，接受者的id
+	* content: VARCHAR2类型，私信的内容
+* 输出参数：无
+* 已完成：否
+
+
+### FUNC\_DELETE\_PRIVATE\_LETTER(private\_letter\_id)
+* 接口功能：给定私信id,删除一条私信。
+* 返回值：同上
+* 输入参数：
+	* private\_letter\_id
+* 输出参数：无
+* 已完成：否
+
+
+### FUNC\_QUERY\_PRIVATE\_LETTERS\_SEND\_TO\_USER(user\_id in INTEGER ,startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+* 接口功能：给定用户id:user\_id，查找出其他人给他发送的私信 的，从startFrom开始，长度为limitation的私信信息列表，按照时间降序排序
+* 返回值：同上
+* 输入参数：
+	* user\_id: INTEGER类型，被查找的人的id
+	* startFrom: INTEGER类型，查找的起点
+	* limitation: INTEGER类型，查找结果的长度
+* 输出参数：
+	* search\_result: sys_refcursor类型。私信的信息表格，包括发送者的id:sender\_user\_id，私信的id: private\_letter\_id，私信的内容private\_letter\_content，私信的发送时间戳timestamp。table的属性为
+	(sender\_user\_id, private\_letter, private\_letter\_content, timestamp)
+* 已完成：否
+
+
+### FUNC\_QUERY\_MESSAGE\_IDS\_CONTAINS\_CERTAIN\_TOPIC\_ID(topic_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+* 接口功能：通过给定的topic\_id，以及起始索引startFrom，以及搜索长度limitation，获取包含该topic的推特message_id的列表。按照时间降序排序
+* 返回值：同上
+* 输入参数：
+	* topic\_id: INTEGER类型，话题的id
+	* startFrom: INTEGER类型，查找结果的起始索引
+	* limitation: INTEGER类型，查找结果的长度
+* 输出参数：
+	* search\_result: sys_refcursor类型，推特id列表，table属性为(message\_id)
+* 已完成：否
+
+### FUNC\_QUERY\_TOPIC\_IDS\_ORDER\_BY\_HEAT(startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+* 接口功能：获取从startFrom开始，长度为limitation的，按照话题topic的热度降序排序的话题id列表
+* 返回值：同上
+* 输入参数：
+	* startFrom: INTEGER类型，查找结果的起始索引
+	* limitation: INTEGER类型，查找结果的长度
+* 输出参数：
+	* search\_result: sys_refcursor类型，推特id列表，table属性为(topic\_id)
+* 已完成：否
+
+
+### FUNC\_ADD\_LIKE(user\_id in INTEGER, message\_id in INTEGER)
+* 接口功能：给定点赞者的id:user\_id，以及被点赞的推特id: message\_id，添加一条点赞信息。**同时，推特的被点赞总数需要+1,推特的热度需要+1，推特所拥有的所有话题的热度需要+1**。
+* 返回值：同上
+* 输入参数：
+	* user\_id: INTEGER类型，点赞者的id
+	* message\_id: INTEGER类型，推特的id
+* 输出参数：无
+* 已完成：否
+
+### FUNC\_DELETE\_LIKE(user\_id in INTEGER, message\_id in INTEGER)
+* 接口功能：给定点赞者的id:user\_id，以及被点赞的推特id: message\_id，删除一条点赞信息。**同时，推特的被点赞总数需要-1,推特的热度需要-1，推特所拥有的所有话题的热度需要-1**。
+* 返回值：同上
+* 输入参数：
+	* user\_id: INTEGER类型，点赞者的id
+	* message\_id: INTEGER类型，推特的id
+* 输出参数：无
+* 已完成：否
+
+### FUNC\_QUERY\_MESSAGE\_IDS\_THAT\_USER\_LIKES(user\_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result out sys\_refcursor)
+* 接口功能：通过给定的user\_id，获取该用户点赞的所有推特 的，从startFrom开始，长度为limitation 的message\_id的列表。按照时间降序排序
+* 返回值：同上
+* 输入参数：
+	* user\_id: INTEGER类型，用户的id
+	* startFrom: INTEGER类型，查找结果的起始索引
+	* limitation: INTEGER类型，查找结果的长度
+* 输出参数：
+	* search\_result: sys\_refcursor类型，推特id列表，table属性为(message\_id)
+* 已完成：否
+
+
+### FUNC\_ADD\_COMMENT(user\_id in INTEGER, message\_id in INTEGER, content in VARCHAR2)
+* 接口功能：给定发送者的id:user\_id，以及推特id:message\_id，给定内容content，添加一条评论消息。**同时推特的被评论数+1，推特的热度+1,推特包含的全部的热度+1**
+* 返回值：同上
+* 输入参数：
+	* user\_id: INTEGER类型，发送者的id
+	* message\_id: INTEGER类型，推特的id
+	* content: VARCHAR2类型，评论的内容
+* 输出参数：无
+* 已完成：否
+
+
+### FUNC\_ADD\_COLLECTION(user\_id in INTEGER, message\_id in INTEGER)
+* 接口功能：给定发送者的id:user\_id，以及推特id:message\_id，添加一条收藏。**同时推特的热度+1,推特包含的全部的热度+1**
+* 返回值：同上
+* 输入参数：
+	* user\_id: INTEGER类型，发送者的id
+	* message\_id: INTEGER类型，推特的id
+* 输出参数：无
+* 已完成：否
+
+
+### FUNC\_DELETE\_COLLECTION(user\_id in INTEGER, message\_id in INTEGER)
+* 接口功能：给定发送者的id:user\_id，以及推特id:message\_id，删除一条收藏。**同时推特的热度-1,推特包含的全部的热度-1**
+* 返回值：同上
+* 输入参数：
+	* user\_id: INTEGER类型，收藏者的id
+	* message\_id: INTEGER类型，推特的id
+* 输出参数：无
+* 已完成：否
+
+
+### FUNC\_QUERY\_COLLECTIONS\_OF\_MINE(user\_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result out sys\_refcursor)
+* 接口功能：通过给定的user\_id，获取该用户收藏的所有推特 的，从startFrom开始，长度为limitation 的message\_id的列表。按照时间降序排序
+* 返回值：同上
+* 输入参数：
+	* user\_id: INTEGER类型，用户的id
+	* startFrom: INTEGER类型，查找结果的起始索引
+	* limitation: INTEGER类型，查找结果的长度
+* 输出参数：
+	* search\_result: sys\_refcursor类型，推特id列表，table属性为(message\_id)
+* 已完成：否
+
+
+### FUNC\_QUERY\_MESSAGE\_IDS\_THAT\_AT\_USER(user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result out sys\_refcursor))
+ 接口功能：通过给定的user\_id，获取艾特该用户的所有推特 的，从startFrom开始，长度为limitation 的message\_id的列表。按照时间降序排序
+* 返回值：同上
+* 输入参数：
+	* user\_id: INTEGER类型，用户的id
+	* startFrom: INTEGER类型，查找结果的起始索引
+	* limitation: INTEGER类型，查找结果的长度
+* 输出参数：
+	* search\_result: sys\_refcursor类型，推特id列表，table属性为(message\_id)
+* 已完成：否

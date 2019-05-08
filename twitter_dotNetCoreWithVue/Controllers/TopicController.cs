@@ -103,9 +103,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
             //可以直接使用Topic模型
             return Wrapper.wrap((OracleConnection conn) =>
             {
-                //FUNC_QUERY_MESSAGE_IDS_CONTAINS_CERTAIN_TOPIC_ID(startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+                //FUNC_QUERY_TOPIC_IDS_ORDER_BY_HEAT(startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
-                string procudureName = "FUNC_QUERY_TOPICS_ORDER_BY_HEAT";
+                string procudureName = "FUNC_QUERY_TOPIC_IDS_ORDER_BY_HEAT";
                 OracleCommand cmd = new OracleCommand(procudureName, conn);
                 cmd.CommandType = CommandType.StoredProcedure;
 
@@ -138,18 +138,18 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     throw new Exception("failed");
                 }
 
-                //dt: message_id
-                int[] message_ids = new int[dt.Rows.Count];
+                //dt: topic_id
+                int[] topic_ids = new int[dt.Rows.Count];
                 for (int i = 0; i < dt.Rows.Count; ++i)
                 {
-                    message_ids[i] = int.Parse(dt.Rows[i][0].ToString());
+                    topic_ids[i] = int.Parse(dt.Rows[i][0].ToString());
 
                 }
 
                 RestfulResult.RestfulArray<int> rr = new RestfulResult.RestfulArray<int>();
                 rr.Code = 200;
                 rr.Message = "success";
-                rr.Data = message_ids;
+                rr.Data = topic_ids;
 
                 return new JsonResult(rr);
             });

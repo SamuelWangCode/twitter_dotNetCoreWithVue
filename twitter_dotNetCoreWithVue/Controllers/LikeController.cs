@@ -45,7 +45,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             }
 
             return Wrapper.wrap((OracleConnection conn) => {
-                //FUNC_ADD_LIKE(user_id in INTEGER, message_id in INTEGER, content in VARCHAR2(255))
+                //FUNC_ADD_LIKE(user_id in INTEGER, message_id in INTEGER)
                 //return INTEGER
                 string procudureName = "FUNC_ADD_LIKE";
                 OracleCommand cmd = new OracleCommand(procudureName, conn);
@@ -106,7 +106,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             }
 
             return Wrapper.wrap((OracleConnection conn) => {
-                //FUNC_DELETE_LIKE(user_id in INTEGER, message_id in INTEGER, content in VARCHAR2(255))
+                //FUNC_DELETE_LIKE(user_id in INTEGER, message_id in INTEGER)
                 //return INTEGER
                 string procudureName = "FUNC_DELETE_LIKE";
                 OracleCommand cmd = new OracleCommand(procudureName, conn);
