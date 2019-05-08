@@ -37,6 +37,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             public int private_letter_id { get; set; }
 
             [Required]
+            [Display(Name = "发送者id")]
             public int sender_user_id { get; set; }
 
             [Required]
@@ -75,9 +76,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
             return Wrapper.wrap((OracleConnection conn) =>
             {
-                //FUNC_QUERY_PRIVATE_LETTERS_SEND_TO_ME(user_id in INTEGER ,startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+                //FUNC_QUERY_PRIVATE_LETTERS_SEND_TO_USER(user_id in INTEGER ,startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
-                string procudureName = "FUNC_QUERY_PRIVATE_LETTERS_SEND_TO_ME";
+                string procudureName = "FUNC_QUERY_PRIVATE_LETTERS_SEND_TO_USER";
                 OracleCommand cmd = new OracleCommand(procudureName, conn);
                 cmd.CommandType = CommandType.StoredProcedure;
 
