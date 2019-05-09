@@ -11,6 +11,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using twitter_dotNetCoreWithVue.Controllers.Utils;
+using System.Data;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -25,14 +26,16 @@ namespace twitter_dotNetCoreWithVue.Controllers
     public class UserController : Controller
     {
         //用于注册时的数据模型
-        public class UserInfoForSignUp {
+        public class UserInfoForSignUp
+        {
             public string email { get; set; }
             public string password { get; set; }
             public string nickname { get; set; }
         }
 
         //用于登录时的数据模型
-        public class UserInfoForSignIn { 
+        public class UserInfoForSignIn
+        {
             public string email { get; set; }
             public string password { get; set; }
         }
@@ -46,7 +49,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
             public string realname { get; set; }
             public string gender { get; set; }
             public string self_introduction { get; set; }
+            //public int mode { get; set; }
         }
+
         /// <summary>
         /// 此接口在注册时使用。
         /// 使用POST方法，传递邮箱，密码，昵称即可，其他用户信息在个人界面处修改和添加。
@@ -54,10 +59,46 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>是否成功</returns>
         /// <param name="userInfoForSignUp">注册时需要的信息</param>
         [HttpPost("signUp")]
-        public IActionResult SignUp([FromBody]UserInfoForSignUp userInfoForSignUp) {
+        public IActionResult SignUp([FromBody]UserInfoForSignUp userInfoForSignUp)
+        {
             //TODO 注册啦
             //返回是否注册成功
-            return new JsonResult(new { });
+            return Wrapper.wrap((OracleConnection conn)=>{
+                //FUNC_USER_SIGN_UP(email in VARCHAR, nickname in VARCHAR, password in VARCHAR)
+                //return INGETER
+                string procedureName = "FUNC_USER_SIGN_UP";
+                OracleCommand cmd = new OracleCommand(procedureName, conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                OracleParameter p1 = new OracleParameter();
+                p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                p1.Direction = ParameterDirection.ReturnValue;
+
+                OracleParameter p2 = new OracleParameter();
+                p2 = cmd.Parameters.Add("email", OracleDbType.Varchar2);
+                p2.Direction = ParameterDirection.Input;
+                p2.Value = userInfoForSignUp.email;
+
+                OracleParameter p3 = new OracleParameter();
+                p3 = cmd.Parameters.Add("nickname", OracleDbType.Varchar2);
+                p3.Direction = ParameterDirection.Input;
+                p3.Value = userInfoForSignUp.nickname;
+
+                OracleParameter p4 = new OracleParameter();
+                p4 = cmd.Parameters.Add("password", OracleDbType.Varchar2);
+                p4.Direction = ParameterDirection.Input;
+                p4.Value = userInfoForSignUp.password;
+
+                cmd.ExecuteReader();
+
+                if (int.Parse(p1.Value.ToString()) != 1)
+                {
+                    throw new Exception("failed");
+                }
+
+                RestfulResult.RestfulData rr = new RestfulResult.RestfulData(200, "success");
+                return new JsonResult(rr);
+            });
+            
         }
 
         /// <summary>
@@ -76,23 +117,82 @@ namespace twitter_dotNetCoreWithVue.Controllers
             //TODO 从数据库依照email获取user_id password
             //TODO 然后再和用户输入的进行核对，若password核对成功
             //TODO 则将一下信息存入cookies
-            int user_id = 1; //假装自己get到了
-            var claims = new[] {
-                new Claim("user_id", user_id.ToString()),
+            int userId = -1;
+
+            if (HttpContext.User.Identity.IsAuthenticated)
+            {
+                //若已经登录，直接返回
+                RestfulResult.RestfulData<int> rr = new RestfulResult.RestfulData<int>();
+                userId = int.Parse(HttpContext.User.Claims.ElementAt(0).Value);
+                rr.Code = 200;
+                rr.Message = "Aready Sign In";
+                rr.Data = userId;
+                return new JsonResult(rr);
+            }
+            else
+            {
+                return Wrapper.wrap((OracleConnection conn) =>
+                {
+                    //FUNC_USER_SIGN_IN_BY_EMAIL(email in VARCHAR, password in VARCHAR, user_id out INTEGER)
+                    //return INTEGER
+                    string procedureName = "FUNC_USER_SIGN_IN_BY_EMAIL";
+                    OracleCommand cmd = new OracleCommand(procedureName, conn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    OracleParameter p1 = new OracleParameter();
+                    p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                    p1.Direction = ParameterDirection.ReturnValue;
+
+                    OracleParameter p2 = new OracleParameter();
+                    p2 = cmd.Parameters.Add("email", OracleDbType.Varchar2);
+                    p2.Direction = ParameterDirection.Input;
+                    p2.Value = userInfoForSignIn.email;
+
+                    OracleParameter p3 = new OracleParameter();
+                    p3 = cmd.Parameters.Add("password", OracleDbType.Varchar2);
+                    p3.Direction = ParameterDirection.Input;
+                    p3.Value = userInfoForSignIn.password;
+
+                    OracleParameter p4 = new OracleParameter();
+                    p4 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
+                    p4.Direction = ParameterDirection.Output;
+
+                    cmd.ExecuteReader();
+
+                    RestfulResult.RestfulData<int> rr = new RestfulResult.RestfulData<int>();
+                    rr.Code = 200;
+                    if (int.Parse(p1.Value.ToString()) != 1)
+                    {
+                        rr.Data = -1;
+                        rr.Message = "E-mail or Password Wrong";
+                        return new JsonResult(rr);
+                    }
+                    else
+                    {
+                        userId = int.Parse(p4.Value.ToString());
+                        rr.Data = userId;
+                        rr.Message = "Sign in success";
+                    }
+
+                    var claims = new[] {
+                new Claim("user_id", userId.ToString()),
                 new Claim("email", userInfoForSignIn.email),
                 new Claim("password", userInfoForSignIn.password)
             };
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            ClaimsPrincipal user = new ClaimsPrincipal(claimsIdentity);
-            //signin 在内部实际上是在设置cookies
-            HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, user).Wait();
-            //可以使用HttpContext.SignInAsync方法的重载来定义持久化cookie存储用户认证信息，例如下面的代码就定义了用户登录后60分钟内cookie都会保留在客户端计算机硬盘上，
-            //即便用户关闭了浏览器，60分钟内再次访问站点仍然是处于登录状态，除非调用Logout方法注销登录。
-            HttpContext.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            user, new AuthenticationProperties() { IsPersistent = true, ExpiresUtc = DateTimeOffset.Now.AddMinutes(60) }).Wait();
-            //TODO 我们需要做的将用户的id返回给客户端
-            return new JsonResult(new { });
+                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    ClaimsPrincipal user = new ClaimsPrincipal(claimsIdentity);
+
+                    //signin 在内部实际上是在设置cookies
+                    //HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, user).Wait();
+
+                    //可以使用HttpContext.SignInAsync方法的重载来定义持久化cookie存储用户认证信息，例如下面的代码就定义了用户登录后60分钟内cookie都会保留在客户端计算机硬盘上，
+                    //即便用户关闭了浏览器，60分钟内再次访问站点仍然是处于登录状态，除非调用Logout方法注销登录。
+                    HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    user, new AuthenticationProperties() { IsPersistent = true, ExpiresUtc = DateTimeOffset.Now.AddMinutes(60) }).Wait();
+                    //TODO 我们需要做的将用户的id返回给客户端
+                    return new JsonResult(rr);
+                });
+            }
         }
 
         /// <summary>
@@ -106,21 +206,101 @@ namespace twitter_dotNetCoreWithVue.Controllers
             //如果HttpContext.User.Identity.IsAuthenticated为true，
             //或者HttpContext.User.Claims.Count()大于0表示用户已经登录
             //TODO 编辑个人信息
+            int userId = -1;
             if (HttpContext.User.Identity.IsAuthenticated)
             {
                 //这里通过 HttpContext.User.Claims 可以将我们在Login这个Action中存储到cookie中的所有
                 //claims键值对都读出来，比如我们刚才定义的UserName的值Wangdacui就在这里读取出来了
-                var id = int.Parse(HttpContext.User.Claims.ElementAt(0).Value);
-                var email = HttpContext.User.Claims.ElementAt(1).Value;
-                var password = HttpContext.User.Claims.ElementAt(2).Value;
-                return new JsonResult(new { });
+                userId = int.Parse(HttpContext.User.Claims.ElementAt(0).Value);
             }
             else
             {
                 //TODO
                 //进入到这部分意味着用户登录态已经失效，需要返回给客户端信息，即需要登录。
-                return new JsonResult(new { });
+                RestfulResult.RestfulData rr = new RestfulResult.RestfulData();
+                rr.Code = 200;
+                rr.Message = "Need Authentication";
+                return new JsonResult(rr);
             }
+
+            return Wrapper.wrap((OracleConnection conn) =>
+            {
+                //FUNC_SET_USER_INFO
+                //(nickname in VARCHAR, password in VARCHAR, realname in VARCHAR, gender in VARCHAR, self_introduction in VARCHAR,user_id in INTEGER, mode in INTEGER)
+                //return INTEGER
+                int mode = 0;
+                string procedureName = "FUNC_USER_SIGN_IN_BY_EMAIL";
+                OracleCommand cmd = new OracleCommand(procedureName, conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                OracleParameter p1 = new OracleParameter();
+                p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                p1.Direction = ParameterDirection.ReturnValue;
+
+                OracleParameter p2 = new OracleParameter();
+                p2 = cmd.Parameters.Add("email", OracleDbType.Varchar2);
+                p2.Direction = ParameterDirection.Input;
+                p2.Value = userInfoEdit.nickname;
+                if (userInfoEdit.nickname != "")
+                {
+                    mode |= 1 << 0;
+                }
+
+                OracleParameter p3 = new OracleParameter();
+                p3 = cmd.Parameters.Add("password", OracleDbType.Varchar2);
+                p3.Direction = ParameterDirection.Input;
+                p3.Value = userInfoEdit.password;
+                if (userInfoEdit.password != "")
+                {
+                    mode |= 1 << 1;
+                }
+
+                OracleParameter p4 = new OracleParameter();
+                p4 = cmd.Parameters.Add("realname", OracleDbType.Varchar2);
+                p4.Direction = ParameterDirection.Input;
+                p4.Value = userInfoEdit.realname;
+                if (userInfoEdit.realname != "")
+                {
+                    mode |= 1 << 2;
+                }
+
+                OracleParameter p5 = new OracleParameter();
+                p5 = cmd.Parameters.Add("gender", OracleDbType.Varchar2);
+                p5.Direction = ParameterDirection.Input;
+                p5.Value = userInfoEdit.gender;
+                if (userInfoEdit.gender != "")
+                {
+                    mode |= 1 << 3;
+                }
+
+                OracleParameter p6 = new OracleParameter();
+                p6 = cmd.Parameters.Add("introduction", OracleDbType.Varchar2);
+                p6.Direction = ParameterDirection.Input;
+                p6.Value = userInfoEdit.self_introduction;
+                if (userInfoEdit.self_introduction != "")
+                {
+                    mode |= 1 << 4;
+                }
+
+                OracleParameter p7 = new OracleParameter();
+                p7 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
+                p7.Direction = ParameterDirection.Input;
+                p7.Value = userId;
+
+                OracleParameter p8 = new OracleParameter();
+                p8 = cmd.Parameters.Add("mode", OracleDbType.Int32);
+                p8.Direction = ParameterDirection.Input;
+                p8.Value = mode;
+
+                cmd.ExecuteReader();
+
+                if (int.Parse(p1.Value.ToString()) != 1)
+                {
+                    throw new Exception("failed");
+                }
+
+                RestfulResult.RestfulData rr = new RestfulResult.RestfulData(200, "success");
+                return new JsonResult(rr);
+            });
         }
 
         /// <summary>
@@ -131,15 +311,51 @@ namespace twitter_dotNetCoreWithVue.Controllers
         [HttpGet("setAvatar")]
         public IActionResult ChangeAvatar([Required]int avatar_id)
         {
+            string userId;
             if (HttpContext.User.Identity.IsAuthenticated)
             {
                 //这里通过 HttpContext.User.Claims 可以将我们在Login这个Action中存储到cookie中的所有
                 //claims键值对都读出来
-                var userName = HttpContext.User.Claims.First().Value;
-                return new JsonResult(new { });
+                userId = HttpContext.User.Claims.First().Value;
             }
-            //TODO 
-            return new JsonResult(new { });
+            else
+            {
+                RestfulResult.RestfulData rr = new RestfulResult.RestfulData();
+                rr.Code = 200;
+                rr.Message = "Need Authentication";
+                return new JsonResult(rr);
+            }
+            return Wrapper.wrap((OracleConnection conn) =>
+            {
+                //FUNC_SET_MAIN_AVATAR(user_id in INTEGER, avatar_id in INTEGER)
+                //return INGETER
+                string procedureName = "FUNC_SET_MAIN_AVATAR";
+                OracleCommand cmd = new OracleCommand(procedureName, conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                OracleParameter p1 = new OracleParameter();
+                p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                p1.Direction = ParameterDirection.ReturnValue;
+
+                OracleParameter p2 = new OracleParameter();
+                p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
+                p2.Direction = ParameterDirection.Input;
+                p2.Value = userId;
+
+                OracleParameter p3 = new OracleParameter();
+                p3 = cmd.Parameters.Add("avatar_id", OracleDbType.Int32);
+                p3.Direction = ParameterDirection.Input;
+                p3.Value = avatar_id;
+
+                cmd.ExecuteReader();
+                if (int.Parse(p1.Value.ToString()) != 1)
+                {
+                    throw new Exception("failed");
+                }
+
+                RestfulResult.RestfulData rr = new RestfulResult.RestfulData(200, "success");
+                return new JsonResult(rr);
+            });
         }
 
         /// <summary>
@@ -152,7 +368,37 @@ namespace twitter_dotNetCoreWithVue.Controllers
             //TODO 无需验证身份
             //从数据库获得此人的正在使用头像
             //返回头像的url
-            return new JsonResult(new { src = "avatarUrl" });
+            return Wrapper.wrap((OracleConnection conn) =>
+            {
+                //FUNC_GET_USER_AVATAR(user_id in INTEGER, avatar_id out INTEGER)
+                //return INTEGER
+                string procedureName = "FUNC_GET_USER_AVATAR";
+                OracleCommand cmd = new OracleCommand(procedureName, conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                OracleParameter p1 = new OracleParameter();
+                p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                p1.Direction = ParameterDirection.ReturnValue;
+
+                OracleParameter p2 = new OracleParameter();
+                p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
+                p2.Direction = ParameterDirection.Input;
+                p2.Value = user_id;
+
+                OracleParameter p3 = new OracleParameter();
+                p3 = cmd.Parameters.Add("avatar_id", OracleDbType.Int32);
+                p3.Direction = ParameterDirection.Output;
+
+                cmd.ExecuteReader();
+                if (int.Parse(p1.Value.ToString()) != 1)
+                {
+                    throw new Exception("failed");
+                }
+                RestfulResult.RestfulData<string> rr = new RestfulResult.RestfulData<string>();
+                rr.Code = 200;
+                rr.Message = "sucess";
+                rr.Data = "/avatars/" + int.Parse(p3.Value.ToString()).ToString();
+                return new JsonResult(rr);
+            });
         }
 
 
@@ -166,7 +412,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             //注销登录的用户，意味着删除客户端的cookies
             HttpContext.SignOutAsync().Wait();
             //TODO
-            return new JsonResult(new { });
+            return new JsonResult(new RestfulResult.RestfulData(200, "success"));
         }
 
         /// <summary>
@@ -179,7 +425,53 @@ namespace twitter_dotNetCoreWithVue.Controllers
         {
             //TODO 查询可公开信息
             //返回含有列表的Json对象
-            return new JsonResult(new { });
+            return Wrapper.wrap((OracleConnection conn) =>
+            {
+                //FUNC_GET_USER_PUBLIC_INFO(user_id in INTEGER, info out sys_refcursor)
+                //return INGETER
+                string procedureName = "FUNC_GET_USER_PUBLIC_INFO";
+                OracleCommand cmd = new OracleCommand(procedureName, conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                OracleParameter p1 = new OracleParameter();
+                p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                p1.Direction = ParameterDirection.ReturnValue;
+
+                OracleParameter p2 = new OracleParameter();
+                p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
+                p2.Direction = ParameterDirection.Input;
+                p2.Value = user_id;
+
+                OracleParameter p3 = new OracleParameter();
+                p3 = cmd.Parameters.Add("info", OracleDbType.RefCursor);
+                p3.Direction = ParameterDirection.Output;
+
+                var reader = cmd.ExecuteReader();
+                if (int.Parse(p1.Value.ToString()) != 1)
+                {
+                    throw new Exception("failed");
+                }
+                else
+                {
+                    if (reader.Read())
+                    {
+                        RestfulResult.RestfulArray<string> rr = new RestfulResult.RestfulArray<string>();
+                        string[] temp = new string[reader.FieldCount];
+                        for (int i = 0; i < reader.FieldCount; ++i)
+                        {
+                            temp[i] = reader.GetValue(i).ToString();
+                        }
+                        rr.Code = 200;
+                        rr.Message = "success";
+                        rr.Data = temp;
+                        return new JsonResult(rr);
+                    }
+                    else
+                    {
+                        throw new Exception("failed");
+                    }
+                }
+            });
+
         }
 
 
