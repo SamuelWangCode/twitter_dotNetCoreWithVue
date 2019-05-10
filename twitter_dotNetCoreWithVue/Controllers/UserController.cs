@@ -52,6 +52,43 @@ namespace twitter_dotNetCoreWithVue.Controllers
             //public int mode { get; set; }
         }
 
+        bool CheckUserEamil(string email)
+        {
+            string procedureName = "FUNC_CHECK_USER_EMAIL_EXIST";
+            OracleCommand cmd = new OracleCommand(procedureName, conn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            OracleParameter p1 = new OracleParameter();
+            p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+            p1.Direction = ParameterDirection.ReturnValue;
+
+            OracleParameter p2 = new OracleParameter();
+            p2 = cmd.Parameters.Add("email", OracleDbType.Varchar2);
+            p2.Direction = ParameterDirection.Input;
+            p2.Value = email;
+
+            cmd.ExecuteReader();
+            return int.Parse(p1.Value.ToString()) == 1;
+        }
+
+        [HttpPost("checkEmail")]
+        public IActionResult CheckEmail([Required]string email)
+        {
+            //FUNC_CHECK_USER_EMAIL_EXIST(email in VARCHAR)
+            //return INGETER
+            return Wrapper.wrap((OracleConnection conn) =>
+            {
+                
+                if (CheckUserEamil(email))
+                {
+                    return new JsonResult(new RestfulResult.RestfulData(200, "The email is used"));
+                }
+                else
+                {
+                    return new JsonResult(new RestfulResult.RestfulData(200, "The email don't be used"));
+                }
+            });
+        }
+
         /// <summary>
         /// 此接口在注册时使用。
         /// 使用POST方法，传递邮箱，密码，昵称即可，其他用户信息在个人界面处修改和添加。
@@ -63,6 +100,11 @@ namespace twitter_dotNetCoreWithVue.Controllers
         {
             //TODO 注册啦
             //返回是否注册成功
+            if (CheckUserEamil(userInfoForSignUp.email))
+            {
+                return new JsonResult(new RestfulResult.RestfulData(200, "The email is used"));
+            }
+            
             return Wrapper.wrap((OracleConnection conn)=>{
                 //FUNC_USER_SIGN_UP(email in VARCHAR, nickname in VARCHAR, password in VARCHAR)
                 //return INGETER

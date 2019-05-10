@@ -85,15 +85,6 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 
 * 输出参数：无
 
-### FUNC\_CHECK\_USER\_NICKNAME\_EXIST(nickname in VARCHAR)
-* 接口功能：检查用户昵称是否存在于数据库中
-* 返回值：用户昵称存在于数据库时返回1，不存在时返回0
-* 输入参数：
-
-	* nickname：VARCHAR类型，存放待检查的用户昵称
-
-* 输出参数：无
-
 ### FUNC\_USER\_SIGN\_UP(email in VARCHAR, nickname in VARCHAR, password in VARCHAR)
 * 接口功能：通过给定的用户信息向数据库添加新用户
 * 返回值：注册成功返回1，失败返回0
