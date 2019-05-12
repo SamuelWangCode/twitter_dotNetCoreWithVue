@@ -169,8 +169,8 @@ INCREMENT BY 1
 CACHE 10;
 
 CREATE TABLE Message_Image(
-  message_id INTEGER PRIMARY KEY,
-  message_image_count INTEGER NOT NULL,
+  message_image_id INTEGER PRIMARY KEY,
+  message_id INTEGER NOT NULL,
   CONSTRAINT fk_message_image FOREIGN KEY
     (message_id) REFERENCES Message(message_id)
       ON DELETE CASCADE
