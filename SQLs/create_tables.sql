@@ -35,6 +35,9 @@ CREATE TABLE Avatar_Image ги
   user_id INTEGER PRIMARY KEY,
   avatar_image_in_use INTEGER NOT NULL,
   
+  CONSTRAINT fk_avatar_image FOREIGN KEY (user_id)
+	REFERENCES USER_Public_INFO (user_id)
+		ON DELETE CASCADE
 
 );
 
