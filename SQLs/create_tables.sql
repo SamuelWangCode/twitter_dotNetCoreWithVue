@@ -31,14 +31,14 @@ INCREMENT BY 1
 CACHE 10;
 
 CREATE TABLE Avatar_Image £¨
-  avatar_image_id INTEGER PRIMARY KEY,
-  user_id INTEGER PRIMARY KEY,
+  avatar_image_id INTEGER,
+  user_id INTEGER,
   avatar_image_in_use INTEGER NOT NULL,
   
+  PRIMARY KEY£¨ avatar_image_id£¬user_id£©£¬
   CONSTRAINT fk_avatar_image FOREIGN KEY (user_id)
 	REFERENCES USER_Public_INFO (user_id)
 		ON DELETE CASCADE
-
 );
 
 
