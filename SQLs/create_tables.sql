@@ -59,7 +59,7 @@ CACHE 10;
 CREATE TABLE User_Public_Info (
   user_id INTEGER PRIMARY KEY,
   user_nickname VARCHAR2(20) NOT NULL,
-  user_register_time DATE NOT NULL,
+  user_register_time VARCHAR2(30) NOT NULL,
   user_self_introduction VARCHAR2(255) NOT NULL,
   user_followers_num INTEGER NOT NULL,
   user_follows_num INTEGER NOT NULL,
