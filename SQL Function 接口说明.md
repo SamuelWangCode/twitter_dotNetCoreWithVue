@@ -46,9 +46,9 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
   >
   > * 若完成请数据库小组成员标注完成者姓名，如：   
   >
-  > * 已完成：是
+  >   已完成：是
   >
-  >   完成者：xxx于 2019-xx-xx
+  >     完成者：xxx于 2019-xx-xx
 
 * 异常处理
 
@@ -153,13 +153,19 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 
 ### FUNC\_USER\_SIGN\_UP(email in VARCHAR, nickname in VARCHAR, password in VARCHAR)
 * 接口功能：通过给定的用户信息向数据库添加新用户
+
 * 返回值：注册成功返回1，失败返回0
+
 * 输入参数：
 	* email：VARCHAR类型，存放用户Email
 	* nickname：VARCHAR类型，存放用户昵称
 	* password：VARCHAR类型，存放用户密码
 
 * 输出参数：无
+
+* 已完成：是
+
+  完成者：王笑天于2019-05-18
 
 ### FUNC\_USER\_SIGN\_IN\_BY\_EMAIL(email in VARCHAR, password in VARCHAR, user_id out INTEGER)
 * 接口功能：通过用户Email和密码判断是否登录成功
