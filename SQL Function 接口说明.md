@@ -3,6 +3,9 @@
 此文档由c#小组（杨紫超，周宇东，魏敬杰）负责编写。
 SQL小组通过阅读此文档，编写相应的SQL脚本。
 SQL脚本文件统一放置在根目录下的SQLs文件夹中。
+所有函数定义在***create_functions.sql*** 文件中。
+
+
 
 **我们的项目必定胜利**
 
@@ -39,7 +42,13 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 
 * 已完成
 
-	> * 标记该函数是否已经实现，方便SQL编写者区分
+  > * 标记该函数是否已经实现，方便SQL编写者区分
+  >
+  > * 若完成请数据库小组成员标注完成者姓名，如：   
+  >
+  > * 已完成：是
+  >
+  >   完成者：xxx于 2019-xx-xx
 
 * 异常处理
 
@@ -48,32 +57,89 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 
 * 注意事项
 
-	> * 若使用select into语句来对单值输出参数赋值时应考虑到检索结果为空或多项结果的情况
-	> * 对于位模式mode可以使用bitand函数来判断要进行的步骤
-	> * 小组成员可自行将编写过程中踩过的坑添加到注意事项中
+  > * 若使用select into语句来对单值输出参数赋值时应考虑到检索结果为空或多项结果的情况
+  >
+  > * 对于位模式mode可以使用bitand函数来判断要进行的步骤
+  >
+  > * 小组成员可自行将编写过程中踩过的坑添加到注意事项中
+  >
+  > * 补充注意事项1：在函数内部存在DML操作（尤其时插入删除等）时，会产生ORA-14551: 无法在查询中执行 DML 操作 .”错误，该错误产生原因在于主事务和自治事务的区别，具体请自行了解，这里提供一种解决方法：使用自治事务。在函数声明部分加入这句话
+  >
+  >   PRAGMA AUTONOMOUS_TRANSACTION;并在最后 COMMIT 提交DML操作。
+  >
+  >   详情见下面样例，相关资料请参考：<https://blog.csdn.net/gigiouter/article/details/7616627>
+  >
+  > * 使用函数时可以参照以下样例
+  >
+  >   ~~~sql
+  >   select func_user_sign_up('xx', 'xx', 'xx')from dual;
+  >   ~~~
+  >
+  >   
 
 * 接口样例
 
-		create or replace 
-		function FUNC_SEARCH_TOPIC_BY_HEAT(heat in INTEGER, search_result out sys_refcursor)
-		return INTEGER
-		is
-		result_size INTEGER :=0;
-		state INTEGER :=1;
-		begin 
-  			select count(*) into result_size from TOPIC where TOPIC_HEAT=heat;
-  			open search_result for select * from TOPIC where TOPIC_HEAT=heat;
-  			if result_size=0 then
-    			state :=0;
-  			else 
-    			state :=1;
-  			end if;
-  			return state;
-		end;
-	> * 该代码块定义了一个根据热度heat来获取TOPIC表的函数
-	> * 使用open for语句将查询结果装载入sys_refcursor类型的输出参数中
-	> * 当没有查询结果时返回0
-	> * 查询成功时返回1
+		~~~sql
+	 create or replace 
+	  	function FUNC_SEARCH_TOPIC_BY_HEAT(heat in INTEGER, search_result out sys_refcursor)
+	  	return INTEGER
+	  	is
+	  	result_size INTEGER :=0;
+	  	state INTEGER :=1;
+     	begin 
+      			select count(*) into result_size from TOPIC where TOPIC_HEAT=heat;
+      			open search_result for select * from TOPIC where TOPIC_HEAT=heat;
+      			if result_size=0 then
+          			state :=0;
+      			else 
+          			state :=1;
+      			end if;
+	   			return state;
+	  	end;
+	~~~
+	
+	
+	
+	该代码块定义了一个根据热度heat来获取TOPIC表的函数
+
+> * 使用open for语句将查询结果装载入sys_refcursor类型的输出参数中
+> * 当没有查询结果时返回0
+> * 查询成功时返回1
+
+ * 接口样例（插入）
+
+   ~~~sql
+   create or replace function 
+   FUNC_USER_SIGN_UP(email in VARCHAR, nickname in VARCHAR, password in VARCHAR)
+   return INTEGER
+   is
+   PRAGMA AUTONOMOUS_TRANSACTION;
+   
+   state INTEGER :=1;
+   temp_user_id INTEGER :=0;
+   register_time VARCHAR2(30) ;
+   set_introduction VARCHAR2(255) :='The man is lazy,leaving nothing.';
+   begin
+   select to_char(sysdate, 'yyyy-mm-dd HH24:MI:SS') into register_time from dual;
+   
+   insert into USER_PUBLIC_INFO
+   (USER_ID, USER_NICKNAME, USER_REGISTER_TIME, USER_SELF_INTRODUCTION, USER_FOLLOWERS_NUM, USER_FOLLOWS_NUM)
+   values(SEQ_USER_PUBLIC_INFO.nextval, nickname, register_time, set_introduction, '0', '0');
+   
+   select USER_ID into temp_user_id from USER_PUBLIC_INFO
+   where USER_NICKNAME = nickname;
+   
+   insert into USER_PRIVATE_INFO(USER_ID, USER_EMAIL, USER_PASSWORD)
+   values(temp_user_id, email, password);
+   
+   commit;
+   return state;
+   
+   end;
+   ~~~
+
+   
+
 
 ## 需求接口
 ### FUNC\_CHECK\_USER\_EMAIL\_EXIST(email in VARCHAR)
