@@ -1,4 +1,4 @@
-# SQL Function 接口说明
+﻿# SQL Function 接口说明
 
 此文档由c#小组（杨紫超，周宇东，魏敬杰）负责编写。
 SQL小组通过阅读此文档，编写相应的SQL脚本。
@@ -153,6 +153,102 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* email：VARCHAR类型，存放待检查的Email
 
 * 输出参数：无
+
+### FUNC\_SHOW\_MESSAGE\_BY\_ID(message\_id in INTEGER, result out sys_refcursor)
+* 接口功能：通过给定的推特ID来查询该推特的详细信息
+
+* 返回值：查询成功返回1，失败返回0
+
+* 输入参数：
+	* message_id：INTEGER类型，表示要查询的消息的ID
+
+* 输出参数：
+	* result：sys_refcursor类型，用户信息，table属性为(message\_id, message\_content, message\_create\_time, message\_agree\_num, message\_transpond\_num, message\_comment\_num, message\_view\_num, message\_has\_image, message\_is\_transpond, message_sender\_user\_id, message\_heat, message\_transpond\_message\_id, message\_image\_count)
+
+* 已完成：是
+
+  完成者：魏敬杰于2019-05-20
+
+### FUNC\_SHOW\_HOME\_MESSAGE\_BY\_RANGE(user\_id in INTEGER, rangeStart in INTEGER, rangeLimitation in INTEGER, search\_result out sys_refcursor)
+* 接口功能：通过给定的用户ID，索引起点和查询范围来查询某用户发布过的推特
+
+* 返回值：查询成功返回1，失败返回0
+
+* 输入参数：
+	* user\_id：INTEGER类型，表示要查询的用户的ID
+	* rangeStart：INTEGER类型，表示所查询的推特的范围是从哪一个索引开始的
+	* rangeLimitation：INTEGER类型，表示要查询多少条推特
+
+* 输出参数：
+	* search\_result：sys_refcursor类型，用户信息，table属性为(message\_id, message\_content, message\_create\_time, message\_agree\_num, message\_transpond\_num, message\_comment\_num, message\_view\_num, message\_has\_image, message\_is\_transpond, message_sender\_user\_id, message\_heat, message\_transpond\_message\_id, message\_image\_count)
+
+* 已完成：是
+
+  完成者：魏敬杰于2019-05-20
+
+### FUNC\_SEND\_MESSAGE(message\_content in VARCHAR2, message\_has\_image in INTEGER, user\_id in INTEGER, message\_image\_count in INTEGER, message\_id out INTEGER)
+* 接口功能：发布新的推特，通过给出推特内容，推特是否含图，推特图的数量，发布者的ID来保存新推特，并输出该条推特的ID
+
+* 返回值：发布成功返回1，失败返回0
+
+* 输入参数：
+	* message\_content：VARCHAR2类型，表示发布的推特的内容（280字符以内）
+	* message\_has\_image：INTEGER类型，表示推特是否含图，1为含图，0为不含图
+	* user\_id：INTEGER类型，表示发布该推特的用户的ID
+	* message\_image\_count：INTEGER类型，表示该推特含图的数量，不含图则表示为0
+
+* 输出参数：
+	* message\_id：INTEGER类型，表示新建的该推特的ID
+
+* 已完成：否
+
+### FUNC\_TRANSPOND\_MESSAGE(message\_content in VARCHAR2, message\_source\_is\_transpond in INTEGER, message\_sender\_user\_id in INTEGER, message\_transpond\_message\_id in INTEGER, message\_id out INTEGER)
+* 接口功能：转发一个已有的推特，并输出这个转发的新推特的ID值
+
+* 返回值：转发成功返回1，失败返回0
+
+* 输入参数：
+	* message\_content：VARCHAR2类型，表示新的转发推特的内容（280字符以内）
+	* message\_source\_is\_transpond：INTEGER类型，表示转发的来源推特是否也是转发的，1为是，0为否
+	* message\_sender\_user\_id：INTEGER类型，表示发布这个转发推特的用户的ID
+	* message\_transpond\_message\_id：INTEGER类型，表示这个推特所转发的直接来源推特的ID
+
+* 输出参数：
+	* message\_id：INTEGER类型，表示新创建的这个转发的ID
+
+* 已完成：是
+
+  完成者：魏敬杰于2019-5-20
+
+### FUNC\_ADD\_TOPIC(topic\_content in VARCHAR2, message\_id in INTEGER)
+* 接口功能：为指定话题添加一条推特，若该话题已存在，则热度+1，若该话题不存在则将它创建
+
+* 返回值：添加成功返回1，失败返回0
+
+* 输入参数：
+	* topic\_content：VARCHAR2类型，表示话题的内容
+	* message\_id：INTEGER类型，表示添加到这个话题的推特ID
+
+* 输出参数：无
+
+* 已完成：是
+
+  完成者：魏敬杰于2019-5-20
+
+### FUNC\_DELETE\_MESSAGE(message\_id in INTEGER, message\_has\_image out INTEGER)
+* 接口功能：删除指定ID的推特，并且删除这条推特所包含的评论。需要注意的是，如果该推特包含了话题，对推特的删除并不会又减少话题的热度（也就是删除推特，话题热度不变，微博好像是这么设定的）。需要输出删除的这条推特是否含图。
+
+* 返回值：删除成功返回1，失败返回0
+
+* 输入参数：
+	* message\_id：INTEGER类型，表示要删除的推特ID
+
+* 输出参数：
+	* message\_has\_image： INTEGER类型，表示删除的这条推特是否含图
+
+* 已完成：是
+
+  完成者：魏敬杰于2019-5-20
 
 ### FUNC\_USER\_SIGN\_UP(email in VARCHAR, nickname in VARCHAR, password in VARCHAR)
 * 接口功能：通过给定的用户信息向数据库添加新用户
