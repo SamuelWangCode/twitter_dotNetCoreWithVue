@@ -1,4 +1,4 @@
-﻿# SQL Function 接口说明
+# SQL Function 接口说明
 
 此文档由c#小组（杨紫超，周宇东，魏敬杰）负责编写。
 SQL小组通过阅读此文档，编写相应的SQL脚本。
@@ -68,7 +68,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
   >   PRAGMA AUTONOMOUS_TRANSACTION;并在最后 COMMIT 提交DML操作。
   >
   >   详情见下面样例，相关资料请参考：<https://blog.csdn.net/gigiouter/article/details/7616627>
-  >
+  > * 补充注意事项2：在一个sql文件中创建多个函数时需要使用分隔符/来分隔不同函数
   > * 使用函数时可以参照以下样例
   >
   >   ~~~sql
@@ -153,6 +153,10 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* email：VARCHAR类型，存放待检查的Email
 
 * 输出参数：无
+
+* 已完成：是
+
+  完成者：周宇东于2019-05-22
 
 ### FUNC\_SHOW\_MESSAGE\_BY\_ID(message\_id in INTEGER, result out sys_refcursor)
 * 接口功能：通过给定的推特ID来查询该推特的详细信息
@@ -278,20 +282,22 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 
 * 已完成：否
 
-### FUNC\_SET\_USER\_INFO(nickname in VARCHAR, password in VARCHAR, realname in VARCHAR, gender in VARCHAR, self\_introduction in VARCHAR,user\_id in INTEGER, mode in INTEGER)
+### FUNC\_SET\_USER\_INFO(nickname in VARCHAR, password in VARCHAR,self\_introduction in VARCHAR, realname in VARCHAR, gender in VARCHAR, user\_id in INTEGER, mode in INTEGER)
 * 接口功能：修改用户id为user_id的用户的个人信息
 * 返回值：修改成功返回1，失败返回0
 * 输入参数：
 	* nickname：VARCHAR类型，存放用户昵称
+	* self\_introduction：VARCHAR类型，存放用户个人介绍
 	* password：VARCHAR类型，存放用户密码
 	* realname：VARCHAR类型，存放用户真实姓名
 	* gender：VARCHAR类型，存放用户性别
-	* self\_introduction：VARCHAR类型，存放用户个人介绍
 	* user\_id：INTERGER类型，待修改用户的user_id
 	* mode：INTERGER类型，判断修改哪几个信息，数值范围为1~31，当mode&(1<<i)==(1<<i)时，代表修改第i+1个输入参数所代表的信息
 
 * 输出参数：无
-* 已完成：否
+* 已完成：是
+
+  完成者：周宇东于2019-05-22
 
 ### FUNC\_SET\_MAIN\_AVATAR(user\_id in INTEGER, avatar\_id in INTEGER)
 * 接口功能：设置用户的主要头像
