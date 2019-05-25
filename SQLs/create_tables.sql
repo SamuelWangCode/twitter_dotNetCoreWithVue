@@ -175,7 +175,7 @@ CREATE TABLE Transpond(
 		FOREIGN KEY (transponded_message_id)
 			REFERENCES Message(message_id)
 				ON DELETE CASCADE
-)
+);
 ----------------------------------------------
 ------------------Message_Image---------------
 CREATE SEQUENCE seq_message_image
