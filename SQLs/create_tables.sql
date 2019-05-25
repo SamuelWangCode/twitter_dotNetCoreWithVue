@@ -11,6 +11,7 @@ DROP TABLE "RELATION" CASCADE CONSTRAINTS;
 DROP TABLE "TOPIC" CASCADE CONSTRAINTS;
 DROP TABLE "USER_PRIVATE_INFO" CASCADE CONSTRAINTS;
 DROP TABLE "USER_PUBLIC_INFO" CASCADE CONSTRAINTS;
+DROP TABLE "TRANSPOND" CASCADE CONSTRAINTS;
 
 DROP SEQUENCE  SEQ_AT_USER;
 DROP SEQUENCE  SEQ_AVATAR_IMAGE;
@@ -151,7 +152,6 @@ CREATE TABLE Message(
   message_has_image INTEGER NOT NULL,
   message_sender_user_id INTEGER NOT NULL,
   message_heat INTEGER NOT NULL,
-  message_transpond_message_id INTEGER,
   CONSTRAINT fk_message
     FOREIGN KEY (message_sender_user_id)
       REFERENCES User_Public_Info(user_id)
@@ -162,6 +162,20 @@ CREATE TABLE Message(
 CREATE INDEX m_sender_user_id ON Message(message_sender_user_id, message_create_time);
 CREATE INDEX m_create_time ON Message(message_create_time);
 CREATE INDEX m_heat_create_time ON Message(message_heat, message_create_time);
+----------------------------------------------
+-----------------Transpond--------------------
+CREATE TABLE Transpond(
+	message_id INTEGER PRIMARY KEY,
+	transponded_message_id INTEGER PRIMARY KEY,
+	CONSTRAINT fk_message_id
+		FOREIGN KEY (message_id)
+			REFERENCES Message(message_id)
+				ON DELETE CASCADE,
+	CONSTRAINT fk_transponded_message_id
+		FOREIGN KEY (transponded_message_id)
+			REFERENCES Message(message_id)
+				ON DELETE CASCADE
+)
 ----------------------------------------------
 ------------------Message_Image---------------
 CREATE SEQUENCE seq_message_image

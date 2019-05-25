@@ -38,7 +38,7 @@ namespace twitter_dotNetCoreWithVue.Models
 
         [Display(Name = "推特是否为转发")]
         [Required]
-        public bool message_is_transpond { get; set; }
+        public int message_is_transpond { get; set; }
 
         [Display(Name = "发布人ID")]
         public int message_sender_user_id { get; set; }
@@ -48,6 +48,5 @@ namespace twitter_dotNetCoreWithVue.Models
 
         [Display(Name = "转发来源推特ID")]
         public int message_transpond_message_id { get; set; }
-
     }
 }
