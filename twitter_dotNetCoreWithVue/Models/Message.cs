@@ -48,6 +48,5 @@ namespace twitter_dotNetCoreWithVue.Models
 
         [Display(Name = "转发来源推特ID")]
         public int message_transpond_message_id { get; set; }
-
     }
 }
