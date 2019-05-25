@@ -597,7 +597,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         [HttpGet("delete/{message_id}")]
         public IActionResult Delete([Required]int message_id)
         {
-            //TODO 需要验证登录态
+            //需要验证登录态
             //返回成功与否
 
             int userId;
