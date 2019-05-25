@@ -52,7 +52,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             //public int mode { get; set; }
         }
 
-        bool CheckUserEamil(string email)
+        bool CheckUserEamil(string email, OracleConnection conn)
         {
             string procedureName = "FUNC_CHECK_USER_EMAIL_EXIST";
             OracleCommand cmd = new OracleCommand(procedureName, conn);
@@ -78,7 +78,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             return Wrapper.wrap((OracleConnection conn) =>
             {
                 
-                if (CheckUserEamil(email))
+                if (CheckUserEamil(email,conn))
                 {
                     return new JsonResult(new RestfulResult.RestfulData(200, "The email is used"));
                 }
@@ -100,12 +100,13 @@ namespace twitter_dotNetCoreWithVue.Controllers
         {
             //TODO 注册啦
             //返回是否注册成功
-            if (CheckUserEamil(userInfoForSignUp.email))
-            {
-                return new JsonResult(new RestfulResult.RestfulData(200, "The email is used"));
-            }
+            
             
             return Wrapper.wrap((OracleConnection conn)=>{
+                if (CheckUserEamil(userInfoForSignUp.email,conn))
+                {
+                    return new JsonResult(new RestfulResult.RestfulData(200, "The email is used"));
+                }
                 //FUNC_USER_SIGN_UP(email in VARCHAR, nickname in VARCHAR, password in VARCHAR)
                 //return INGETER
                 string procedureName = "FUNC_USER_SIGN_UP";
@@ -268,10 +269,10 @@ namespace twitter_dotNetCoreWithVue.Controllers
             return Wrapper.wrap((OracleConnection conn) =>
             {
                 //FUNC_SET_USER_INFO
-                //(nickname in VARCHAR, password in VARCHAR, realname in VARCHAR, gender in VARCHAR, self_introduction in VARCHAR,user_id in INTEGER, mode in INTEGER)
+                //(nickname in VARCHAR, self_introduction in VARCHAR, password in VARCHAR, realname in VARCHAR, gender in VARCHAR,id in INTEGER, mode in INTEGER)
                 //return INTEGER
                 int mode = 0;
-                string procedureName = "FUNC_USER_SIGN_IN_BY_EMAIL";
+                string procedureName = "FUNC_SET_USER_INFO";
                 OracleCommand cmd = new OracleCommand(procedureName, conn);
                 cmd.CommandType = CommandType.StoredProcedure;
                 OracleParameter p1 = new OracleParameter();
@@ -279,7 +280,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p1.Direction = ParameterDirection.ReturnValue;
 
                 OracleParameter p2 = new OracleParameter();
-                p2 = cmd.Parameters.Add("email", OracleDbType.Varchar2);
+                p2 = cmd.Parameters.Add("nickname", OracleDbType.Varchar2);
                 p2.Direction = ParameterDirection.Input;
                 p2.Value = userInfoEdit.nickname;
                 if (userInfoEdit.nickname != "")
@@ -288,40 +289,46 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 }
 
                 OracleParameter p3 = new OracleParameter();
-                p3 = cmd.Parameters.Add("password", OracleDbType.Varchar2);
+                p3 = cmd.Parameters.Add("introduction", OracleDbType.Varchar2);
                 p3.Direction = ParameterDirection.Input;
-                p3.Value = userInfoEdit.password;
-                if (userInfoEdit.password != "")
+                p3.Value = userInfoEdit.self_introduction;
+                if (userInfoEdit.self_introduction != "")
                 {
                     mode |= 1 << 1;
                 }
 
+
                 OracleParameter p4 = new OracleParameter();
-                p4 = cmd.Parameters.Add("realname", OracleDbType.Varchar2);
+                p4 = cmd.Parameters.Add("password", OracleDbType.Varchar2);
                 p4.Direction = ParameterDirection.Input;
-                p4.Value = userInfoEdit.realname;
-                if (userInfoEdit.realname != "")
+                p4.Value = userInfoEdit.password;
+                if (userInfoEdit.password != "")
                 {
                     mode |= 1 << 2;
                 }
 
                 OracleParameter p5 = new OracleParameter();
-                p5 = cmd.Parameters.Add("gender", OracleDbType.Varchar2);
+                p5 = cmd.Parameters.Add("realname", OracleDbType.Varchar2);
                 p5.Direction = ParameterDirection.Input;
-                p5.Value = userInfoEdit.gender;
-                if (userInfoEdit.gender != "")
+                p5.Value = userInfoEdit.realname;
+                if (userInfoEdit.realname != "")
                 {
                     mode |= 1 << 3;
                 }
 
+
+
+
                 OracleParameter p6 = new OracleParameter();
-                p6 = cmd.Parameters.Add("introduction", OracleDbType.Varchar2);
+                p6 = cmd.Parameters.Add("gender", OracleDbType.Varchar2);
                 p6.Direction = ParameterDirection.Input;
-                p6.Value = userInfoEdit.self_introduction;
-                if (userInfoEdit.self_introduction != "")
+                p6.Value = userInfoEdit.gender;
+                if (userInfoEdit.gender != "")
                 {
                     mode |= 1 << 4;
                 }
+
+                
 
                 OracleParameter p7 = new OracleParameter();
                 p7 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
