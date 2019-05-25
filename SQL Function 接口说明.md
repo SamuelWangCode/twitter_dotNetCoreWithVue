@@ -316,7 +316,9 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* user\_id：INTERGER类型，用户id
 * 输出参数：
 	* avatar\_id：INTEGER类型，用户的头像id
-* 已完成：否
+* 已完成：是
+
+完成者：徐诚于2019-05-25
 
 ### FUNC\_GET\_USER\_PUBLIC\_INFO(user\_id in INTEGER, info out sys_refcursor)
 * 接口功能：通过用户id获取用户公开信息
