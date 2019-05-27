@@ -348,8 +348,10 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 输入参数：
 	* user\_id：INTERGER类型，用户id
 * 输出参数：
-	* info：sys_refcursor类型，用户信息，table属性为(user\_id,user\_nickname,user\_register\_time,user\_avatar\_image\_id,user\_self\_introduction,user\_followers\_num,user\_follows\_num)
-* 已完成：否
+	* info：sys_refcursor类型，用户信息，table属性为(user\_id,user\_nickname,user\_register\_time,user\_self\_introduction,user\_followers\_num,user\_follows\_num)
+* 已完成：是
+
+  完成者：周宇东于2019-05-22
 
 ** 以下更新于5.8 by 杨紫超 **
 

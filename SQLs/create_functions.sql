@@ -1,5 +1,19 @@
+create or replace function 
+FUNC_CHECK_USER_ID_EXIST(userid in VARCHAR)
+return INTEGER
+is 
+state INTEGER;
+begin 
+select count(*)
+into state
+from USER_PUBLIC_INFO
+where userid=USER_ID;
+return state;
+end;
+/
+
 ------------------FUNC_CHECK_USER_EMAIL_EXIST(email in VARCHAR)----------------
------------------------????Email?????????---------------------------
+-----------------------检查Email是否存在---------------------------
 create or replace function 
 FUNC_CHECK_USER_EMAIL_EXIST(email in VARCHAR)
 return INTEGER
@@ -16,7 +30,7 @@ end;
 
 
 ------------------FUNC_USER_SIGN_UP----------------
------------??????????????????-------
+-----------------------注册------------------------
 create or replace function 
 FUNC_USER_SIGN_UP(email in VARCHAR, nickname in VARCHAR, password in VARCHAR)
 return INTEGER
@@ -46,7 +60,7 @@ return state;
 end;
 /
 ------------------FUNC_USER_SIGN_IN----------------
-----------------------????----------------------
+----------------------验证登录----------------------
 create or replace function FUNC_USER_SIGN_IN_BY_EMAIL(email in VARCHAR, password in VARCHAR, re_user_id out INTEGER)
 return INTEGER
 is 
@@ -69,7 +83,7 @@ end;
 /
 
 ---------------FUNC_SET_USER_INFO----------------
-------------------??????--------------------
+------------------设置个人信息--------------------
 create or replace function 
 FUNC_SET_USER_INFO
 (nickname in VARCHAR, self_introduction in VARCHAR, password in VARCHAR, realname in VARCHAR, gender in VARCHAR,id in INTEGER, set_mode in INTEGER)
@@ -83,7 +97,7 @@ t_gender VARCHAR(4);
 t_self_introduction VARCHAR(255);
 state INTEGER;
 begin
-select count(*) into state from USER_PRIVATE_INFO where USER_ID=id;
+state:=FUNC_CHECK_USER_ID_EXIST(id);
 if state=0 then 
 return state;
 end if;
@@ -128,17 +142,16 @@ end;
 
 
 ---------------------FUNC_SET_MAIN_AVATAR-------------------------
----------------------------????--------------------------------
+---------------------------设置头像--------------------------------
 create or replace function FUNC_SET_MAIN_AVATAR(userid in INTEGER, avatarid in INTEGER)
 return INTEGER
 is
+PRAGMA AUTONOMOUS_TRANSACTION;
 state INTEGER:=1;
 temp INTEGER;
 begin
-select count(*)
-into state
-from USER_PUBLIC_INFO
-where userid=USER_ID;
+
+state:=FUNC_CHECK_USER_ID_EXIST(userid);
 
 if state=0 then
 return state;
@@ -156,12 +169,33 @@ else
 insert into Avatar_Image (USER_ID,avatar_image_id,avatar_image_in_use)
 values (userid,avatarid,1);
 end if;
+commit;
+return state;
+end;
+/
+---------------------FUNC_GET_USER_PUBLIC_INFO-------------------------
+--------------------获取个人公开信息--------------------------------
+create or replace function FUNC_GET_USER_PUBLIC_INFO(userid in INTEGER, info out sys_refcursor)
+return INTEGER
+is
+state INTEGER:=1;
+begin
+state:=FUNC_CHECK_USER_ID_EXIST(userid);
+if state=0 then
+return state;
+end if;
+
+open info for 
+select user_id,user_nickname,user_register_time,user_self_introduction,user_followers_num,user_follows_num
+from USER_PUBLIC_INFO where user_id=userid;
+
 return state;
 end;
 /
 
+
 ---------------------FUNC_SEND_MESSAGE-------------------------------
----------------------????????????Message?---------------
+-------------------发布新的推特（添加信息至Message）--------------------
 create or replace function
 FUNC_SEND_MESSAGE(message_content in VARCHAR2, message_has_image in INTEGER, user_id in INTEGER, message_image_count in INTEGER, message_id out INTEGER)
 return INTEGER
@@ -191,3 +225,6 @@ commit;
 return state;
 end;
 /
+
+
+------FUNC_QUERY_MESSAGE_IDS_CONTAINS_CERTAIN_TOPIC_ID--------
