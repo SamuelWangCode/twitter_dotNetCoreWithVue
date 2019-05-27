@@ -145,7 +145,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 
 
 ## 需求接口
-### FUNC\_CHECK\_USER\_EMAIL\_EXIST(email in VARCHAR)
+### 1.FUNC\_CHECK\_USER\_EMAIL\_EXIST(email in VARCHAR)
 * 接口功能：检查用户Email是否存在于数据库中
 * 返回值：用户Email存在于数据库时返回1，不存在时返回0
 * 输入参数：
@@ -158,22 +158,23 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 
   完成者：周宇东于2019-05-22
 
-### FUNC\_SHOW\_MESSAGE\_BY\_ID(message\_id in INTEGER, result out sys_refcursor)
+### 2.FUNC\_SHOW\_MESSAGE\_BY\_ID(message\_id in INTEGER, result out sys_refcursor)
 * 接口功能：通过给定的推特ID来查询该推特的详细信息
 
 * 返回值：查询成功返回1，失败返回0
 
 * 输入参数：
-	* message_id：INTEGER类型，表示要查询的消息的ID
-
+	
+* message_id：INTEGER类型，表示要查询的消息的ID
+	
 * 输出参数：
-	* result：sys_refcursor类型，用户信息，table属性为(message\_id, message\_content, message\_create\_time, message\_agree\_num, message\_transpond\_num, message\_comment\_num, message\_view\_num, message\_has\_image, message\_is\_transpond, message_sender\_user\_id, message\_heat, message\_transpond\_message\_id, message\_image\_count)。在5月25日更新后的message表里不再具有message\_transpond\_message\_id这个属性，若该条推特不为转发，该属性可返回-1值，若该条推特是转发，则照旧返回转发来源的ID。
+	
+* result：sys_refcursor类型，用户信息，table属性为(message\_id, message\_content, message\_create\_time, message\_agree\_num, message\_transpond\_num, message\_comment\_num, message\_view\_num, message\_has\_image, message\_is\_transpond, message_sender\_user\_id, message\_heat, message\_transpond\_message\_id, message\_image\_count)。在5月25日更新后的message表里不再具有message\_transpond\_message\_id这个属性，若该条推特不为转发，该属性可返回-1值，若该条推特是转发，则照旧返回转发来源的ID。
+	
+* 已完成：否
 
-* 已完成：是
 
-  完成者：魏敬杰于2019-05-20
-
-### FUNC\_SHOW\_HOME\_MESSAGE\_BY\_RANGE(user\_id in INTEGER, rangeStart in INTEGER, rangeLimitation in INTEGER, search\_result out sys_refcursor)
+### 3.FUNC\_SHOW\_HOME\_MESSAGE\_BY\_RANGE(user\_id in INTEGER, rangeStart in INTEGER, rangeLimitation in INTEGER, search\_result out sys_refcursor)
 * 接口功能：通过给定的用户ID，索引起点和查询范围来查询某用户发布过的推特
 
 * 返回值：查询成功返回1，失败返回0
@@ -184,13 +185,13 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* rangeLimitation：INTEGER类型，表示要查询多少条推特
 
 * 输出参数：
-	* search\_result：sys_refcursor类型，用户信息，table属性为(message\_id, message\_content, message\_create\_time, message\_agree\_num, message\_transpond\_num, message\_comment\_num, message\_view\_num, message\_has\_image, message\_is\_transpond, message_sender\_user\_id, message\_heat, message\_transpond\_message\_id, message\_image\_count)
+	
+* search\_result：sys_refcursor类型，用户信息，table属性为(message\_id, message\_content, message\_create\_time, message\_agree\_num, message\_transpond\_num, message\_comment\_num, message\_view\_num, message\_has\_image, message\_is\_transpond, message_sender\_user\_id, message\_heat, message\_transpond\_message\_id, message\_image\_count)
+	
+* 已完成：否
 
-* 已完成：是
 
-  完成者：魏敬杰于2019-05-20
-
-### FUNC\_SEND\_MESSAGE(message\_content in VARCHAR2, message\_has\_image in INTEGER, user\_id in INTEGER, message\_image\_count in INTEGER, message\_id out INTEGER)
+### 4.FUNC\_SEND\_MESSAGE(message\_content in VARCHAR2, message\_has\_image in INTEGER, user\_id in INTEGER, message\_image\_count in INTEGER, message\_id out INTEGER)
 * 接口功能：发布新的推特，通过给出推特内容，推特是否含图，推特图的数量，发布者的ID来保存新推特，并输出该条推特的ID
 
 * 返回值：发布成功返回1，失败返回0
@@ -206,7 +207,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 
 * 已完成：否
 
-### FUNC\_TRANSPOND\_MESSAGE(message\_content in VARCHAR2, message\_source\_is\_transpond in INTEGER, message\_sender\_user\_id in INTEGER, message\_transpond\_message\_id in INTEGER, message\_id out INTEGER)
+### 5.FUNC\_TRANSPOND\_MESSAGE(message\_content in VARCHAR2, message\_source\_is\_transpond in INTEGER, message\_sender\_user\_id in INTEGER, message\_transpond\_message\_id in INTEGER, message\_id out INTEGER)
 * 接口功能：转发一个已有的推特，并输出这个转发的新推特的ID值
 
 * 返回值：转发成功返回1，失败返回0
@@ -218,13 +219,13 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* message\_transpond\_message\_id：INTEGER类型，表示这个推特所转发的直接来源推特的ID
 
 * 输出参数：
-	* message\_id：INTEGER类型，表示新创建的这个转发的ID
+	
+* message\_id：INTEGER类型，表示新创建的这个转发的ID
+	
+* 已完成：否
 
-* 已完成：是
 
-  完成者：魏敬杰于2019-5-20
-
-### FUNC\_ADD\_TOPIC(topic\_content in VARCHAR2, message\_id in INTEGER)
+### 6.FUNC\_ADD\_TOPIC(topic\_content in VARCHAR2, message\_id in INTEGER)
 * 接口功能：为指定话题添加一条推特，若该话题已存在，则热度+1，若该话题不存在则将它创建
 
 * 返回值：添加成功返回1，失败返回0
@@ -235,26 +236,26 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 
 * 输出参数：无
 
-* 已完成：是
+* 已完成：否
 
-  完成者：魏敬杰于2019-5-20
 
-### FUNC\_DELETE\_MESSAGE(message\_id in INTEGER, message\_has\_image out INTEGER)
+### 7.FUNC\_DELETE\_MESSAGE(message\_id in INTEGER, message\_has\_image out INTEGER)
 * 接口功能：删除指定ID的推特，并且删除这条推特所包含的评论。需要注意的是，如果该推特包含了话题，对推特的删除并不会又减少话题的热度（也就是删除推特，话题热度不变，微博好像是这么设定的）。需要输出删除的这条推特是否含图。
 
 * 返回值：删除成功返回1，失败返回0
 
 * 输入参数：
-	* message\_id：INTEGER类型，表示要删除的推特ID
-
+	
+* message\_id：INTEGER类型，表示要删除的推特ID
+	
 * 输出参数：
-	* message\_has\_image： INTEGER类型，表示删除的这条推特是否含图
+	
+* message\_has\_image： INTEGER类型，表示删除的这条推特是否含图
+	
+* 已完成：否
 
-* 已完成：是
 
-  完成者：魏敬杰于2019-5-20
-
-### FUNC\_USER\_SIGN\_UP(email in VARCHAR, nickname in VARCHAR, password in VARCHAR)
+### 8.FUNC\_USER\_SIGN\_UP(email in VARCHAR, nickname in VARCHAR, password in VARCHAR)
 * 接口功能：通过给定的用户信息向数据库添加新用户
 
 * 返回值：注册成功返回1，失败返回0
@@ -270,7 +271,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 
   完成者：王笑天于2019-05-18
 
-### FUNC\_USER\_SIGN\_IN\_BY\_EMAIL(email in VARCHAR, password in VARCHAR, user_id out INTEGER)
+### 9.FUNC\_USER\_SIGN\_IN\_BY\_EMAIL(email in VARCHAR, password in VARCHAR, user_id out INTEGER)
 * 接口功能：通过用户Email和密码判断是否登录成功
 * 返回值：登录成功返回1，失败返回0
 * 输入参数：
@@ -282,7 +283,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 
 * 已完成：否
 
-### FUNC\_SET\_USER\_INFO(nickname in VARCHAR, password in VARCHAR,self\_introduction in VARCHAR, realname in VARCHAR, gender in VARCHAR, user\_id in INTEGER, mode in INTEGER)
+### 10.FUNC\_SET\_USER\_INFO(nickname in VARCHAR, password in VARCHAR,self\_introduction in VARCHAR, realname in VARCHAR, gender in VARCHAR, user\_id in INTEGER, mode in INTEGER)
 * 接口功能：修改用户id为user_id的用户的个人信息
 * 返回值：修改成功返回1，失败返回0
 * 输入参数：
@@ -299,7 +300,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 
   完成者：周宇东于2019-05-22
 
-### FUNC\_SET\_MAIN\_AVATAR(user\_id in INTEGER, avatar\_id in INTEGER)
+### 11.FUNC\_SET\_MAIN\_AVATAR(user\_id in INTEGER, avatar\_id in INTEGER)
 * 接口功能：设置用户的主要头像
 * 返回值：修改成功返回1，失败返回0
 * 输入参数：
@@ -309,7 +310,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 输出参数：无
 * 已完成：否
 
-### FUNC\_GET\_USER\_AVATAR(user\_id in INTEGER, avatar\_id out INTEGER)
+### 12.FUNC\_GET\_USER\_AVATAR(user\_id in INTEGER, avatar\_id out INTEGER)
 * 接口功能：通过用户id获取用户主要头像的id
 * 返回值：获得头像成功返回1，失败返回0
 * 输入参数：
@@ -318,7 +319,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* avatar\_id：INTEGER类型，用户的头像id
 * 已完成：否
 
-### FUNC\_GET\_USER\_PUBLIC\_INFO(user\_id in INTEGER, info out sys_refcursor)
+### 13.FUNC\_GET\_USER\_PUBLIC\_INFO(user\_id in INTEGER, info out sys_refcursor)
 * 接口功能：通过用户id获取用户公开信息
 * 返回值：获得成功返回1，失败返回0
 * 输入参数：
@@ -329,7 +330,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 
 ** 以下更新于5.8 by 杨紫超 **
 
-### FUNC\_ADD\_RELATION(follower_id in INTEGER, be_followed_id in INTEGER)
+### 14.FUNC\_ADD\_RELATION(follower_id in INTEGER, be_followed_id in INTEGER)
 * 接口功能：给定关注者id follower_id 以及被关注者id be_followed_id，添加一个从关注者到被关注者的关系。同时被关注者的“被关注数”需要+1，关注者的“关注别人的数量"需要+1
 * 返回值：同上
 * 输入参数：
@@ -338,7 +339,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 输出参数：无
 * 已完成：否
 
-### FUNC\_REMOVE\_RELATION(follower\_id in INTEGER, be\_followed\_id in INTEGER)
+### 15.FUNC\_REMOVE\_RELATION(follower\_id in INTEGER, be\_followed\_id in INTEGER)
 * 接口功能：给定关注者id follower_id 以及被关注者id be_followed_id，删除一个从关注者到被关注者的关系。同时被关注者的“被关注数”需要-1，关注者的“关注别人的数量"需要-1
 * 返回值：同上
 * 输入参数：
@@ -347,7 +348,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 输出参数：无
 * 已完成：否
 
-### FUNC\_QUERY\_FOLLOWING\_LIST(user\_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result in INTEGER)
+### 16.FUNC\_QUERY\_FOLLOWING\_LIST(user\_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result in INTEGER)
 * 接口功能：给定用户id:user\_id，查找出他关注的人的，从startFrom开始，长度为limitation的user信息列表，按照时间降序排序
 * 返回值：同上
 * 输入参数：
@@ -359,7 +360,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	(user\_id, user_nickname, avatar_id)
 * 已完成：否
 
-### FUNC\_QUERY\_FOLLOWERS\_LIST(user\_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result in INTEGER)
+### 17.FUNC\_QUERY\_FOLLOWERS\_LIST(user\_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result in INTEGER)
 * 接口功能：给定用户id:user\_id，查找出关注他的人 的，从startFrom开始，长度为limitation的user信息列表，按照时间降序排序
 * 返回值：同上
 * 输入参数：
@@ -372,7 +373,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 已完成：否
 
 
-### FUNC\_ADD\_PRIVATE\_LETTER(sender\_user\_id in INTEGER, receiver\_user_id in INTEGER, content in VARCHAR2)
+### 18.FUNC\_ADD\_PRIVATE\_LETTER(sender\_user\_id in INTEGER, receiver\_user_id in INTEGER, content in VARCHAR2)
 * 接口功能：给定发送者的id:sender\_user\_id，以及接受者id:receiver\_user\_id，给定内容content，添加一条私信消息。
 * 返回值：同上
 * 输入参数：
@@ -383,7 +384,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 已完成：否
 
 
-### FUNC\_DELETE\_PRIVATE\_LETTER(private\_letter\_id)
+### 19.FUNC\_DELETE\_PRIVATE\_LETTER(private\_letter\_id)
 * 接口功能：给定私信id,删除一条私信。
 * 返回值：同上
 * 输入参数：
@@ -392,7 +393,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 已完成：否
 
 
-### FUNC\_QUERY\_PRIVATE\_LETTERS\_SEND\_TO\_USER(user\_id in INTEGER ,startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+### 20.FUNC\_QUERY\_PRIVATE\_LETTERS\_SEND\_TO\_USER(user\_id in INTEGER ,startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
 * 接口功能：给定用户id:user\_id，查找出其他人给他发送的私信 的，从startFrom开始，长度为limitation的私信信息列表，按照时间降序排序
 * 返回值：同上
 * 输入参数：
@@ -405,7 +406,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 已完成：否
 
 
-### FUNC\_QUERY\_MESSAGE\_IDS\_CONTAINS\_CERTAIN\_TOPIC\_ID(topic_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+### 21.FUNC\_QUERY\_MESSAGE\_IDS\_CONTAINS\_CERTAIN\_TOPIC\_ID(topic_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
 * 接口功能：通过给定的topic\_id，以及起始索引startFrom，以及搜索长度limitation，获取包含该topic的推特message_id的列表。按照时间降序排序
 * 返回值：同上
 * 输入参数：
@@ -416,7 +417,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* search\_result: sys_refcursor类型，推特id列表，table属性为(message\_id)
 * 已完成：否
 
-### FUNC\_QUERY\_TOPIC\_IDS\_ORDER\_BY\_HEAT(startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+### 22.FUNC\_QUERY\_TOPIC\_IDS\_ORDER\_BY\_HEAT(startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
 * 接口功能：获取从startFrom开始，长度为limitation的，按照话题topic的热度降序排序的话题id列表
 * 返回值：同上
 * 输入参数：
@@ -427,7 +428,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 已完成：否
 
 
-### FUNC\_ADD\_LIKE(user\_id in INTEGER, message\_id in INTEGER)
+### 23.FUNC\_ADD\_LIKE(user\_id in INTEGER, message\_id in INTEGER)
 * 接口功能：给定点赞者的id:user\_id，以及被点赞的推特id: message\_id，添加一条点赞信息。**同时，推特的被点赞总数需要+1,推特的热度需要+1，推特所拥有的所有话题的热度需要+1**。
 * 返回值：同上
 * 输入参数：
@@ -436,7 +437,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 输出参数：无
 * 已完成：否
 
-### FUNC\_DELETE\_LIKE(user\_id in INTEGER, message\_id in INTEGER)
+### 24.FUNC\_DELETE\_LIKE(user\_id in INTEGER, message\_id in INTEGER)
 * 接口功能：给定点赞者的id:user\_id，以及被点赞的推特id: message\_id，删除一条点赞信息。**同时，推特的被点赞总数需要-1,推特的热度需要-1，推特所拥有的所有话题的热度需要-1**。
 * 返回值：同上
 * 输入参数：
@@ -445,7 +446,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 输出参数：无
 * 已完成：否
 
-### FUNC\_QUERY\_MESSAGE\_IDS\_THAT\_USER\_LIKES(user\_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result out sys\_refcursor)
+### 25.FUNC\_QUERY\_MESSAGE\_IDS\_THAT\_USER\_LIKES(user\_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result out sys\_refcursor)
 * 接口功能：通过给定的user\_id，获取该用户点赞的所有推特 的，从startFrom开始，长度为limitation 的message\_id的列表。按照时间降序排序
 * 返回值：同上
 * 输入参数：
@@ -457,7 +458,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 已完成：否
 
 
-### FUNC\_ADD\_COMMENT(user\_id in INTEGER, message\_id in INTEGER, content in VARCHAR2)
+### 26.FUNC\_ADD\_COMMENT(user\_id in INTEGER, message\_id in INTEGER, content in VARCHAR2)
 * 接口功能：给定发送者的id:user\_id，以及推特id:message\_id，给定内容content，添加一条评论消息。**同时推特的被评论数+1，推特的热度+1,推特包含的全部的热度+1**
 * 返回值：同上
 * 输入参数：
@@ -468,7 +469,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 已完成：否
 
 
-### FUNC\_ADD\_COLLECTION(user\_id in INTEGER, message\_id in INTEGER)
+### 27.FUNC\_ADD\_COLLECTION(user\_id in INTEGER, message\_id in INTEGER)
 * 接口功能：给定发送者的id:user\_id，以及推特id:message\_id，添加一条收藏。**同时推特的热度+1,推特包含的全部的热度+1**
 * 返回值：同上
 * 输入参数：
@@ -478,7 +479,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 已完成：否
 
 
-### FUNC\_DELETE\_COLLECTION(user\_id in INTEGER, message\_id in INTEGER)
+### 28.FUNC\_DELETE\_COLLECTION(user\_id in INTEGER, message\_id in INTEGER)
 * 接口功能：给定发送者的id:user\_id，以及推特id:message\_id，删除一条收藏。**同时推特的热度-1,推特包含的全部的热度-1**
 * 返回值：同上
 * 输入参数：
@@ -488,7 +489,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 已完成：否
 
 
-### FUNC\_QUERY\_COLLECTIONS\_OF\_MINE(user\_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result out sys\_refcursor)
+### 29.FUNC\_QUERY\_COLLECTIONS\_OF\_MINE(user\_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result out sys\_refcursor)
 * 接口功能：通过给定的user\_id，获取该用户收藏的所有推特 的，从startFrom开始，长度为limitation 的message\_id的列表。按照时间降序排序
 * 返回值：同上
 * 输入参数：
@@ -500,7 +501,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 已完成：否
 
 
-### FUNC\_QUERY\_MESSAGE\_IDS\_THAT\_AT\_USER(user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result out sys\_refcursor))
+### 30.FUNC\_QUERY\_MESSAGE\_IDS\_THAT\_AT\_USER(user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result out sys\_refcursor))
  接口功能：通过给定的user\_id，获取艾特该用户的所有推特 的，从startFrom开始，长度为limitation 的message\_id的列表。按照时间降序排序
 * 返回值：同上
 * 输入参数：

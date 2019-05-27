@@ -103,3 +103,34 @@ where USER_ID=id;
 commit;
 return state;
 end;
+---------------------FUNC_SEND_MESSAGE-------------------------------
+---------------------发布新的推特（添加信息至Message）---------------
+create or replace function
+FUNC_SEND_MESSAGE(message_content in VARCHAR2, message_has_image in INTEGER, user_id in INTEGER, message_image_count in INTEGER, message_id out INTEGER)
+return INTEGER
+is
+PRAGMA AUTONOMOUS_TRANSACTION;
+state INTEGER:=1;
+create_time VARCHAR2(30);
+temp_id INTEGER:=0;
+begin
+select to_char(sysdate, 'yyyy-mm-dd HH24:MI:SS') into create_time from dual;
+insert into Message(message_id, message_content, message_create_time, message_agree_num, message_transponded_num,
+					message_comment_num, message_view_num, message_has_image, message_sender_user_id, message_heat)
+values(seq_message.nextval, message_content, create_time, '0', '0', '0', '0', message_has_image, user_id, '0');
+
+select message_id into temp_id 
+from Message
+where message_create_time=create_time;
+
+message_id:=temp_id;
+
+if message_has_image !=0 then
+insert into Message_Image(message_id, message_image_count)
+values (temp_id, message_image_count);
+end if;
+
+commit;
+return state;
+end;
+\

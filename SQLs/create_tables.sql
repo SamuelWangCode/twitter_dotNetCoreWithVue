@@ -36,7 +36,7 @@ CREATE TABLE Avatar_Image £¨
   user_id INTEGER,
   avatar_image_in_use INTEGER NOT NULL,
   CONSTRAINT pk_avatar_image
-	PRIMARY KEY£¨ avatar_image_id£¬user_id£©£¬
+	PRIMARY KEY£¨ avatar_image_id£¬user_id),
   CONSTRAINT fk_avatar_image FOREIGN KEY (user_id)
 	REFERENCES USER_Public_INFO (user_id)
 		ON DELETE CASCADE
@@ -143,8 +143,8 @@ CACHE 10;
 
 CREATE TABLE Message(
   message_id INTEGER PRIMARY KEY,
-  message_content VARCHAR(280) NOT NULL,
-  message_create_time DATE NOT NULL,
+  message_content VARCHAR2(280) NOT NULL,
+  message_create_time VARCHAR2(30) NOT NULL,
   message_agree_num INTEGER NOT NULL,
   message_transponded_num INTEGER NOT NULL,
   message_comment_num INTEGER NOT NULL,
@@ -165,8 +165,10 @@ CREATE INDEX m_heat_create_time ON Message(message_heat, message_create_time);
 ----------------------------------------------
 -----------------Transpond--------------------
 CREATE TABLE Transpond(
-	message_id INTEGER PRIMARY KEY,
-	transponded_message_id INTEGER PRIMARY KEY,
+	message_id INTEGER ,
+	transponded_message_id INTEGER ,
+	CONSTRAINT pk_Tranpond
+		PRIMARY KEY(message_id, transponded_message_id),
 	CONSTRAINT fk_message_id
 		FOREIGN KEY (message_id)
 			REFERENCES Message(message_id)
