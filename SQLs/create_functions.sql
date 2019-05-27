@@ -1,5 +1,5 @@
 ------------------FUNC_CHECK_USER_EMAIL_EXIST(email in VARCHAR)----------------
------------------------检查用户Email是否存在于数据库中---------------------------
+-----------------------????Email?????????---------------------------
 create or replace function 
 FUNC_CHECK_USER_EMAIL_EXIST(email in VARCHAR)
 return INTEGER
@@ -16,7 +16,7 @@ end;
 
 
 ------------------FUNC_USER_SIGN_UP----------------
------------通过给定的用户信息向数据库添加新用户-------
+-----------??????????????????-------
 create or replace function 
 FUNC_USER_SIGN_UP(email in VARCHAR, nickname in VARCHAR, password in VARCHAR)
 return INTEGER
@@ -45,10 +45,31 @@ return state;
 
 end;
 /
+------------------FUNC_USER_SIGN_IN----------------
+----------------------????----------------------
+create or replace function FUNC_USER_SIGN_IN_BY_EMAIL(email in VARCHAR, password in VARCHAR, re_user_id out INTEGER)
+return INTEGER
+is 
+state INTEGER;
+begin
 
+select count(*)
+into state
+from USER_PRIVATE_INFO
+where email=USER_EMAIL AND password=USER_PASSWORD;
+
+if state=1 then
+select USER_ID
+into re_user_id
+from USER_PRIVATE_INFO
+where email=USER_EMAIL AND password=USER_PASSWORD;
+end if;
+return state;
+end;
+/
 
 ---------------FUNC_SET_USER_INFO----------------
-------------------修改用户信息--------------------
+------------------??????--------------------
 create or replace function 
 FUNC_SET_USER_INFO
 (nickname in VARCHAR, self_introduction in VARCHAR, password in VARCHAR, realname in VARCHAR, gender in VARCHAR,id in INTEGER, set_mode in INTEGER)
@@ -103,8 +124,9 @@ where USER_ID=id;
 commit;
 return state;
 end;
+/
 ---------------------FUNC_SEND_MESSAGE-------------------------------
----------------------发布新的推特（添加信息至Message）---------------
+---------------------????????????Message?---------------
 create or replace function
 FUNC_SEND_MESSAGE(message_content in VARCHAR2, message_has_image in INTEGER, user_id in INTEGER, message_image_count in INTEGER, message_id out INTEGER)
 return INTEGER
@@ -133,4 +155,4 @@ end if;
 commit;
 return state;
 end;
-\
+/
