@@ -65,17 +65,33 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
   >
   > * 补充注意事项1：在函数内部存在DML操作（尤其时插入删除等）时，会产生ORA-14551: 无法在查询中执行 DML 操作 .”错误，该错误产生原因在于主事务和自治事务的区别，具体请自行了解，这里提供一种解决方法：使用自治事务。在函数声明部分加入这句话
   >
-  >   PRAGMA AUTONOMOUS_TRANSACTION;并在最后 COMMIT 提交DML操作。
+  > PRAGMA AUTONOMOUS_TRANSACTION;并在最后 COMMIT 提交DML操作。
   >
-  >   详情见下面样例，相关资料请参考：<https://blog.csdn.net/gigiouter/article/details/7616627>
+  > 详情见下面样例，相关资料请参考：<https://blog.csdn.net/gigiouter/article/details/7616627>
   > * 补充注意事项2：在一个sql文件中创建多个函数时需要使用分隔符/来分隔不同函数
+  >
   > * 使用函数时可以参照以下样例
+  >
+  >   不带输出参数：
   >
   >   ~~~sql
   >   select func_user_sign_up('xx', 'xx', 'xx')from dual;
   >   ~~~
   >
+  >   存在输出参数（可以用一个块来解决，不排除有更简洁的方式）：
+  >
+  >   ~~~sql
+  >   declare
+  >   state INTEGER;
+  >   user_id INTEGER;
+  >   begin
+  >   state:=func_send_message('I love you', 0, 3, 0, user_id);
+  >   end;
+  >   ~~~
+  >
   >   
+  >
+  > 
 
 * 接口样例
 
@@ -203,9 +219,12 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* message\_image\_count：INTEGER类型，表示该推特含图的数量，不含图则表示为0
 
 * 输出参数：
-	* message\_id：INTEGER类型，表示新建的该推特的ID
+	
+* message\_id：INTEGER类型，表示新建的该推特的ID
+	
+* 已完成：是
 
-* 已完成：否
+  完成者：王笑天于2019-05-27
 
 ### 5.FUNC\_TRANSPOND\_MESSAGE(message\_content in VARCHAR2, message\_source\_is\_transpond in INTEGER, message\_sender\_user\_id in INTEGER, message\_transpond\_message\_id in INTEGER, message\_id out INTEGER)
 * 接口功能：转发一个已有的推特，并输出这个转发的新推特的ID值
