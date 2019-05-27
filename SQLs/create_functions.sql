@@ -125,6 +125,41 @@ commit;
 return state;
 end;
 /
+
+
+---------------------FUNC_SET_MAIN_AVATAR-------------------------
+---------------------------????--------------------------------
+create or replace function FUNC_SET_MAIN_AVATAR(userid in INTEGER, avatarid in INTEGER)
+return INTEGER
+is
+state INTEGER:=1;
+temp INTEGER;
+begin
+select count(*)
+into state
+from USER_PUBLIC_INFO
+where userid=USER_ID;
+
+if state=0 then
+return state;
+end if;
+
+update Avatar_Image
+set avatar_image_in_use=0
+where userid=USER_ID;
+select count(*) into temp from Avatar_Image where userid=USER_ID AND avatarid=avatar_image_id;
+if temp!=0 then
+update Avatar_Image
+set avatar_image_in_use=1
+where userid=USER_ID AND avatarid=avatar_image_id;
+else 
+insert into Avatar_Image (USER_ID,avatar_image_id,avatar_image_in_use)
+values (userid,avatarid,1);
+end if;
+return state;
+end;
+/
+
 ---------------------FUNC_SEND_MESSAGE-------------------------------
 ---------------------????????????Message?---------------
 create or replace function

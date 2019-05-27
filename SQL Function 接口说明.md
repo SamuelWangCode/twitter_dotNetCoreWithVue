@@ -300,7 +300,9 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 输出参数：
 	* user_id：登录用户的id值
 
-* 已完成：否
+* 已完成：是
+
+  完成者：周宇东于2019-5-27
 
 ### 10.FUNC\_SET\_USER\_INFO(nickname in VARCHAR, password in VARCHAR,self\_introduction in VARCHAR, realname in VARCHAR, gender in VARCHAR, user\_id in INTEGER, mode in INTEGER)
 * 接口功能：修改用户id为user_id的用户的个人信息
@@ -327,7 +329,9 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* avatar\_id：INTEGER类型，用户选择的头像
 
 * 输出参数：无
-* 已完成：否
+* 已完成：是
+
+  完成者：周宇东于2019-05-22
 
 ### 12.FUNC\_GET\_USER\_AVATAR(user\_id in INTEGER, avatar\_id out INTEGER)
 * 接口功能：通过用户id获取用户主要头像的id
