@@ -117,7 +117,7 @@ CREATE INDEX pl_create_time ON Private_Letter(private_letter_create_time);
 ---------------------------------------------
 ----------------Relation---------------------
 CREATE TABLE Relation(
-  relation_create_time DATE NOT NULL,
+  relation_create_time VARCHAR2(30) NOT NULL,
   relation_user_follower_id INTEGER NOT NULL,
   relation_user_be_followed_id INTEGER NOT NULL,
   CONSTRAINT pk_relation
@@ -265,7 +265,7 @@ CREATE TABLE Comment_On_Message(
   comment_is_read INTEGER NOT NULL,
   comment_sender_id INTEGER NOT NULL,
   comment_message_id INTEGER NOT NULL,
-  comment_create_time DATE NOT NULL,
+  comment_create_time VARCHAR2(30) NOT NULL,
   CONSTRAINT fk_comment_1 FOREIGN KEY
     (comment_sender_id) REFERENCES
       User_Public_Info(user_id)

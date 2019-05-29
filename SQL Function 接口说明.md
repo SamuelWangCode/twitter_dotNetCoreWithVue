@@ -240,12 +240,15 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* message\_transpond\_message\_id：INTEGER类型，表示这个推特所转发的直接来源推特的ID
 
 * 输出参数：
-	* message\_id：INTEGER类型，表示新创建的这个转发的ID
+	
+* message\_id：INTEGER类型，表示新创建的这个转发的ID
+	
+* 已完成：是
 
-* 已完成：否
+  完成者：王笑天于2019-05-29
 
 
-### 6. FUNC\_ADD\_TOPIC(topic\_content in VARCHAR2, message\_id in INTEGER)
+### 6. FUNC\_ADD\_TOPIC(topic\_name in VARCHAR2, message\_id in INTEGER)
 * 接口功能：为指定话题添加一条推特，若该话题已存在，则热度+1，若该话题不存在则将它创建
 
 * 返回值：添加成功返回1，失败返回0
@@ -256,7 +259,9 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 
 * 输出参数：无
 
-* 已完成：否
+* 已完成：是
+
+  完成者：王笑天于2019-05-29
 
 
 ### 7. FUNC\_DELETE\_MESSAGE(message\_id in INTEGER, message\_has\_image out INTEGER)
@@ -350,21 +355,33 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 
 ### 14. FUNC\_ADD\_RELATION(follower_id in INTEGER, be_followed_id in INTEGER)
 * 接口功能：给定关注者id follower_id 以及被关注者id be_followed_id，添加一个从关注者到被关注者的关系。同时被关注者的“被关注数”需要+1，关注者的“关注别人的数量"需要+1
+
 * 返回值：同上
+
 * 输入参数：
 	* follower\_id: INTEGER类型， 关注者id
 	* be\_followed\_id: INTEGER类型，被关注者id
+	
 * 输出参数：无
-* 已完成：否
+
+* 已完成：是
+
+  完成者：王笑天于2019-05-29
 
 ### 15. FUNC\_REMOVE\_RELATION(follower\_id in INTEGER, be\_followed\_id in INTEGER)
 * 接口功能：给定关注者id follower_id 以及被关注者id be_followed_id，删除一个从关注者到被关注者的关系。同时被关注者的“被关注数”需要-1，关注者的“关注别人的数量"需要-1
+
 * 返回值：同上
+
 * 输入参数：
 	* follower\_id: INTEGER类型， 关注者id
 	* be\_followed\_id: INTEGER类型，被关注者id
+	
 * 输出参数：无
-* 已完成：否
+
+* 已完成：是
+
+  完成者：王笑天于2019-05-29
 
 ### 16. FUNC\_QUERY\_FOLLOWING\_LIST(user\_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result in INTEGER)
 * 接口功能：给定用户id:user\_id，查找出他关注的人的，从startFrom开始，长度为limitation的user信息列表，按照时间降序排序
@@ -476,25 +493,37 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 已完成：否
 
 
-### 26. FUNC\_ADD\_COMMENT(user\_id in INTEGER, message\_id in INTEGER, content in VARCHAR2)
+### 26. FUNC\_ADD\_COMMENT(user\_id in INTEGER, be_commented_id in INTEGER, content in VARCHAR2)
 * 接口功能：给定发送者的id:user\_id，以及推特id:message\_id，给定内容content，添加一条评论消息。**同时推特的被评论数+1，推特的热度+1,推特包含的全部的热度+1**
+
 * 返回值：同上
+
 * 输入参数：
 	* user\_id: INTEGER类型，发送者的id
 	* message\_id: INTEGER类型，推特的id
 	* content: VARCHAR2类型，评论的内容
+	
 * 输出参数：无
-* 已完成：否
+
+* 已完成：是
+
+  完成者：王笑天于2019-05-29
 
 
-### 27. FUNC\_ADD\_COLLECTION(user\_id in INTEGER, message\_id in INTEGER)
+### 27. FUNC\_ADD\_COLLECTION(user\_id in INTEGER,be_collected\_id in INTEGER)
 * 接口功能：给定发送者的id:user\_id，以及推特id:message\_id，添加一条收藏。**同时推特的热度+1,推特包含的全部的热度+1**
+
 * 返回值：同上
+
 * 输入参数：
 	* user\_id: INTEGER类型，发送者的id
 	* message\_id: INTEGER类型，推特的id
+	
 * 输出参数：无
-* 已完成：否
+
+* 已完成：是
+
+  完成者：王笑天于2019-05-29
 
 
 ### 28. FUNC\_DELETE\_COLLECTION(user\_id in INTEGER, message\_id in INTEGER)
