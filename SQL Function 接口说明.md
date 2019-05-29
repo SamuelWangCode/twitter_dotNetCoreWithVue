@@ -57,25 +57,46 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 
 * 注意事项
 
-  > * 若使用select into语句来对单值输出参数赋值时应考虑到检索结果为空或多项结果的情况
-  >
-  > * 对于位模式mode可以使用bitand函数来判断要进行的步骤
-  >
-  > * 小组成员可自行将编写过程中踩过的坑添加到注意事项中
-  >
-  > * 补充注意事项1：在函数内部存在DML操作（尤其时插入删除等）时，会产生ORA-14551: 无法在查询中执行 DML 操作 .”错误，该错误产生原因在于主事务和自治事务的区别，具体请自行了解，这里提供一种解决方法：使用自治事务。在函数声明部分加入这句话
-  >
-  >   PRAGMA AUTONOMOUS_TRANSACTION;并在最后 COMMIT 提交DML操作。
-  >
-  >   详情见下面样例，相关资料请参考：<https://blog.csdn.net/gigiouter/article/details/7616627>
-  > * 补充注意事项2：在一个sql文件中创建多个函数时需要使用分隔符/来分隔不同函数
-  > * 使用函数时可以参照以下样例
-  >
-  >   ~~~sql
-  >   select func_user_sign_up('xx', 'xx', 'xx')from dual;
-  >   ~~~
-  >
-  >   
+> * 若使用select into语句来对单值输出参数赋值时应考虑到检索结果为空或多项结果的情况
+>
+> * 对于位模式mode可以使用bitand函数来判断要进行的步骤
+>
+> * 小组成员可自行将编写过程中踩过的坑添加到注意事项中
+>
+> * 补充注意事项1：在函数内部存在DML操作（尤其时插入删除等）时，会产生ORA-14551: 无法在查询中执行 DML 操作 .”错误，该错误产生原因在于主事务和自治事务的区别，具体请自行了解，这里提供一种解决方法：使用自治事务。在函数声明部分加入这句话
+>
+> PRAGMA AUTONOMOUS_TRANSACTION;并在最后 COMMIT 提交DML操作。
+>
+> 详情见下面样例，相关资料请参考：<https://blog.csdn.net/gigiouter/article/details/7616627>
+> * 补充注意事项2：在一个sql文件中创建多个函数时需要使用分隔符/来分隔不同函数
+>
+> * 使用函数时可以参照以下样例
+>
+>   * 不带输出参数
+>
+>     ~~~sql
+>     select func_user_sign_up('xx', 'xx', 'xx')from dual;
+>     ~~~
+>
+>   + 带输出参数
+>
+>     ~~~sql
+>     declare
+>     state INTEGER;
+>     user_id INTEGER;
+>     begin
+>     state:=func_send_message('I love you', 0, 3, 0, user_id);
+>     end;
+>     ~~~
+>
+>   + SQL  Developer中输出测试可以用如下语句
+>
+>     ~~~sql
+>     dbms_output.put_line();
+>     ~~~
+>
+>     
+>
 
 * 接口样例
 

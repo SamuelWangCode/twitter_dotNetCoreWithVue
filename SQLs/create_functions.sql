@@ -135,3 +135,29 @@ commit;
 return state;
 end;
 \
+
+-------------------FUNC_ADD_TOPIC----------------------------
+-------------------添加话题/增加话题热度---------------------
+create or replace function
+FUNC_ADD_TOPIC(topic_content in VARCHAR2, message_id in INTEGER)
+return INTEGER
+is 
+PRAGMA AUTONOMOUS_TRANSACTION;
+state INTEGER:=1;
+temp_topic_id INTEGER:=-1;
+topic_exist INTEGER:=0;
+
+begin
+select count(*) into topic_exist from Topic where topic_content = topic_content;
+if topic_exist !=0 then
+select topic_id into temp_topic_id from Topic where topic_content=topic_content;
+update Topic set topic_heat = topic_heat + 1 where topic_id=temp_topic_id;
+else
+insert into Topic(topic_id, topic_heat, topic_content) 
+values (seq_topic.nextval, 0, topic_content);
+end if;
+
+commit;
+return state;
+end;
+\
