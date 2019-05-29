@@ -169,9 +169,8 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 输出参数：
 	* result：sys_refcursor类型，用户信息，table属性为(message\_id, message\_content, message\_create\_time, message\_agree\_num, message\_transpond\_num, message\_comment\_num, message\_view\_num, message\_has\_image, message\_is\_transpond, message_sender\_user\_id, message\_heat, message\_transpond\_message\_id, message\_image\_count)。在5月25日更新后的message表里不再具有message\_transpond\_message\_id这个属性，若该条推特不为转发，该属性可返回-1值，若该条推特是转发，则照旧返回转发来源的ID。
 
-* 已完成：是
+* 已完成：否
 
-  完成者：魏敬杰于2019-05-20
 
 ### FUNC\_SHOW\_HOME\_MESSAGE\_BY\_RANGE(user\_id in INTEGER, rangeStart in INTEGER, rangeLimitation in INTEGER, search\_result out sys_refcursor)
 * 接口功能：通过给定的用户ID，索引起点和查询范围来查询某用户发布过的推特
@@ -186,9 +185,8 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 输出参数：
 	* search\_result：sys_refcursor类型，用户信息，table属性为(message\_id, message\_content, message\_create\_time, message\_agree\_num, message\_transpond\_num, message\_comment\_num, message\_view\_num, message\_has\_image, message\_is\_transpond, message_sender\_user\_id, message\_heat, message\_transpond\_message\_id, message\_image\_count)
 
-* 已完成：是
+* 已完成：否
 
-  完成者：魏敬杰于2019-05-20
 
 ### FUNC\_SEND\_MESSAGE(message\_content in VARCHAR2, message\_has\_image in INTEGER, user\_id in INTEGER, message\_image\_count in INTEGER, message\_id out INTEGER)
 * 接口功能：发布新的推特，通过给出推特内容，推特是否含图，推特图的数量，发布者的ID来保存新推特，并输出该条推特的ID
@@ -220,9 +218,8 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 输出参数：
 	* message\_id：INTEGER类型，表示新创建的这个转发的ID
 
-* 已完成：是
+* 已完成：否
 
-  完成者：魏敬杰于2019-5-20
 
 ### FUNC\_ADD\_TOPIC(topic\_content in VARCHAR2, message\_id in INTEGER)
 * 接口功能：为指定话题添加一条推特，若该话题已存在，则热度+1，若该话题不存在则将它创建
@@ -235,9 +232,8 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 
 * 输出参数：无
 
-* 已完成：是
+* 已完成：否
 
-  完成者：魏敬杰于2019-5-20
 
 ### FUNC\_DELETE\_MESSAGE(message\_id in INTEGER, message\_has\_image out INTEGER)
 * 接口功能：删除指定ID的推特，并且删除这条推特所包含的评论。需要注意的是，如果该推特包含了话题，对推特的删除并不会又减少话题的热度（也就是删除推特，话题热度不变，微博好像是这么设定的）。需要输出删除的这条推特是否含图。
@@ -250,9 +246,8 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 输出参数：
 	* message\_has\_image： INTEGER类型，表示删除的这条推特是否含图
 
-* 已完成：是
+* 已完成：否
 
-  完成者：魏敬杰于2019-5-20
 
 ### FUNC\_USER\_SIGN\_UP(email in VARCHAR, nickname in VARCHAR, password in VARCHAR)
 * 接口功能：通过给定的用户信息向数据库添加新用户
