@@ -1,4 +1,4 @@
-# SQL Function 接口说明
+﻿# SQL Function 接口说明
 
 此文档由c#小组（杨紫超，周宇东，魏敬杰）负责编写。
 SQL小组通过阅读此文档，编写相应的SQL脚本。
@@ -190,7 +190,9 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 输出参数：
 	* result：sys_refcursor类型，用户信息，table属性为(message\_id, message\_content, message\_create\_time, message\_agree\_num, message\_transpond\_num, message\_comment\_num, message\_view\_num, message\_has\_image, message\_is\_transpond, message_sender\_user\_id, message\_heat, message\_transpond\_message\_id, message\_image\_count)。在5月25日更新后的message表里不再具有message\_transpond\_message\_id这个属性，若该条推特不为转发，该属性可返回-1值，若该条推特是转发，则照旧返回转发来源的ID。
 
-* 已完成：否
+* 已完成：是
+
+  完成者：顾安琪于2019-06-01
 
 
 ### 3. FUNC\_SHOW\_HOME\_MESSAGE\_BY\_RANGE(user\_id in INTEGER, rangeStart in INTEGER, rangeLimitation in INTEGER, search\_result out sys_refcursor)
@@ -275,7 +277,9 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 输出参数：
 	* message\_has\_image： INTEGER类型，表示删除的这条推特是否含图
 
-* 已完成：否
+* 已完成：是
+
+  完成者：顾安琪于2019-06-01
 
 
 ### 8. FUNC\_USER\_SIGN\_UP(email in VARCHAR, nickname in VARCHAR, password in VARCHAR)
@@ -533,7 +537,10 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* user\_id: INTEGER类型，收藏者的id
 	* message\_id: INTEGER类型，推特的id
 * 输出参数：无
-* 已完成：否
+
+* 已完成：是
+
+  完成者：顾安琪于2019-06-01
 
 
 ### 29. FUNC\_QUERY\_COLLECTIONS\_OF\_MINE(user\_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result out sys\_refcursor)

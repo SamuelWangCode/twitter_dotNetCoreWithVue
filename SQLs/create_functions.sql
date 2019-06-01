@@ -1,4 +1,4 @@
-------------------FUNC_CHECK_USER_EMAIL_EXIST(email in VARCHAR)----------------
+﻿------------------FUNC_CHECK_USER_EMAIL_EXIST(email in VARCHAR)----------------
 -----------------------检查用户Email是否存在于数据库中---------------------------
 create or replace function 
 FUNC_CHECK_USER_EMAIL_EXIST(email in VARCHAR)
@@ -14,6 +14,33 @@ return state;
 end;
 /
 
+
+---------------FUNC_SHOW_MESSAGE_BY_ID----------------------
+------------------根据ID查询推特信息-------------------------------
+create or replace 
+function 
+FUNC_SHOW_MESSAGE_BY_ID(message_id in INTEGER, result out sys_refcursor)
+return INTEGER
+IS
+state INTEGER:=0;
+c1 SYS_REFCURSOR;
+
+begin
+open c1 for
+select *
+from MESSAGE
+where message_id=MESSAGE.message_id;
+
+select count(*) into state 
+from MESSAGE
+where message_id=MESSAGE.message_id;
+if state!=0 then
+state:=1;
+end if;
+
+return state;
+end;
+\
 
 ------------------FUNC_USER_SIGN_UP----------------
 -----------通过给定的用户信息向数据库添加新用户-------
@@ -212,6 +239,31 @@ return state;
 end;
 \
 
+-------------------FUNC_DELETE_MESSAGE------------------------
+-----------------------根据ID删除推特-------------------------------
+create or replace 
+function 
+FUNC_DELETE_MESSAGE(message_id in INTEGER, message_has_image out INTEGER)
+return INTEGER
+is 
+PRAGMA AUTONOMOUS_TRANSACTION;
+state INTEGER:=0;
+
+begin
+select count(*) into state 
+from MESSAGE 
+where message_id = MESSAGE.message_id;
+
+if state != 0 then 
+state:=1;
+else
+delete from MESSAGE 
+where message_id = MESSAGE.message_id;
+delete from COMMENT_ON_MESSAGE 
+where message_id = COMMENT_MESSAGE_ID;
+end if;
+\
+
 ------------------FUNC_ADD_RELATION----------------------
 ------------------添加用户关系---------------------------
 create or replace function
@@ -318,6 +370,41 @@ update Topic set topic_heat = topic_heat + 1
 where topic_id in (select topic_id from Message_Owns_Topic
 					where message_id = be_collected_id);
 end if;
+commit;
+return state;
+end;
+\
+
+---------------FUNC_DELETE_COLLECTION----------------------
+-----------------------删除收藏----------------------------------
+create or replace 
+function 
+FUNC_DELETE_COLLECTION(user_id in INTEGER, message_id in INTEGER)
+return INTEGER
+is 
+PRAGMA AUTONOMOUS_TRANSACTION;
+state INTEGER:=0;
+
+begin
+select count(*) into state 
+from MESSAGE 
+where message_id = MESSAGE.message_id;
+
+if state != 0 then 
+state:=1;
+else
+delete from MESSAGE_COLLECTION
+where message_id = MESSAGE_COLLECTION.message_id and user_id=MESSAGE_COLLECTION.user_id;
+update MESSAGE 
+set MESSAGE_HEAT=MESSAGE_HEAT-1
+where message_id = MESSAGE.message_id;
+update TOPIC 
+set TOPIC_HEAT=TOPIC_HEAT-1
+where topic_id=( select TOPIC_ID 
+from MESSAGE_OWNS_TOPIC
+where message_id = MESSAGE_OWNS_TOPIC.message_id);
+end if;
+
 commit;
 return state;
 end;
