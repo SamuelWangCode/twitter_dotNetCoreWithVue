@@ -420,7 +420,9 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* receiver\_user\_id: INTEGER类型，接受者的id
 	* content: VARCHAR2类型，私信的内容
 * 输出参数：无
-* 已完成：否
+* 已完成：是
+
+完成者：徐诚于2019-06-02
 
 
 ### 19. FUNC\_DELETE\_PRIVATE\_LETTER(private\_letter\_id)
@@ -429,7 +431,9 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 输入参数：
 	* private\_letter\_id
 * 输出参数：无
-* 已完成：否
+* 已完成：是
+
+完成者：徐诚于2019-06-02
 
 
 ### 20. FUNC\_QUERY\_PRIVATE\_LETTERS\_SEND\_TO\_USER(user\_id in INTEGER ,startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
@@ -442,7 +446,10 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 输出参数：
 	* search\_result: sys_refcursor类型。私信的信息表格，包括发送者的id:sender\_user\_id，私信的id: private\_letter\_id，私信的内容private\_letter\_content，私信的发送时间戳timestamp。table的属性为
 	(sender\_user\_id, private\_letter, private\_letter\_content, timestamp)
-* 已完成：否
+* 已完成：是
+**更名为：FUNC\_QUERY\_PRIVATE\_LETTERS(user\_id in INTEGER ,startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+
+完成者：徐诚于2019-06-02
 
 
 ### 21. FUNC\_QUERY\_MESSAGE\_IDS\_CONTAINS\_CERTAIN\_TOPIC\_ID(topic_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
@@ -464,7 +471,10 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* limitation: INTEGER类型，查找结果的长度
 * 输出参数：
 	* search\_result: sys_refcursor类型，推特id列表，table属性为(topic\_id)
-* 已完成：否
+* 已完成：是
+**更名为：FUNC\_QUERY\_TOPIC\_IDS\_BY\_HEAT(startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+
+完成者：徐诚于2019-06-02
 
 
 ### 23. FUNC\_ADD\_LIKE(user\_id in INTEGER, message\_id in INTEGER)
@@ -474,7 +484,9 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* user\_id: INTEGER类型，点赞者的id
 	* message\_id: INTEGER类型，推特的id
 * 输出参数：无
-* 已完成：否
+* 已完成：是
+
+完成者：徐诚于2019-06-02
 
 ### 24. FUNC\_DELETE\_LIKE(user\_id in INTEGER, message\_id in INTEGER)
 * 接口功能：给定点赞者的id:user\_id，以及被点赞的推特id: message\_id，删除一条点赞信息。**同时，推特的被点赞总数需要-1,推特的热度需要-1，推特所拥有的所有话题的热度需要-1**。
@@ -483,7 +495,9 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* user\_id: INTEGER类型，点赞者的id
 	* message\_id: INTEGER类型，推特的id
 * 输出参数：无
-* 已完成：否
+* 已完成：是
+
+完成者：徐诚于2019-06-02
 
 ### 25. FUNC\_QUERY\_MESSAGE\_IDS\_THAT\_USER\_LIKES(user\_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result out sys\_refcursor)
 * 接口功能：通过给定的user\_id，获取该用户点赞的所有推特 的，从startFrom开始，长度为limitation 的message\_id的列表。按照时间降序排序
@@ -494,7 +508,10 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* limitation: INTEGER类型，查找结果的长度
 * 输出参数：
 	* search\_result: sys\_refcursor类型，推特id列表，table属性为(message\_id)
-* 已完成：否
+* 已完成：是
+**更名为：FUNC\_QUERY\_MESSAGE\_IDS\_LIKES(user\_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result out sys\_refcursor)
+
+完成者：徐诚于2019-06-02
 
 
 ### 26. FUNC\_ADD\_COMMENT(user\_id in INTEGER, be_commented_id in INTEGER, content in VARCHAR2)
