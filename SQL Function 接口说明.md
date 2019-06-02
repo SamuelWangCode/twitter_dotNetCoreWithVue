@@ -589,3 +589,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 输出参数：
 	* search\_result: sys\_refcursor类型，推特id列表，table属性为(message\_id)
 * 已完成：否
+
+
+## 重命名接口
+* "FUNC\_QUERY\_MESSAGE\_IDS\_CONTAINS\_CERTAIN\_TOPIC\_ID" to "FUNC\_QUERY\_MESSAGE\_BY\_TOPIC"
