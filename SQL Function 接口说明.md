@@ -1,4 +1,4 @@
-# SQL Function 接口说明
+﻿# SQL Function 接口说明
 
 此文档由c#小组（杨紫超，周宇东，魏敬杰）负责编写。
 SQL小组通过阅读此文档，编写相应的SQL脚本。
@@ -208,9 +208,10 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 输出参数：
 	* search\_result：sys_refcursor类型，用户信息，table属性为(message\_id, message\_content, message\_create\_time, message\_agree\_num, message\_transpond\_num, message\_comment\_num, message\_view\_num, message\_has\_image, message\_is\_transpond, message_sender\_user\_id, message\_heat, message\_transpond\_message\_id, message\_image\_count)
 
-* 已完成：否
+* 已完成：是
 
-
+  完成者：顾安琪于2019-06-02
+**更名为：FUNC\_SHOW\_MESSAGE\_BY\_RANGE(user\_id in INTEGER, rangeStart in INTEGER, rangeLimitation in INTEGER, search\_result out sys_refcursor)
 ### 4. FUNC\_SEND\_MESSAGE(message\_content in VARCHAR2, message\_has\_image in INTEGER, user\_id in INTEGER, message\_image\_count in INTEGER, message\_id out INTEGER)
 * 接口功能：发布新的推特，通过给出推特内容，推特是否含图，推特图的数量，发布者的ID来保存新推特，并输出该条推特的ID
 
@@ -576,7 +577,9 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* limitation: INTEGER类型，查找结果的长度
 * 输出参数：
 	* search\_result: sys\_refcursor类型，推特id列表，table属性为(message\_id)
-* 已完成：否
+* 已完成：是
+
+  完成者：顾安琪于2019-06-02
 
 
 ### 30. FUNC\_QUERY\_MESSAGE\_IDS\_THAT\_AT\_USER(user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result out sys\_refcursor))
@@ -588,8 +591,10 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* limitation: INTEGER类型，查找结果的长度
 * 输出参数：
 	* search\_result: sys\_refcursor类型，推特id列表，table属性为(message\_id)
-* 已完成：否
+* 已完成：是
 
+  完成者：顾安琪于2019-06-02
+**更名为：FUNC\_QUERY\_MESSAGE\_AT\_USER(user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result out sys\_refcursor))
 
 ## 重命名接口
 * "FUNC\_QUERY\_MESSAGE\_IDS\_CONTAINS\_CERTAIN\_TOPIC\_ID" to "FUNC\_QUERY\_MESSAGE\_BY\_TOPIC"

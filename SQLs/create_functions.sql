@@ -59,6 +59,37 @@ return state;
 end;
 \
 
+
+---------------FUNC_SHOW_ MESSAGE_BY_RANGE----------------------
+-----------------------根据索引查询推特信息-------------------------------
+create or replace 
+function 
+FUNC_SHOW_MESSAGE_BY_RANGE(user_id in INTEGER, rangeStart in INTEGER, rangeLimitation in INTEGER, search_result out sys_refcursor)
+return INTEGER
+is 
+state INTEGER:=0;
+
+begin
+select count(*) into state
+from MESSAGE 
+where MESSAGE_SENDER_USER_ID = user_id;
+
+if state=0 then 
+return state;
+else
+state:=1;
+open search_result for 
+select * from(
+select *
+from MESSAGE
+where MESSAGE_SENDER_USER_ID= user_id)
+where ROWNUM >= rangeStart and ROWNUM <= rangeLimitation;
+
+end if;
+return state;
+end;
+\
+
 ------------------FUNC_USER_SIGN_UP----------------
 -----------通过给定的用户信息向数据库添加新用户-------
 create or replace function 
@@ -538,3 +569,63 @@ BEGIN
 
 END;
 /
+
+---------------FUNC_QUERY_COLLECTIONS_OF_MINE--------------------
+-----------------------------查询收藏信息----------------------------------
+create or replace 
+function 
+FUNC_QUERY_COLLECTIONS_OF_MINE(user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+return INTEGER
+is 
+state INTEGER:=0;
+
+begin
+select count(*) into state
+from MESSAGE_COLLECTION
+where MESSAGE_COLLECTION.USER_ID = user_id;
+
+if state=0 then 
+return state;
+else
+state:=1;
+open search_result for 
+select * from(
+select MESSAGE_COLLECTION.MESSAGE_ID
+from MESSAGE_COLLECTION
+where MESSAGE_COLLECTION.USER_ID= user_id)
+where ROWNUM >= startFrom and ROWNUM <= limitation;
+
+end if;
+return state;
+end;
+/
+
+---------------FUNC_QUERY_MESSAGE_AT_USER----------------------
+------------------------查询@我的信息----------------------------------
+create or replace 
+function 
+FUNC_QUERY_MESSAGE_AT_USER(user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+return INTEGER
+is 
+state INTEGER:=0;
+
+begin
+select count(*) into state
+from AT_USER
+where AT_USER_ID = user_id;
+
+if state=0 then 
+return state;
+else
+state:=1;
+open search_result for 
+select * from(
+select MESSAGE_ID
+from AT_USER
+where AT_USER_ID= user_id
+order by AT_TIME desc)
+where ROWNUM >= startFrom and ROWNUM <= limitation;
+
+end if;
+return state;
+end;
