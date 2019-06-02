@@ -1,4 +1,4 @@
-﻿# SQL Function 接口说明
+# SQL Function 接口说明
 
 此文档由c#小组（杨紫超，周宇东，魏敬杰）负责编写。
 SQL小组通过阅读此文档，编写相应的SQL脚本。
@@ -307,8 +307,9 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 
 * 输出参数：
 	* user_id：登录用户的id值
+* 已完成：是
 
-* 已完成：否
+  完成者：周宇东于2019-05-29
 
 ### 10. FUNC\_SET\_USER\_INFO(nickname in VARCHAR, password in VARCHAR,self\_introduction in VARCHAR, realname in VARCHAR, gender in VARCHAR, user\_id in INTEGER, mode in INTEGER)
 * 接口功能：修改用户id为user_id的用户的个人信息
@@ -325,7 +326,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 输出参数：无
 * 已完成：是
 
-  完成者：周宇东于2019-05-22
+  完成者：周宇东于2019-05-27
 
 ### 11. FUNC\_SET\_MAIN\_AVATAR(user\_id in INTEGER, avatar\_id in INTEGER)
 * 接口功能：设置用户的主要头像
@@ -335,7 +336,9 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* avatar\_id：INTEGER类型，用户选择的头像
 
 * 输出参数：无
-* 已完成：否
+* 已完成：是
+
+  完成者：周宇东于2019-05-27
 
 ### 12. FUNC\_GET\_USER\_AVATAR(user\_id in INTEGER, avatar\_id out INTEGER)
 * 接口功能：通过用户id获取用户主要头像的id
@@ -355,7 +358,9 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* user\_id：INTERGER类型，用户id
 * 输出参数：
 	* info：sys_refcursor类型，用户信息，table属性为(user\_id,user\_nickname,user\_register\_time,user\_avatar\_image\_id,user\_self\_introduction,user\_followers\_num,user\_follows\_num)
-* 已完成：否
+* 已完成：是
+
+  完成者：周宇东于2019-05-27
 
 ### 14. FUNC\_ADD\_RELATION(follower_id in INTEGER, be_followed_id in INTEGER)
 * 接口功能：给定关注者id follower_id 以及被关注者id be_followed_id，添加一个从关注者到被关注者的关系。同时被关注者的“被关注数”需要+1，关注者的“关注别人的数量"需要+1
@@ -452,7 +457,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 完成者：徐诚于2019-06-02
 
 
-### 21. FUNC\_QUERY\_MESSAGE\_IDS\_CONTAINS\_CERTAIN\_TOPIC\_ID(topic_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+### 21. FUNC_QUERY\_MESSAGE\_BY\_TOPIC(topic_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result out sys\_refcursor)
 * 接口功能：通过给定的topic\_id，以及起始索引startFrom，以及搜索长度limitation，获取包含该topic的推特message_id的列表。按照时间降序排序
 * 返回值：同上
 * 输入参数：
@@ -461,7 +466,9 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* limitation: INTEGER类型，查找结果的长度
 * 输出参数：
 	* search\_result: sys_refcursor类型，推特id列表，table属性为(message\_id)
-* 已完成：否
+* 已完成：是
+
+  完成者：周宇东于2019-06-02
 
 ### 22. FUNC\_QUERY\_TOPIC\_IDS\_ORDER\_BY\_HEAT(startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
 * 接口功能：获取从startFrom开始，长度为limitation的，按照话题topic的热度降序排序的话题id列表
