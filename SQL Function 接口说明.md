@@ -403,7 +403,11 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 输出参数：
 	* search\_result: sys_refcursor类型。用户的简单信息表格，包括用户的user\_id，用户昵称user\_nickname，用户的使用中头像avatar_id。table的属性为
 	(user\_id, user_nickname, avatar_id)
-* 已完成：否
+
+* 已完成：是
+
+  完成者：顾安琪于2019-06-04
+**更名为：FUNC_QUERY_FOLLOWING_LIST(user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
 
 ### 17. FUNC\_QUERY\_FOLLOWERS\_LIST(user\_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result in INTEGER)
 * 接口功能：给定用户id:user\_id，查找出关注他的人 的，从startFrom开始，长度为limitation的user信息列表，按照时间降序排序
@@ -415,7 +419,10 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 输出参数：
 	* search\_result: sys_refcursor类型。用户的简单信息表格，包括用户的user\_id，用户昵称user\_nickname，用户的使用中头像avatar_id。table的属性为
 	(user\_id, user\_nickname, avatar\_id)
-* 已完成：否
+* 已完成：是
+
+  完成者：顾安琪于2019-06-04
+**更名为：FUNC_QUERY_FOLLOWERS_LIST(user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
 
 
 ### 18. FUNC\_ADD\_PRIVATE\_LETTER(sender\_user\_id in INTEGER, receiver\_user_id in INTEGER, content in VARCHAR2)
