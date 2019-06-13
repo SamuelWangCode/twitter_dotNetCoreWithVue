@@ -87,7 +87,7 @@
             <returns>The message.</returns>
             <param name="message_id">Message identifier.</param>
         </member>
-        <member name="M:twitter_dotNetCoreWithVue.Controllers.MessageController.QueryForIndex(twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.MessageController.QueryForIndex(twitter_dotNetCoreWithVue.Controllers.Utils.Range,System.String)">
             <summary>
             此api用于首页，需要查找所有的显示在首页的推特时调用
             根据range来返回前几条推荐的信息
@@ -105,7 +105,7 @@
             <returns>The message.</returns>
             <param name="message">Message.</param>
         </member>
-        <member name="M:twitter_dotNetCoreWithVue.Controllers.MessageController.Transpond(System.Int32,twitter_dotNetCoreWithVue.Controllers.MessageController.MessageForTransponder)">
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.MessageController.Transpond(twitter_dotNetCoreWithVue.Controllers.MessageController.MessageForTransponder)">
             <summary>
             转发消息时调用的api
             </summary>
@@ -185,6 +185,13 @@
             </summary>
             <returns>是否成功</returns>
             <param name="user_id">User identifier.</param>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.TestConnection.Get">
+            <summary>
+            Test DB Connection
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
         </member>
         <member name="T:twitter_dotNetCoreWithVue.Controllers.TopicController">
             <summary>

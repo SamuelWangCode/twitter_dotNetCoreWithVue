@@ -22,6 +22,45 @@ DROP SEQUENCE  SEQ_PRIVATE_LETTER;
 DROP SEQUENCE  SEQ_TOPIC;
 DROP SEQUENCE  SEQ_LIKES;
 DROP SEQUENCE  SEQ_USER_PUBLIC_INFO;
+
+
+----------User_Public_Info----------------
+CREATE SEQUENCE seq_user_public_info
+MINVALUE 1
+NOMAXVALUE
+NOCYCLE
+START WITH 1
+INCREMENT BY 1
+CACHE 10;
+
+
+CREATE TABLE User_Public_Info (
+  user_id INTEGER PRIMARY KEY,
+  user_nickname VARCHAR2(20) NOT NULL,
+  user_register_time VARCHAR2(30) NOT NULL,
+  user_self_introduction VARCHAR2(255) NOT NULL,
+  user_followers_num INTEGER NOT NULL,
+  user_follows_num INTEGER NOT NULL
+);
+
+
+
+-------------------------------------------
+--------------User_Private_Info------------
+
+--!!!!重要 User_Private_Info不需要用Sequence来表示主键，插入新数据时，使用对应的User_Public_Info中的user_id即可
+CREATE TABLE User_Private_Info(
+  user_id INTEGER PRIMARY KEY,
+  user_password VARCHAR2(20) NOT NULL,
+  user_gender VARCHAR2(4),
+  user_real_name VARCHAR2(20),
+  user_email VARCHAR2(50) NOT NULL UNIQUE,
+  CONSTRAINT fk_user_private_info FOREIGN KEY (user_id)
+      REFERENCES User_Public_Info (user_id)
+        ON DELETE CASCADE
+);
+
+------------------------------------------
 ------------Avatar_Image-------------
 CREATE SEQUENCE seq_avatar_image
 MINVALUE 1
@@ -46,45 +85,6 @@ CREATE TABLE Avatar_Image （
 
 ------------------------------------------
 
-
-----------User_Public_Info----------------
-CREATE SEQUENCE seq_user_public_info
-MINVALUE 1
-NOMAXVALUE
-NOCYCLE
-START WITH 1
-INCREMENT BY 1
-CACHE 10;
-
-
-CREATE TABLE User_Public_Info (
-  user_id INTEGER PRIMARY KEY,
-  user_nickname VARCHAR2(20) NOT NULL,
-  user_register_time VARCHAR2(30) NOT NULL,
-  user_self_introduction VARCHAR2(255) NOT NULL,
-  user_followers_num INTEGER NOT NULL,
-  user_follows_num INTEGER NOT NULL,
-
-);
-
-
-
--------------------------------------------
---------------User_Private_Info------------
-
---!!!!重要 User_Private_Info不需要用Sequence来表示主键，插入新数据时，使用对应的User_Public_Info中的user_id即可
-CREATE TABLE User_Private_Info(
-  user_id INTEGER PRIMARY KEY,
-  user_password VARCHAR2(20) NOT NULL,
-  user_gender VARCHAR2(4),
-  user_real_name VARCHAR2(20),
-  user_email VARCHAR2(50) NOT NULL UNIQUE,
-  CONSTRAINT fk_user_private_info FOREIGN KEY (user_id)
-      REFERENCES User_Public_Info (user_id)
-        ON DELETE CASCADE
-);
-
-------------------------------------------
 -----------------Private_Letter-----------
 CREATE SEQUENCE seq_private_letter
 MINVALUE 1
@@ -177,7 +177,7 @@ CREATE TABLE Transpond(
 		FOREIGN KEY (transponded_message_id)
 			REFERENCES Message(message_id)
 				ON DELETE CASCADE
-)
+);
 ----------------------------------------------
 ------------------Message_Image---------------
 CREATE SEQUENCE seq_message_image

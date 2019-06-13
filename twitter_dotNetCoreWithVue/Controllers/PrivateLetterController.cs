@@ -111,7 +111,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 DataTable dt = new DataTable();
                 DataAdapter.Fill(dt);
 
-                if (int.Parse(p1.ToString()) != 1)
+                if (int.Parse(p1.Value.ToString()) != 1)
                 {
                     throw new Exception("failed");
                 }

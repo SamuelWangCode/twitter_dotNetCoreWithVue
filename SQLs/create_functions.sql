@@ -1,5 +1,5 @@
-﻿------------------FUNC_CHECK_USER_EMAIL_EXIST(email in VARCHAR)----------------
------------------------检查用户Email是否存在于数据库中---------------------------
+------------------FUNC_CHECK_USER_EMAIL_EXIST(email in VARCHAR)----------------
+-----------------------�?查用户Email是否存在于数据库�?---------------------------
 create or replace function 
 FUNC_CHECK_USER_EMAIL_EXIST(email in VARCHAR)
 return INTEGER
@@ -15,7 +15,7 @@ end;
 /
 
 ------------------FUNC_CHECK_USER_ID_EXIST(email in VARCHAR)----------------
------------------------检查用户id是否存在于数据库中---------------------------
+-----------------------�?查用户id是否存在于数据库�?---------------------------
 create or replace function 
 FUNC_CHECK_USER_ID_EXIST(userid in VARCHAR)
 return INTEGER
@@ -57,7 +57,7 @@ end if;
 
 return state;
 end;
-\
+/
 
 
 ---------------FUNC_SHOW_ MESSAGE_BY_RANGE----------------------
@@ -88,7 +88,7 @@ where ROWNUM >= rangeStart and ROWNUM <= rangeLimitation;
 end if;
 return state;
 end;
-\
+/
 
 ------------------FUNC_USER_SIGN_UP----------------
 -----------通过给定的用户信息向数据库添加新用户-------
@@ -258,7 +258,7 @@ end;
 /
 
 ---------------------FUNC_SEND_MESSAGE-------------------------------
----------------------发布新的推特（添加信息至Message）---------------
+---------------------发布新的推特（添加信息至Message�?---------------
 create or replace function
 FUNC_SEND_MESSAGE(message_content in VARCHAR2, message_has_image in INTEGER, user_id in INTEGER, message_image_count in INTEGER, message_id out INTEGER)
 return INTEGER
@@ -287,7 +287,7 @@ end if;
 commit;
 return state;
 end;
-\
+/
 
 -------------------FUNC_ADD_TOPIC----------------------------
 -------------------添加话题/增加话题热度---------------------
@@ -320,10 +320,10 @@ insert into Message_Owns_Topic(message_id, topic_id)values(message_id, temp_topi
 commit;
 return state;
 end;
-\
+/
 
 -------------------FUNC_TRANSPOND_MESSAGE--------------------
--------------------转发一条推特（Message和Transpond添加）
+-------------------转发�?条推特（Message和Transpond添加�?
 create or replace function
 FUNC_TRANSPOND_MESSAGE(message_content in VARCHAR2, message_source_is_transpond in INTEGER, message_sender_user_id in INTEGER, message_transpond_message_id in INTEGER, message_id out INTEGER)
 return INTEGER
@@ -363,7 +363,7 @@ insert into Transpond(message_id, transponded_message_id) values (out_id, transp
 commit;
 return state;
 end;
-\
+/
 
 -------------------FUNC_DELETE_MESSAGE------------------------
 -----------------------根据ID删除推特-------------------------------
@@ -388,7 +388,8 @@ where message_id = MESSAGE.message_id;
 delete from COMMENT_ON_MESSAGE 
 where message_id = COMMENT_MESSAGE_ID;
 end if;
-\
+end;
+/
 
 ------------------FUNC_ADD_RELATION----------------------
 ------------------添加用户关系---------------------------
@@ -412,7 +413,7 @@ update User_Public_Info set user_followers_num = user_followers_num + 1 where us
 commit;
 return state;
 end;
-\
+/
 
 
 ---------------FUNC_REMOVE_RELATION----------------------
@@ -438,7 +439,7 @@ end if;
 commit;
 return state;
 end;
-\
+/
 
 ---------------FUNC_QUERY_FOLLOWING_LIST----------------------
 -------------------------查找关注列表---------------------------------
@@ -481,7 +482,7 @@ where ROWNUM >= startFrom and ROWNUM <= limitation;
 end if;
 return state;
 end;
-\
+/
 
 ---------------FUNC_QUERY_FOLLOWING_LIST----------------------
 -------------------------查找粉丝列表---------------------------------
@@ -524,7 +525,7 @@ where ROWNUM >= startFrom and ROWNUM <= limitation;
 end if;
 return state;
 end;
-\
+/
 
 --------------FUNC_ADD_COMMENT---------------------------
 --------------添加评论-----------------------------------
@@ -557,7 +558,7 @@ end if;
 commit;
 return state;
 end;
-\
+/
 
 ---------------FUNC_ADD_COLLECTION----------------------
 ---------------添加收藏---------------------------------
@@ -585,7 +586,7 @@ end if;
 commit;
 return state;
 end;
-\
+/
 
 ---------------FUNC_DELETE_COLLECTION----------------------
 -----------------------删除收藏----------------------------------
@@ -620,7 +621,7 @@ end if;
 commit;
 return state;
 end;
-\
+/
 
 ------------FUNC_QUERY_MESSAGE_BY_TOPIC---------------
 ----------------根据id查找message----------------------
@@ -715,3 +716,4 @@ where ROWNUM >= startFrom and ROWNUM <= limitation;
 end if;
 return state;
 end;
+/
