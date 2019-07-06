@@ -45,7 +45,7 @@ BEGIN
 
   insert into LIKES
       (LIKES_USER_ID, LIKES_MESSAGE_ID,LIKES_TIME)
-  values(user_id, message_id, temp_date);
+  values(user_id, like_message_id, temp_date);
   state:=1;
 
 	RETURN state;
