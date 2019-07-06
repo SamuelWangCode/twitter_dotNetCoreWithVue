@@ -1,4 +1,4 @@
-﻿# SQL Function 接口说明
+# SQL Function 接口说明
 
 此文档由c#小组（杨紫超，周宇东，魏敬杰）负责编写。
 SQL小组通过阅读此文档，编写相应的SQL脚本。
@@ -641,9 +641,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 接口功能：通过指定的搜索键searchKey，在Message相关表中搜索相关的推特，包括从Transpond表，Message_Image表中获取的数据。数据按时间排序，返回从startFrom开始，长度为limitation的数据表。
 
 - 返回值：同上
-
 - 输入参数：
-
 - - searchKey：VARCHAR2类型，搜索的关键字
   
   - startFrom：INTEGER类型，查找结果的起始索引
@@ -651,7 +649,8 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
   - limitation：INTEGER类型，查找结果的长度
 - 输出参数:
 	- result：sys_refcursor类型，推特信息，table属性为(message\_id, message\_content, message\_create\_time, message\_agree\_num, message\_transpond\_num, message\_comment\_num, message\_view\_num, message\_has\_image, message\_is\_transpond, message_sender\_user\_id, message\_heat, message\_transpond\_message\_id, message\_image\_count)。在5月25日更新后的message表里不再具有message\_transpond\_message\_id这个属性，若该条推特不为转发，该属性可返回-1值，若该条推特是转发，则照旧返回转发来源的ID。
-- 已完成：否
+- 已完成：是
+- 完成者：王笑天于2019-07-06
 
 
 ### 32. FUNC_SEARCH_USER(searchKey in VARCHAR2(50), startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
@@ -675,13 +674,20 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 接口功能：通过指定的搜索键searchKey，在Topic相关表中，获取Topic数据，按照热度降序排序。返回从startFrom开始，长度为limitation的数据。
 -返回值：同上
 - 输入参数：
-
 - - searchKey: VARCHAR2类型，搜索的关键字
   - startFrom: INTEGER类型，查找结果的起始索引
   - limitation: INTEGER类型，查找结果的长度
-
 - 输出参数：
 	- result: table属性为(topic_id, topic_heat, topic_content)
+- 已完成：否
+### 34. FUNC\_AT\_USER(at\_nickname in VARCHAR2, message\_id in INTEGER)
+
+- 接口功能：艾特指定名字的成员。若有多个成员具有同一名字，同时艾特他们。若没有任何一个成员有该名字，则忽视这条艾特（不进行实际的艾特），但也不因此返回失败值。
+- 返回值：添加成功返回1，失败返回0
+- 输入参数：
+  - at\_nickname：VARCHAR2类型，表示艾特的人的名字
+  - message\_id：INTEGER类型，表示出现这个艾特的推特的ID
+- 输出参数：无
 - 已完成：否
 
 ## 测试
@@ -693,4 +699,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 ### Message
 
 两个query和delete 缺at 
+
+
+
 

@@ -1,23 +1,20 @@
 
-------------------??ID??????-------------------------------
 create or replace 
 function 
 FUNC_SHOW_MESSAGE_BY_ID(message_id_input in INTEGER, result out sys_refcursor)
 return INTEGER
 is
 state INTEGER:=0;
-c1 sys_refcursor;
-temp_id integer:=message_id_input;
 
 begin
-open c1 for
+open result for
 select *
 from message natural join message_image
-where message_id =temp_id;
+where message_id =message_id_input;
 
 select count(*) into state 
 from message
-where message_id=temp_id;
+where message_id=message_id_input;
 if state!=0 then
 state:=1;
 else
@@ -98,7 +95,7 @@ end;
 
 
 -------------------FUNC_TRANSPOND_MESSAGE--------------------
--------------------??1????Message?Transpond???
+-------------------转发1条推特（Message和Transpond添加�?
 create or replace function
 FUNC_TRANSPOND_MESSAGE(message_content in VARCHAR2, message_source_is_transpond in INTEGER, message_sender_user_id in INTEGER, message_transpond_message_id in INTEGER, message_id out INTEGER)
 return INTEGER
@@ -167,38 +164,46 @@ end;
 /
 
 ------------FUNC_QUERY_MESSAGE_BY_TOPIC---------------
-----------------??id??message----------------------
-create or replace 
-function
-FUNC_QUERY_MESSAGE_BY_TOPIC(topic_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+----------------根据id查找message----------------------
+CREATE OR REPLACE 
+FUNCTION FUNC_QUERY_MESSAGE_IDS_LIKES
+(user_id IN INTEGER, startFrom IN INTEGER, limitation IN INTEGER, search_result OUT Sys_refcursor)
 RETURN INTEGER
-is
+AS
 state INTEGER:=1;
 
 BEGIN
 
 	SELECT count(*) into state 
-  from MESSAGE_OWNS_TOPIC
-  WHERE MESSAGE_OWNS_TOPIC.TOPIC_ID=topic_id;
+  from LIKES
+  WHERE LIKES.LIKES_USER_ID=user_id;
 
   IF state=0
   THEN 
     return state;
   ELSE  
-    open search_result for SELECT message_id FROM 
-         (SELECT MESSAGE_OWNS_TOPIC.message_id
-          FROM MESSAGE, MESSAGE_OWNS_TOPIC
-          WHERE MESSAGE_OWNS_TOPIC.message_id>=startFrom
-              AND MESSAGE_OWNS_TOPIC.TOPIC_ID=topic_id
-			  AND MESSAGE.message_id=MESSAGE_OWNS_TOPIC.message_id
-         ORDER BY MESSAGE.MESSAGE_CREATE_TIME DESC)
-    WHERE ROWNUM<=limitation;
+    open search_result for 
+    SELECT* FROM 
+         (SELECT LIKES_MESSAGE_ID
+          FROM LIKES
+          WHERE LIKES.LIKES_USER_ID=user_id
+         ORDER BY LIKES.LIKES_TIME DESC)
+    WHERE ROWNUM<=startFrom+limitation
+    MINUS
+    SELECT* 
+    FROM 
+         (SELECT LIKES_MESSAGE_ID
+          FROM LIKES
+          WHERE LIKES.LIKES_USER_ID=user_id
+         ORDER BY LIKES.LIKES_TIME DESC)
+    WHERE ROWNUM<=startFrom-1;
 
     state:=1;
   END IF;
 	RETURN state;
 
 END;
+
 /
 
 ---------
