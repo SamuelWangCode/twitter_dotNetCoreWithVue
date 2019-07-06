@@ -45,7 +45,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             }
 
             return Wrapper.wrap((OracleConnection conn) => {
-                //FUNC_ADD_LIKE(user_id in INTEGER, message_id in INTEGER)
+                //FUNC_ADD_LIKE(user_id in INTEGER, like_message_id in INTEGER)
                 //return INTEGER
                 string procudureName = "FUNC_ADD_LIKE";
                 OracleCommand cmd = new OracleCommand(procudureName, conn);
@@ -62,7 +62,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p2.Value = my_user_id;
                 OracleParameter p3 = new OracleParameter();
                 //Add input parameter message_id
-                p3 = cmd.Parameters.Add("message_id", OracleDbType.Int32);
+                p3 = cmd.Parameters.Add("like_message_id", OracleDbType.Int32);
                 p3.Value = message_id;
                 p3.Direction = ParameterDirection.Input;
 
@@ -106,7 +106,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             }
 
             return Wrapper.wrap((OracleConnection conn) => {
-                //FUNC_DELETE_LIKE(user_id in INTEGER, message_id in INTEGER)
+                //FUNC_DELETE_LIKE(user_id in INTEGER, like_message_id in INTEGER)
                 //return INTEGER
                 string procudureName = "FUNC_DELETE_LIKE";
                 OracleCommand cmd = new OracleCommand(procudureName, conn);
@@ -123,7 +123,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p2.Value = my_user_id;
                 OracleParameter p3 = new OracleParameter();
                 //Add input parameter message_id
-                p3 = cmd.Parameters.Add("message_id", OracleDbType.Int32);
+                p3 = cmd.Parameters.Add("like_message_id", OracleDbType.Int32);
                 p3.Value = message_id;
                 p3.Direction = ParameterDirection.Input;
 
