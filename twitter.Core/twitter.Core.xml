@@ -87,7 +87,7 @@
             <returns>The message.</returns>
             <param name="message_id">Message identifier.</param>
         </member>
-        <member name="M:twitter_dotNetCoreWithVue.Controllers.MessageController.QueryForIndex(twitter_dotNetCoreWithVue.Controllers.Utils.Range,System.Int32)">
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.MessageController.QueryForIndex(twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
             <summary>
             此api用于首页，需要查找所有的显示在首页的推特时调用
             根据range来返回前几条推荐的信息
@@ -113,16 +113,6 @@
             <returns>成功与否</returns>
             <param name="message_id">Message identifier.</param>
             <param name="message">Message.</param>
-        </member>
-        <member name="M:twitter_dotNetCoreWithVue.Controllers.MessageController.UploadImgs">
-            <summary>
-            上传图片的接口
-            暂时不清楚前端是通过怎样的方式来上传的
-            看网上说有用IFormFile
-            也有说用Requet.Form.Files来获取的
-            具体再议
-            </summary>
-            <returns>success or not</returns>
         </member>
         <member name="M:twitter_dotNetCoreWithVue.Controllers.MessageController.Delete(System.Int32)">
             <summary>
@@ -150,6 +140,12 @@
             <returns>success or not</returns>
             <param name="user_id">接收私信用户的id</param>
             <param name="letterInfo">私信内容</param>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.RecommendController.getRecommendedUsers">
+            <summary>
+            获得推荐的前五个用户，用于推荐栏
+            </summary>
+            <returns>The get.</returns>
         </member>
         <member name="T:twitter_dotNetCoreWithVue.Controllers.RelationController">
             <summary>

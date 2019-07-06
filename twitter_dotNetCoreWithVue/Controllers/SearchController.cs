@@ -114,13 +114,13 @@ namespace twitter_dotNetCoreWithVue.Controllers
         {
             return Wrapper.wrap((OracleConnection conn) =>
             {
-                TwitterResult[] twitterResults = GetTwitterResults(conn, searchKey, range);
+                //TwitterResult[] twitterResults = GetTwitterResults(conn, searchKey, range);
                 UserResult[] userResults = GetUserResults(conn, searchKey, range);
-                TopicResult[] topicResults = GetTopicResults(conn, searchKey, range);
+                //TopicResult[] topicResults = GetTopicResults(conn, searchKey, range);
                 ResultSet resultSet = new ResultSet();
-                resultSet.twitters = twitterResults;
+                //resultSet.twitters = twitterResults;
                 resultSet.users = userResults;
-                resultSet.topics = topicResults;
+                //resultSet.topics = topicResults;
                 RestfulResult.RestfulData<ResultSet> rr = new RestfulResult.RestfulData<ResultSet>();
                 rr.Code = 200;
                 rr.Data = resultSet;

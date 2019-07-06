@@ -38,6 +38,6 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 return new JsonResult(ids);
             }
         }
-        
+
     }
 }

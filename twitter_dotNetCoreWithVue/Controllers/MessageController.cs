@@ -116,7 +116,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// </summary>
         /// <returns>The message.</returns>
         /// <param name="message_id">Message identifier.</param>
-        [HttpPost("query/{message_id}")]
+        [HttpPost("query")]
         public IActionResult Query([Required]int message_id)
         {
             //获得推特的详细信息
@@ -324,22 +324,21 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
             int userId;
             List<string> topics = new List<string>();
-            int index1 = message.message_content.IndexOf('#');
-            int index2;
+            List<string> ats = new List<string>();
+            System.Text.RegularExpressions.Regex topicRegex = new System.Text.RegularExpressions.Regex(@"#(\w+)#");
+            System.Text.RegularExpressions.Regex atRegex = new System.Text.RegularExpressions.Regex(@"@(\w+)");
+            
             if (HttpContext.User.Identity.IsAuthenticated)
             {
                 userId = int.Parse(HttpContext.User.Claims.First().Value);
 
                 //检查message_content里含有的话题，用两个#包含的内容作为话题。若出现两个连续的#，则忽略之。
                 //所有的话题内容会被保存到topics列表内，并在调用第二个函数FUNC_ADD_TOPIC时，逐一对topic的内容进行处理（不存在则创建，存在则热度+1）
-                while(index1!=-1)
-                {
-                    index2 = message.message_content.Substring(index1 + 1).IndexOf('#');
-                    if (index2 == -1) break;
-                    if (index2 - index1 == 1) continue;
-                    topics.Append(message.message_content.Substring(index1 + 1, index2 - index1 - 1));
-                    index1 = message.message_content.Substring(index2 + 1).IndexOf('#');
-                }
+                //对艾特内容同理
+                System.Text.RegularExpressions.MatchCollection topicCollection = topicRegex.Matches(message.message_content);
+                System.Text.RegularExpressions.MatchCollection atCollection = atRegex.Matches(message.message_content);
+                for (int i = 0; i < topicCollection.Count; i++) topics.Add(topicCollection[i].Groups[1].ToString());
+                for (int i = 0; i < atCollection.Count; i++) ats.Add(topicCollection[i].Groups[1].ToString());
             }
             else
             {
@@ -376,7 +375,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                     //Add second parameter message_has_image
                     OracleParameter p3 = new OracleParameter();
-                    p3 = cmd.Parameters.Add("message_content", OracleDbType.Int32);
+                    p3 = cmd.Parameters.Add("message_has_image", OracleDbType.Int32);
                     p3.Direction = ParameterDirection.Input;
                     p3.Value = message.message_has_image;
 
@@ -403,7 +402,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         throw new Exception("failed");
                     }
 
-                    if (topics.Count != 0)
+                    foreach(string topic in topics)
                     {
                         //对于topics列表里的每一个话题，分别作为函数参数来执行一次FUNC_ADD_TOPIC函数
                         //FUNC_ADD_TOPIC(topic_content in VARCHAR2, message_id in INTEGER)
@@ -421,7 +420,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         OracleParameter p8 = new OracleParameter();
                         p8 = cmd2.Parameters.Add("topic_content", OracleDbType.Varchar2);
                         p8.Direction = ParameterDirection.Input;
-                        p8.Value = topics[0];
+                        p8.Value = topic;
 
                         //Add second parameter message_id
                         OracleParameter p9 = new OracleParameter();
@@ -430,23 +429,48 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         p9.Value = p6.Value;
 
                         cmd2.ExecuteReader();
-                        for (int i = 1; i < topics.Count; i++)
-                        {
-                            if (int.Parse(p7.Value.ToString()) != 1)
-                            {
-                                throw new Exception("failed");
-                            }
-                            p8.Value = topics[i];
-                            cmd2.ExecuteReader();
-                        }
+                        
                         if (int.Parse(p7.Value.ToString()) != 1)
                         {
                             throw new Exception("failed");
                         }
                     }
 
-                    //TODO 若推特含图，从POST体内获得图的内容并保存到服务器
-                    if(message.message_has_image==1)
+                    foreach(string at in ats)
+                    {
+                        //对于ats列表里的每一个话题，分别作为函数参数来执行一次FUNC_AT_USER函数
+                        //FUNC_AT_USER(at_nickname in VARCHAR2, message_id in INTEGER)
+                        //return INTEGER
+                        string procedureName3 = "FUNC_AT_USER";
+                        OracleCommand cmd3 = new OracleCommand(procedureName3, conn);
+                        cmd3.CommandType = CommandType.StoredProcedure;
+
+                        //Add return value
+                        OracleParameter p10 = new OracleParameter();
+                        p10 = cmd3.Parameters.Add("state", OracleDbType.Int32);
+                        p10.Direction = ParameterDirection.ReturnValue;
+
+                        //Add first parameter topic_content
+                        OracleParameter p11 = new OracleParameter();
+                        p11 = cmd3.Parameters.Add("at_nickname", OracleDbType.Varchar2);
+                        p11.Direction = ParameterDirection.Input;
+                        p11.Value = at;
+
+                        //Add second parameter message_id
+                        OracleParameter p12 = new OracleParameter();
+                        p12 = cmd3.Parameters.Add("message_id", OracleDbType.Int32);
+                        p12.Direction = ParameterDirection.Input;
+                        p12.Value = p6.Value;
+
+                        cmd3.ExecuteReader();
+                        if (int.Parse(p10.Value.ToString()) != 1)
+                        {
+                            throw new Exception("failed");
+                        }
+                    }
+
+                    //若推特含图，从POST体内获得图的内容并保存到服务器
+                    if (message.message_has_image==1)
                     {
                         var images = Request.Form.Files;
                         int img_num = 0;
@@ -487,7 +511,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>成功与否</returns>
         /// <param name="message_id">Message identifier.</param>
         /// <param name="message">Message.</param>
-        [HttpPost("transpond/{message_id}")]
+        [HttpPost("transpond")]
         public IActionResult Transpond([Required][FromBody]MessageForTransponder message)
         {
             //需要验证身份
@@ -495,22 +519,19 @@ namespace twitter_dotNetCoreWithVue.Controllers
             //同样存在与Topic的联动
             int userId;
             List<string> topics = new List<string>();
-            int index1 = message.message_content.IndexOf('#');
-            int index2;
+            List<string> ats = new List<string>();
+            System.Text.RegularExpressions.Regex topicRegex = new System.Text.RegularExpressions.Regex(@"#(\w+)#");
+            System.Text.RegularExpressions.Regex atRegex = new System.Text.RegularExpressions.Regex(@"@(\w+)");
             if (HttpContext.User.Identity.IsAuthenticated)
             {
                 userId = int.Parse(HttpContext.User.Claims.First().Value);
 
                 //检查message_content里含有的话题，用两个#包含的内容作为话题。若出现两个连续的#，则忽略之。
                 //所有的话题内容会被保存到topics列表内，并在调用第二个函数FUNC_ADD_TOPIC时，逐一对topic的内容进行处理（不存在则创建，存在则热度+1）
-                while (index1 != -1)
-                {
-                    index2 = message.message_content.Substring(index1 + 1).IndexOf('#');
-                    if (index2 == -1) break;
-                    if (index2 - index1 == 1) continue;
-                    topics.Append(message.message_content.Substring(index1 + 1, index2 - index1 - 1));
-                    index1 = message.message_content.Substring(index2 + 1).IndexOf('#');
-                }
+                System.Text.RegularExpressions.MatchCollection topicCollection = topicRegex.Matches(message.message_content);
+                System.Text.RegularExpressions.MatchCollection atCollection = atRegex.Matches(message.message_content);
+                for (int i = 0; i < topicCollection.Count; i++) topics.Add(topicCollection[i].Groups[1].ToString());
+                for (int i = 0; i < atCollection.Count; i++) ats.Add(topicCollection[i].Groups[1].ToString());
             }
             else
             {
@@ -568,7 +589,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     throw new Exception("failed");
                 }
 
-                if (topics.Count != 0)
+                foreach (string topic in topics)
                 {
                     //对于topics列表里的每一个话题，分别作为函数参数来执行一次FUNC_ADD_TOPIC函数
                     //FUNC_ADD_TOPIC(topic_content in VARCHAR2, message_id in INTEGER)
@@ -586,7 +607,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     OracleParameter p8 = new OracleParameter();
                     p8 = cmd2.Parameters.Add("topic_content", OracleDbType.Varchar2);
                     p8.Direction = ParameterDirection.Input;
-                    p8.Value = topics[0];
+                    p8.Value = topic;
 
                     //Add second parameter message_id
                     OracleParameter p9 = new OracleParameter();
@@ -595,16 +616,41 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     p9.Value = p6.Value;
 
                     cmd2.ExecuteReader();
-                    for (int i = 1; i < topics.Count; i++)
-                    {
-                        if (int.Parse(p7.Value.ToString()) != 1)
-                        {
-                            throw new Exception("failed");
-                        }
-                        p8.Value = topics[i];
-                        cmd2.ExecuteReader();
-                    }
+
                     if (int.Parse(p7.Value.ToString()) != 1)
+                    {
+                        throw new Exception("failed");
+                    }
+                }
+
+                foreach (string at in ats)
+                {
+                    //对于ats列表里的每一个话题，分别作为函数参数来执行一次FUNC_AT_USER函数
+                    //FUNC_AT_USER(at_nickname in VARCHAR2, message_id in INTEGER)
+                    //return INTEGER
+                    string procedureName3 = "FUNC_AT_USER";
+                    OracleCommand cmd3 = new OracleCommand(procedureName3, conn);
+                    cmd3.CommandType = CommandType.StoredProcedure;
+
+                    //Add return value
+                    OracleParameter p10 = new OracleParameter();
+                    p10 = cmd3.Parameters.Add("state", OracleDbType.Int32);
+                    p10.Direction = ParameterDirection.ReturnValue;
+
+                    //Add first parameter topic_content
+                    OracleParameter p11 = new OracleParameter();
+                    p11 = cmd3.Parameters.Add("at_nickname", OracleDbType.Varchar2);
+                    p11.Direction = ParameterDirection.Input;
+                    p11.Value = at;
+
+                    //Add second parameter message_id
+                    OracleParameter p12 = new OracleParameter();
+                    p12 = cmd3.Parameters.Add("message_id", OracleDbType.Int32);
+                    p12.Direction = ParameterDirection.Input;
+                    p12.Value = p6.Value;
+
+                    cmd3.ExecuteReader();
+                    if (int.Parse(p10.Value.ToString()) != 1)
                     {
                         throw new Exception("failed");
                     }
@@ -621,7 +667,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// </summary>
         /// <returns>The message.</returns>
         /// <param name="message_id">Message identifier.</param>
-        [HttpPost("delete/{message_id}")]
+        [HttpPost("delete")]
         public IActionResult Delete([Required]int message_id)
         {
             //需要验证登录态
@@ -664,6 +710,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p3 = cmd.Parameters.Add("message_has_image", OracleDbType.RefCursor);
                 p3.Direction = ParameterDirection.Output;
 
+                cmd.ExecuteReader();
                 if (int.Parse(p1.Value.ToString()) != 1)
                 {
                     throw new Exception("failed");
