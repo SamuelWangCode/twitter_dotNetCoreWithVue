@@ -71,6 +71,10 @@ namespace twitter_dotNetCoreWithVue
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "ApiHelp V1");
             });
             #endregion
+            app.UseCors(options => options.AllowAnyHeader()
+                                    .AllowAnyMethod()
+                                    .AllowAnyOrigin()
+                                    .AllowCredentials());
             app.UseAuthentication();//配置授权
             app.UseStaticFiles();
             app.UseMvc();

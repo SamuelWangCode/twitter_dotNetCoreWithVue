@@ -27,7 +27,7 @@ namespace twitter_dotNetCoreWithVue.Controllers.Utils
             }
         }
 
-        static public IActionResult wrap(Func<OracleConnection, Task<IActionResult>> func)
+        static public async Task<IActionResult> wrap(Func<OracleConnection, Task<IActionResult>> func)
         {
             using (OracleConnection conn = new OracleConnection(ConnStr.getConnStr()))
             {
@@ -35,7 +35,9 @@ namespace twitter_dotNetCoreWithVue.Controllers.Utils
                 {
                     conn.ConnectionString = ConnStr.getConnStr();
                     conn.Open();
-                    return func(conn).Result;
+                    IActionResult t;
+                    t = await func(conn);
+                    return t;
                 }
                 catch (Exception e)
                 {

@@ -343,116 +343,136 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 return new JsonResult(rr);
             }
 
-            return Wrapper.wrap(async(OracleConnection conn) =>
-            {
-                //FUNC_SEND_MESSAGE(message_content in VARCHAR2, message_has_image in INTEGER, user_id in INTEGER, message_image_count in INTEGER, message_id out INTEGER)
-                //return INTEGER
-                string procedureName = "FUNC_SEND_MESSAGE";
-                OracleCommand cmd = new OracleCommand(procedureName, conn);
-                cmd.CommandType = CommandType.StoredProcedure;
-
-                //Add return value
-                OracleParameter p1 = new OracleParameter();
-                p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
-                p1.Direction = ParameterDirection.ReturnValue;
-
-                //Add first parameter message_content
-                OracleParameter p2 = new OracleParameter();
-                p2 = cmd.Parameters.Add("message_content", OracleDbType.Varchar2);
-                p2.Direction = ParameterDirection.Input;
-                p2.Value = message.message_content;
-
-                //Add second parameter message_has_image
-                OracleParameter p3 = new OracleParameter();
-                p3 = cmd.Parameters.Add("message_content", OracleDbType.Int32);
-                p3.Direction = ParameterDirection.Input;
-                p3.Value = message.message_has_image;
-
-                //Add third parameter user_id
-                OracleParameter p4 = new OracleParameter();
-                p4 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
-                p4.Direction = ParameterDirection.Input;
-                p4.Value = userId;
-
-                //Add fourth parameter message_image_count
-                OracleParameter p5 = new OracleParameter();
-                p5 = cmd.Parameters.Add("message_image_count", OracleDbType.Int32);
-                p5.Direction = ParameterDirection.Input;
-                p5.Value = message.message_image_count;
-
-                //Add fifth parameter message_id
-                OracleParameter p6 = new OracleParameter();
-                p6 = cmd.Parameters.Add("message_id", OracleDbType.Int32);
-                p6.Direction = ParameterDirection.Output;
-
-                cmd.ExecuteReader();
-                if(int.Parse(p1.Value.ToString()) != 1)
-                {
-                    throw new Exception("failed");
-                }
-
-                if(topics.Count!=0)
-                {
-                    //对于topics列表里的每一个话题，分别作为函数参数来执行一次FUNC_ADD_TOPIC函数
-                    //FUNC_ADD_TOPIC(topic_content in VARCHAR2, message_id in INTEGER)
+           
+           
+            using (OracleConnection conn = new OracleConnection(ConnStr.getConnStr()))
+            { 
+                    try
+                    {
+                        conn.ConnectionString = ConnStr.getConnStr();
+                        conn.Open();
+                    //FUNC_SEND_MESSAGE(message_content in VARCHAR2, message_has_image in INTEGER, user_id in INTEGER, message_image_count in INTEGER, message_id out INTEGER)
                     //return INTEGER
-                    string procedureName2 = "FUNC_ADD_TOPIC";
-                    OracleCommand cmd2 = new OracleCommand(procedureName2, conn);
-                    cmd2.CommandType = CommandType.StoredProcedure;
+                    string procedureName = "FUNC_SEND_MESSAGE";
+                    OracleCommand cmd = new OracleCommand(procedureName, conn);
+                    cmd.CommandType = CommandType.StoredProcedure;
 
                     //Add return value
-                    OracleParameter p7 = new OracleParameter();
-                    p7 = cmd2.Parameters.Add("state", OracleDbType.Int32);
-                    p7.Direction = ParameterDirection.ReturnValue;
+                    OracleParameter p1 = new OracleParameter();
+                    p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                    p1.Direction = ParameterDirection.ReturnValue;
 
-                    //Add first parameter topic_content
-                    OracleParameter p8 = new OracleParameter();
-                    p8 = cmd2.Parameters.Add("topic_content", OracleDbType.Varchar2);
-                    p8.Direction = ParameterDirection.Input;
-                    p8.Value = topics[0];
+                    //Add first parameter message_content
+                    OracleParameter p2 = new OracleParameter();
+                    p2 = cmd.Parameters.Add("message_content", OracleDbType.Varchar2);
+                    p2.Direction = ParameterDirection.Input;
+                    p2.Value = message.message_content;
 
-                    //Add second parameter message_id
-                    OracleParameter p9 = new OracleParameter();
-                    p9 = cmd2.Parameters.Add("message_id", OracleDbType.Int32);
-                    p9.Direction = ParameterDirection.Input;
-                    p9.Value = p6.Value;
+                    //Add second parameter message_has_image
+                    OracleParameter p3 = new OracleParameter();
+                    p3 = cmd.Parameters.Add("message_content", OracleDbType.Int32);
+                    p3.Direction = ParameterDirection.Input;
+                    p3.Value = message.message_has_image;
 
-                    cmd2.ExecuteReader();
-                    for(int i = 1; i < topics.Count; i++)
+                    //Add third parameter user_id
+                    OracleParameter p4 = new OracleParameter();
+                    p4 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
+                    p4.Direction = ParameterDirection.Input;
+                    p4.Value = userId;
+
+                    //Add fourth parameter message_image_count
+                    OracleParameter p5 = new OracleParameter();
+                    p5 = cmd.Parameters.Add("message_image_count", OracleDbType.Int32);
+                    p5.Direction = ParameterDirection.Input;
+                    p5.Value = message.message_image_count;
+
+                    //Add fifth parameter message_id
+                    OracleParameter p6 = new OracleParameter();
+                    p6 = cmd.Parameters.Add("message_id", OracleDbType.Int32);
+                    p6.Direction = ParameterDirection.Output;
+
+                    cmd.ExecuteReader();
+                    if (int.Parse(p1.Value.ToString()) != 1)
                     {
+                        throw new Exception("failed");
+                    }
+
+                    if (topics.Count != 0)
+                    {
+                        //对于topics列表里的每一个话题，分别作为函数参数来执行一次FUNC_ADD_TOPIC函数
+                        //FUNC_ADD_TOPIC(topic_content in VARCHAR2, message_id in INTEGER)
+                        //return INTEGER
+                        string procedureName2 = "FUNC_ADD_TOPIC";
+                        OracleCommand cmd2 = new OracleCommand(procedureName2, conn);
+                        cmd2.CommandType = CommandType.StoredProcedure;
+
+                        //Add return value
+                        OracleParameter p7 = new OracleParameter();
+                        p7 = cmd2.Parameters.Add("state", OracleDbType.Int32);
+                        p7.Direction = ParameterDirection.ReturnValue;
+
+                        //Add first parameter topic_content
+                        OracleParameter p8 = new OracleParameter();
+                        p8 = cmd2.Parameters.Add("topic_content", OracleDbType.Varchar2);
+                        p8.Direction = ParameterDirection.Input;
+                        p8.Value = topics[0];
+
+                        //Add second parameter message_id
+                        OracleParameter p9 = new OracleParameter();
+                        p9 = cmd2.Parameters.Add("message_id", OracleDbType.Int32);
+                        p9.Direction = ParameterDirection.Input;
+                        p9.Value = p6.Value;
+
+                        cmd2.ExecuteReader();
+                        for (int i = 1; i < topics.Count; i++)
+                        {
+                            if (int.Parse(p7.Value.ToString()) != 1)
+                            {
+                                throw new Exception("failed");
+                            }
+                            p8.Value = topics[i];
+                            cmd2.ExecuteReader();
+                        }
                         if (int.Parse(p7.Value.ToString()) != 1)
                         {
                             throw new Exception("failed");
                         }
-                        p8.Value = topics[i];
-                        cmd2.ExecuteReader();
                     }
-                    if (int.Parse(p7.Value.ToString()) != 1)
-                    {
-                        throw new Exception("failed");
-                    }
-                }
 
-                //TODO 若推特含图，从POST体内获得图的内容并保存到服务器
-                var images = Request.Form.Files;
-                int img_num = 0;
-                Directory.CreateDirectory(@"wwwroot\Messages\" + p6.Value.ToString());
-                foreach(var imgfile in images)
-                {
-                    if(imgfile.Length>0)
+                    //TODO 若推特含图，从POST体内获得图的内容并保存到服务器
+                    if(message.message_has_image==1)
                     {
-                        var img_path = @"wwwroot\Messages\" + p6.Value.ToString() + @"\" + img_num.ToString();
-                        using (var stream = new FileStream(img_path, FileMode.Create))
+                        var images = Request.Form.Files;
+                        int img_num = 0;
+                        Directory.CreateDirectory(@"wwwroot\Messages\" + p6.Value.ToString());
+                        foreach (var imgfile in images)
                         {
-                            await imgfile.CopyToAsync(stream);
+                            if (imgfile.Length > 0)
+                            {
+                                var img_path = @"wwwroot\Messages\" + p6.Value.ToString() + @"\" + img_num.ToString();
+                                using (var stream = new FileStream(img_path, FileMode.Create))
+                                {
+                                    await imgfile.CopyToAsync(stream);
+                                }
+                                img_num++;
+                            }
                         }
-                        img_num++;
+                    }
+
+                    RestfulResult.RestfulData rr = new RestfulResult.RestfulData(200, "success");
+                    return new JsonResult(rr);
+                    }
+                    catch (Exception e)
+                    {
+                        RestfulResult.RestfulData rr = new RestfulResult.RestfulData(500, "fail");
+                        Console.Write(e.Message);
+                        Console.Write(e.StackTrace);
+                        return new JsonResult(rr);
                     }
                 }
+           
 
-                RestfulResult.RestfulData rr = new RestfulResult.RestfulData(200, "success");
-                return new JsonResult(rr);
-            });
+            
         }
 
         /// <summary>
