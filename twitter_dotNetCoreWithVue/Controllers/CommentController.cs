@@ -39,6 +39,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             //TODO 需要身份验证
             //返回是否成功
             int my_user_id = -1;
+            
             if (HttpContext.User.Identity.IsAuthenticated)
             {
                 my_user_id = int.Parse(HttpContext.User.Claims.ElementAt(0).Value);
