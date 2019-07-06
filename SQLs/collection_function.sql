@@ -1,4 +1,4 @@
-﻿---------------FUNC_ADD_COLLECTION----------------------
+---------------FUNC_ADD_COLLECTION----------------------
 ---------------添加收藏---------------------------------
 create or replace function
 FUNC_ADD_COLLECTION(user_id in INTEGER, be_collected_id in INTEGER)

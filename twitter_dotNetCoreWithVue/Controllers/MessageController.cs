@@ -362,7 +362,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 System.Text.RegularExpressions.MatchCollection topicCollection = topicRegex.Matches(message.message_content);
                 System.Text.RegularExpressions.MatchCollection atCollection = atRegex.Matches(message.message_content);
                 for (int i = 0; i < topicCollection.Count; i++) topics.Add(topicCollection[i].Groups[1].ToString());
-                for (int i = 0; i < atCollection.Count; i++) ats.Add(topicCollection[i].Groups[1].ToString());
+                for (int i = 0; i < atCollection.Count; i++) ats.Add(atCollection[i].Groups[1].ToString());
             }
             else
             {
@@ -561,7 +561,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 System.Text.RegularExpressions.MatchCollection topicCollection = topicRegex.Matches(message.message_content);
                 System.Text.RegularExpressions.MatchCollection atCollection = atRegex.Matches(message.message_content);
                 for (int i = 0; i < topicCollection.Count; i++) topics.Add(topicCollection[i].Groups[1].ToString());
-                for (int i = 0; i < atCollection.Count; i++) ats.Add(topicCollection[i].Groups[1].ToString());
+                for (int i = 0; i < atCollection.Count; i++) ats.Add(atCollection[i].Groups[1].ToString());
             }
             else
             {
