@@ -4,7 +4,7 @@ CREATE OR REPLACE
 FUNCTION FUNC_ADD_LIKE 
 (user_id IN INTEGER, like_message_id IN INTEGER)
 RETURN INTEGER
-AS
+is
 temp_date VARCHAR2(30);
 temp_topic_state INTEGER:=0;
 state INTEGER:=1;
@@ -32,23 +32,16 @@ BEGIN
                                   WHERE MESSAGE_OWNS_TOPIC.MESSAGE_ID=like_message_id);
   END IF;
 
-
-
   UPDATE MESSAGE
   set MESSAGE_AGREE_NUM=MESSAGE_AGREE_NUM+1,MESSAGE_HEAT=MESSAGE_HEAT+1
-  WHERE MESSAGE.MESSAGE_ID=like_message_id;
-
-
-
-
-  SELECT to_char(sysdate,'yyyy-mm-dd HH24:MI:SS')into temp_date from dual ;
+  WHERE MESSAGE_ID=like_message_id;
+  
+  SELECT to_char(sysdate,'yyyy-mm-dd HH24:MI:SS')into temp_date from dual;
 
   insert into LIKES
       (LIKES_USER_ID, LIKES_MESSAGE_ID,LIKES_TIME)
-  values(user_id, message_id, temp_date);
-  state:=1;
-
-	RETURN state;
+  values(user_id, like_message_id, temp_date);
+  RETURN state;
 END;
 
 /
