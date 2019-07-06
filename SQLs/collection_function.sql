@@ -1,4 +1,4 @@
----------------FUNC_ADD_COLLECTION----------------------
+﻿---------------FUNC_ADD_COLLECTION----------------------
 ---------------添加收藏---------------------------------
 create or replace function
 FUNC_ADD_COLLECTION(user_id in INTEGER, be_collected_id in INTEGER)
@@ -30,7 +30,7 @@ end;
 -----------------------删除收藏----------------------------------
 create or replace 
 function 
-FUNC_DELETE_COLLECTION(user_id in INTEGER, message_id in INTEGER)
+FUNC_DELETE_COLLECTION(user_id_input in INTEGER, message_id_input in INTEGER)
 return INTEGER
 is 
 PRAGMA AUTONOMOUS_TRANSACTION;
@@ -38,22 +38,22 @@ state INTEGER:=0;
 
 begin
 select count(*) into state 
-from MESSAGE 
-where message_id = MESSAGE.message_id;
+from message 
+where message_id = message_id_input;
 
 if state != 0 then 
 state:=1;
 else
-delete from MESSAGE_COLLECTION
-where message_id = MESSAGE_COLLECTION.message_id and user_id=MESSAGE_COLLECTION.user_id;
+delete from message_collection
+where message_id = message_id_input and user_id=user_id_input;
 update MESSAGE 
-set MESSAGE_HEAT=MESSAGE_HEAT-1
-where message_id = MESSAGE.message_id;
+set message_heat=message_heat-1
+where message_id =message_id_input;
 update TOPIC 
 set TOPIC_HEAT=TOPIC_HEAT-1
 where topic_id=( select TOPIC_ID 
-from MESSAGE_OWNS_TOPIC
-where message_id = MESSAGE_OWNS_TOPIC.message_id);
+from message_owns_topic
+where message_id = message_id_input);
 end if;
 
 commit;
