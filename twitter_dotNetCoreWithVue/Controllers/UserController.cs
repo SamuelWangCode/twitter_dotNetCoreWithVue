@@ -470,6 +470,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
             //FUNC_GET_USER_AVATAR(user_id in INTEGER, avatar_id out INTEGER)
             //return INTEGER
             OracleConnection conn = new OracleConnection();
+            conn.ConnectionString = Utils.ConnStr.getConnStr();
+            conn.Open();
             string procedureName = "FUNC_GET_USER_AVATAR";
             OracleCommand cmd = new OracleCommand(procedureName, conn);
             cmd.CommandType = CommandType.StoredProcedure;

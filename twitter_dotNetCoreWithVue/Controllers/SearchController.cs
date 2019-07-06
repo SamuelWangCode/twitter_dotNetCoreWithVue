@@ -254,7 +254,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 receivedUsers[i].user_nickname = dt.Rows[i][1].ToString();
 
                 string avatarUrl = UserController.getAvatarUrl(receivedUsers[i].user_id);
-                receivedUsers[i].user_avatar_url = "/avatars/" + avatarUrl;
+                receivedUsers[i].user_avatar_url = avatarUrl;
 
             }
             return receivedUsers;
