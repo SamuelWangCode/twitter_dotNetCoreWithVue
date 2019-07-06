@@ -124,6 +124,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 rr.Code = 200;
                 rr.Data = resultSet;
                 rr.Message = "success";
+                return new JsonResult(rr);
             });
         }
 
