@@ -605,3 +605,51 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 
 ## 重命名接口
 * "FUNC\_QUERY\_MESSAGE\_IDS\_CONTAINS\_CERTAIN\_TOPIC\_ID" to "FUNC\_QUERY\_MESSAGE\_BY\_TOPIC"
+
+### 31. FUNC_SEARCH_MESSAGE(searchKey in VARCHAR2(50), startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+
+接口功能：通过指定的搜索键searchKey，在Message相关表中搜索相关的推特，包括从Transpond表，Message_Image表中获取的数据。数据按时间排序，返回从startFrom开始，长度为limitation的数据表。
+
+- 返回值：同上
+
+- 输入参数：
+
+- - searchKey：VARCHAR2类型，搜索的关键字
+  
+  - startFrom：INTEGER类型，查找结果的起始索引
+  
+  - limitation：INTEGER类型，查找结果的长度
+- 输出参数:
+	- result：sys_refcursor类型，推特信息，table属性为(message\_id, message\_content, message\_create\_time, message\_agree\_num, message\_transpond\_num, message\_comment\_num, message\_view\_num, message\_has\_image, message\_is\_transpond, message_sender\_user\_id, message\_heat, message\_transpond\_message\_id, message\_image\_count)。在5月25日更新后的message表里不再具有message\_transpond\_message\_id这个属性，若该条推特不为转发，该属性可返回-1值，若该条推特是转发，则照旧返回转发来源的ID。
+- 已完成：否
+
+
+### 32. FUNC_SEARCH_USER(searchKey in VARCHAR2(50), startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+
+接口功能：通过指定的搜索键searchKey, 在User相关的表中，获取User的部分数据，按照follower_num排序，从startFrom开始的，长度为limitation的数据。数据为用户的简单数据，只包含用户id和用户昵称，以及用户头像。
+
+- 返回值：同上
+
+- 输入参数：
+
+- - searchKey: VARCHAR2类型，搜索的关键字
+  - startFrom: INTEGER类型，查找结果的起始索引
+  - limitation: INTEGER类型，查找结果的长度
+
+- 输出参数：
+	- result: table属性为(user\_id,user\_nickname,user\_avatar\_image\_id)
+- 已完成：否
+
+### 33. FUNC_SEARCH_TOPICS(searchKey in VARCHAR2(50), startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+
+接口功能：通过指定的搜索键searchKey，在Topic相关表中，获取Topic数据，按照热度降序排序。返回从startFrom开始，长度为limitation的数据。
+-返回值：同上
+- 输入参数：
+
+- - searchKey: VARCHAR2类型，搜索的关键字
+  - startFrom: INTEGER类型，查找结果的起始索引
+  - limitation: INTEGER类型，查找结果的长度
+
+- 输出参数：
+	- result: table属性为(topic_id, topic_heat, topic_content)
+- 已完成：否
