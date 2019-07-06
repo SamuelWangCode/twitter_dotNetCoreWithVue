@@ -179,10 +179,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                 if(infos.message_has_image==1)
                 {
-                    string path = @"wwwroot\Messages\" + infos.message_id.ToString();
                     for(int i=0;i<infos.message_image_count;i++)
-                    {                        
-                        infos.message_image_urls.Append<string>("/Messages/" + infos.message_id.ToString() + "/" + i.ToString());                       
+                    {
+                      infos.message_image_urls.Append<string>("/Messages/" + infos.message_id.ToString() + "/" + i.ToString());                       
                     }
                 }
 
@@ -288,6 +287,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                             }
                             else break;
                         }
+                        
                     }
                 }
 
@@ -307,7 +307,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>The message.</returns>
         /// <param name="message">Message.</param>
         [HttpPost("send")]
-        public IActionResult Send([Required][FromBody]MessageForSender message)
+        public async Task<IActionResult> Send([Required][FromBody]MessageForSender message)
         {
             //TODO 需要验证身份
             //有很多参数都是有初始化的
@@ -342,7 +342,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 return new JsonResult(rr);
             }
 
-            return Wrapper.wrap((OracleConnection conn) =>
+            return Wrapper.wrap(async(OracleConnection conn) =>
             {
                 //FUNC_SEND_MESSAGE(message_content in VARCHAR2, message_has_image in INTEGER, user_id in INTEGER, message_image_count in INTEGER, message_id out INTEGER)
                 //return INTEGER
@@ -430,9 +430,24 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     {
                         throw new Exception("failed");
                     }
-                }                
+                }
 
-                //TODO 若推特含图，从POST体内获得图的内容并保存到服务器，不清楚前端实现方式，搁置
+                //TODO 若推特含图，从POST体内获得图的内容并保存到服务器
+                var images = Request.Form.Files;
+                int img_num = 0;
+                Directory.CreateDirectory(@"wwwroot\Messages\" + p6.Value.ToString());
+                foreach(var imgfile in images)
+                {
+                    if(imgfile.Length>0)
+                    {
+                        var img_path = @"wwwroot\Messages\" + p6.Value.ToString() + @"\" + img_num.ToString();
+                        using (var stream = new FileStream(img_path, FileMode.Create))
+                        {
+                            await imgfile.CopyToAsync(stream);
+                        }
+                        img_num++;
+                    }
+                }
 
                 RestfulResult.RestfulData rr = new RestfulResult.RestfulData(200, "success");
                 return new JsonResult(rr);
@@ -581,8 +596,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// 具体再议
         /// </summary>
         /// <returns>success or not</returns>
-        [HttpPost("uploadImgs")]
-        public IActionResult UploadImgs()
+
+        private IActionResult UploadImgs()
         {
             //TODO 需要验证登录态
             //返回成功与否
