@@ -274,20 +274,6 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
   完成者：王笑天于2019-05-29
 
 
-### 6. FUNC\_AT\_USER(at\_nickname in VARCHAR2, message\_id in INTEGER)
-* 接口功能：艾特指定名字的成员。若有多个成员具有同一名字，同时艾特他们。若没有任何一个成员有该名字，则忽视这条艾特（不进行实际的艾特），但也不因此返回失败值。
-
-* 返回值：添加成功返回1，失败返回0
-
-* 输入参数：
-	* at\_nickname：VARCHAR2类型，表示艾特的人的名字
-	* message\_id：INTEGER类型，表示出现这个艾特的推特的ID
-
-* 输出参数：无
-
-* 已完成：否
-
-
 ### 7. FUNC\_DELETE\_MESSAGE(message\_id in INTEGER, message\_has\_image out INTEGER)
 * 接口功能：删除指定ID的推特，并且删除这条推特所包含的评论。需要注意的是，如果该推特包含了话题，对推特的删除并不会又减少话题的热度（也就是删除推特，话题热度不变，微博好像是这么设定的）。需要输出删除的这条推特是否含图。
 
@@ -685,11 +671,20 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 接口功能：通过指定的搜索键searchKey，在Topic相关表中，获取Topic数据，按照热度降序排序。返回从startFrom开始，长度为limitation的数据。
 -返回值：同上
 - 输入参数：
-
 - - searchKey: VARCHAR2类型，搜索的关键字
   - startFrom: INTEGER类型，查找结果的起始索引
   - limitation: INTEGER类型，查找结果的长度
-
 - 输出参数：
 	- result: table属性为(topic_id, topic_heat, topic_content)
 - 已完成：否
+
+### 34. FUNC\_AT\_USER(at\_nickname in VARCHAR2, message\_id in INTEGER)
+
+- 接口功能：艾特指定名字的成员。若有多个成员具有同一名字，同时艾特他们。若没有任何一个成员有该名字，则忽视这条艾特（不进行实际的艾特），但也不因此返回失败值。
+- 返回值：添加成功返回1，失败返回0
+- 输入参数：
+  - at\_nickname：VARCHAR2类型，表示艾特的人的名字
+  - message\_id：INTEGER类型，表示出现这个艾特的推特的ID
+- 输出参数：无
+- 已完成：否
+
