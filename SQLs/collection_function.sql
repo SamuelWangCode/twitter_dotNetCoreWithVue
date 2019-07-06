@@ -81,12 +81,20 @@ if state=0 then
 return state;
 else
 state:=1;
-open search_result for 
+open search_result for
+(
 select * from(
-select MESSAGE_COLLECTION.MESSAGE_ID
+(select MESSAGE_COLLECTION.MESSAGE_ID
 from MESSAGE_COLLECTION
 where MESSAGE_COLLECTION.USER_ID= user_id)
-where ROWNUM >= startFrom and ROWNUM <= limitation;
+where ROWNUM <startFrom+limitation)
+minus
+select * from(
+(select MESSAGE_COLLECTION.MESSAGE_ID
+from MESSAGE_COLLECTION
+where MESSAGE_COLLECTION.USER_ID= user_id)
+where ROWNUM <startFrom)
+)
 
 end if;
 return state;
