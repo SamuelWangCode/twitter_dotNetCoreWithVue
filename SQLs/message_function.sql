@@ -220,6 +220,9 @@ END;
 
 ----------------FUNC_SEARCH_MESSAGE-------------------
 --------通过搜索键，在Message相关表中搜索相关的推特------
+----返回的属性依次为message_id, message_content, message_create_time, message_agree_num, ---
+----message_transponded_num, message_comment_num, message_view_num, message_has_image，-----
+----message_sender_user_id, message_heat,message_image_count,transponded_message_id---------
 CREATE OR REPLACE 
 FUNCTION FUNC_SEARCH_MESSAGE
 (searchKey IN VARCHAR2, startFrom IN INTEGER, limitation IN INTEGER, search_result OUT Sys_refcursor)
@@ -239,14 +242,18 @@ BEGIN
   ELSE
     open search_result for 
     SELECT* FROM
-         (SELECT* 
+         (SELECT  message_id, message_content, message_create_time, message_agree_num, 
+                  message_transponded_num, message_comment_num, message_view_num, message_has_image，
+                  message_sender_user_id, message_heat,message_image_count,transponded_message_id
           FROM (MESSAGE NATURAL join MESSAGE_IMAGE) NATURAL join TRANSPOND
           WHERE MESSAGE_CONTENT like'%'||searchKey||'%'
           ORDER BY MESSAGE_CREATE_TIME DESC)
     WHERE ROWNUM<=startFrom+limitation
     MINUS
     SELECT* FROM
-         (SELECT* 
+         (SELECT  message_id, message_content, message_create_time, message_agree_num, 
+                  message_transponded_num, message_comment_num, message_view_num, message_has_image，
+                  message_sender_user_id, message_heat,message_image_count,transponded_message_id
           FROM (MESSAGE NATURAL join MESSAGE_IMAGE) NATURAL join TRANSPOND
           WHERE MESSAGE_CONTENT like'%'||searchKey||'%'
           ORDER BY MESSAGE_CREATE_TIME DESC)
