@@ -12,7 +12,7 @@ BEGIN
 
   SELECT count(*) into state 
   FROM MESSAGE
-  WHERE MESSAGE.MESSAGE_ID=message_id;
+  WHERE MESSAGE.MESSAGE_ID=like_message_id;
 
   if state=0
   THEN
@@ -21,7 +21,7 @@ BEGIN
 
   SELECT count(*) into temp_topic_state 
   FROM MESSAGE_OWNS_TOPIC
-  WHERE MESSAGE_OWNS_TOPIC.MESSAGE_ID=message_id;
+  WHERE MESSAGE_OWNS_TOPIC.MESSAGE_ID=like_message_id;
 
   if temp_topic_state>0
   THEN
@@ -29,7 +29,7 @@ BEGIN
     SET TOPIC_HEAT=TOPIC_HEAT+1
     WHERE TEMP_TOPIC.TOPIC_ID IN (SELECT TOPIC_ID
                                   FROM MESSAGE_OWNS_TOPIC
-                                  WHERE MESSAGE_OWNS_TOPIC.MESSAGE_ID=message_id);
+                                  WHERE MESSAGE_OWNS_TOPIC.MESSAGE_ID=like_message_id);
   END IF;
 
 
@@ -68,7 +68,7 @@ BEGIN
 
 	SELECT count(*) into state 
   FROM MESSAGE
-  WHERE MESSAGE.MESSAGE_ID=message_id;
+  WHERE MESSAGE.MESSAGE_ID=like_message_id;
 
   if state=0
   THEN
@@ -77,7 +77,7 @@ BEGIN
 
   SELECT count(*) into topic_state 
   FROM MESSAGE_OWNS_TOPIC
-  WHERE MESSAGE_OWNS_TOPIC.MESSAGE_ID=message_id;
+  WHERE MESSAGE_OWNS_TOPIC.MESSAGE_ID=like_message_id;
 
   if topic_state=0
   THEN
@@ -85,7 +85,7 @@ BEGIN
     SET TOPIC_HEAT=TOPIC_HEAT-1
     WHERE TEMP_TOPIC.TOPIC_ID IN (SELECT TOPIC_ID
                                   FROM MESSAGE_OWNS_TOPIC
-                                  WHERE MESSAGE_OWNS_TOPIC.MESSAGE_ID=message_id);
+                                  WHERE MESSAGE_OWNS_TOPIC.MESSAGE_ID=like_message_id);
   END IF;
 
   
