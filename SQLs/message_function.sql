@@ -31,7 +31,7 @@ end;
 
 ---------------FUNC_SHOW_ MESSAGE_BY_RANGE----------------------
 -----------------------??????????-------------------------------
-create or replace 
+CREATE OR REPLACE 
 function 
 FUNC_SHOW_MESSAGE_BY_RANGE(user_id in INTEGER, rangeStart in INTEGER, rangeLimitation in INTEGER, search_result out sys_refcursor)
 return INTEGER
@@ -39,6 +39,7 @@ is
 state INTEGER:=0;
 
 begin
+
 select count(*) into state
 from MESSAGE 
 where MESSAGE_SENDER_USER_ID = user_id;
@@ -48,22 +49,20 @@ select transponded_message_id into state
 from transpond natural join message
 where MESSAGE_SENDER_USER_ID = user_id;
 
-open search_result for 
-select * from(
-  (select * from 
+  open search_result for 
+  select * from 
     (select * 
      from message natural join message_image natural join transpond
      where message_sender_user_id=user_id
      order by message_id asc)
-  where rownum <rangelimitation+rangestart)
+  where rownum <rangelimitation+rangestart
   minus
-  (select * from 
+  select * from 
     (select * 
      from message natural join message_image natural join transpond
      where message_sender_user_id=user_id
      order by message_id asc)
-  where rownum <rangestart)
-);
+  where rownum <rangestart;
 
 end if;
 return state;
