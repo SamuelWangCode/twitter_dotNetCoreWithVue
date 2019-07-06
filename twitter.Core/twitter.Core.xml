@@ -192,6 +192,13 @@
             </summary>
             <returns>The get.</returns>
             <param name="searchKey">Identifier.</param>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.TestConnection.Get">
+            <summary>
+            Test DB Connection
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+
         </member>
         <member name="T:twitter_dotNetCoreWithVue.Controllers.TopicController">
             <summary>

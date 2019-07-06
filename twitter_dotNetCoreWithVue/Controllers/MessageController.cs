@@ -158,7 +158,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 DataTable dt = new DataTable();
                 DataAdapter.Fill(dt);
 
-                if (int.Parse(p1.ToString()) != 1)
+                if (int.Parse(p1.Value.ToString()) != 1)
                 {
                     throw new Exception("failed");
                 }
@@ -205,9 +205,14 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// </summary>
         /// <returns>The messages for index.</returns>
         /// <param name="range">Range.</param>
+<<<<<<< HEAD
         /// <param name="user_id">user_id</param>
         [HttpGet("queryForIndex")]
         public IActionResult QueryForIndex([Required][FromBody]Range range,[Required]int user_id)
+=======
+        [HttpPost("queryForIndex")]
+        public IActionResult QueryForIndex([Required][FromBody]Range range,[Required]string user_id)
+>>>>>>> de106fe06b3775084c956173404deb4c16f9c070
         {
             //根据range来吧
             //这个稍微有些复杂，SQL会比较难写，加油。
@@ -216,7 +221,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             {
                 //function FUNC_SHOW_HOME_MESSAGE_BY_RANGE(user_id in INTEGER, rangeStart in INTEGER, rangeLimitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
-                string procedurename = "FUNC_SHOW_HOME_MESSAGE_BY_RANGE";
+                string procedurename = "FUNC_SHOW_MESSAGE_BY_RANGE";
                 OracleCommand cmd = new OracleCommand(procedurename, conn);
                 cmd.CommandType = CommandType.StoredProcedure;
 
@@ -253,7 +258,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 DataTable dt = new DataTable();
                 DataAdapter.Fill(dt);
 
-                if (int.Parse(p1.ToString()) != 1)
+                if (int.Parse(p1.Value.ToString()) != 1)
                 {
                     throw new Exception("failed");
                 }
@@ -261,6 +266,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
+                    infos[i] = new MessageForShow();
                     infos[i].message_id = int.Parse(dt.Rows[i][0].ToString());
                     infos[i].message_content = dt.Rows[i][1].ToString();
                     infos[i].message_create_time = dt.Rows[i][2].ToString();
@@ -638,7 +644,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p3 = cmd.Parameters.Add("message_has_image", OracleDbType.RefCursor);
                 p3.Direction = ParameterDirection.Output;
 
-                if (int.Parse(p1.ToString()) != 1)
+                if (int.Parse(p1.Value.ToString()) != 1)
                 {
                     throw new Exception("failed");
                 }                
