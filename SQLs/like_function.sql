@@ -63,6 +63,7 @@ FUNCTION FUNC_DELETE_LIKE
 RETURN INTEGER
 AS
 state INTEGER:=1;
+topic_state INTEGER:=1;
 BEGIN
 
 	SELECT count(*) into state 
@@ -74,23 +75,23 @@ BEGIN
     return state;
   END IF;
 
-  SELECT count(*) into state 
+  SELECT count(*) into topic_state 
   FROM MESSAGE_OWNS_TOPIC
   WHERE MESSAGE_OWNS_TOPIC.MESSAGE_ID=message_id;
 
-  if state=0
+  if topic_state=0
   THEN
-    return state;
+    UPDATE TOPIC temp_topic
+    SET TOPIC_HEAT=TOPIC_HEAT-1
+    WHERE TEMP_TOPIC.TOPIC_ID IN (SELECT TOPIC_ID
+                                  FROM MESSAGE_OWNS_TOPIC
+                                  WHERE MESSAGE_OWNS_TOPIC.MESSAGE_ID=message_id);
   END IF;
 
-  UPDATE TOPIC temp_topic
-  SET TOPIC_HEAT=TOPIC_HEAT-1
-  WHERE TEMP_TOPIC.TOPIC_ID IN (SELECT TOPIC_ID
-                                FROM MESSAGE_OWNS_TOPIC
-                                WHERE MESSAGE_OWNS_TOPIC.MESSAGE_ID=message_id);
+  
 
   UPDATE MESSAGE
-  set MESSAGE_AGREE_NUM=MESSAGE_AGREE_NUM+1,MESSAGE_HEAT=MESSAGE_HEAT-1
+  set MESSAGE_AGREE_NUM=MESSAGE_AGREE_NUM-1,MESSAGE_HEAT=MESSAGE_HEAT-1
   WHERE MESSAGE.MESSAGE_ID=message_id;
 
   DELETE from LIKES
@@ -99,6 +100,7 @@ BEGIN
 
 	RETURN state;
 END;
+
 /
 
 
