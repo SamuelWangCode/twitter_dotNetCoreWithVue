@@ -5,20 +5,23 @@ FUNC_SHOW_MESSAGE_BY_ID(message_id_input in INTEGER, result out sys_refcursor)
 return INTEGER
 is
 state INTEGER:=0;
-
 begin
-open result for
-select *
-from message natural join message_image
-where message_id =message_id_input;
-
 select count(*) into state 
 from message
 where message_id=message_id_input;
+
 if state!=0 then
-state:=1;
+select transponded_message_id into state
+from transpond
+where message_id=message_id_input;
+
+open result for
+select *
+from message natural join message_image natural join transpond
+where message_id =message_id_input;
+
 else
-state:=-1;
+state:=null;
 end if;
 
 return state;
@@ -40,20 +43,23 @@ select count(*) into state
 from MESSAGE 
 where MESSAGE_SENDER_USER_ID = user_id;
 
-if state!=0 then 
-state:=1;
+if state!=0 then
+select transponded_message_id into state
+from transpond natural join message
+where MESSAGE_SENDER_USER_ID = user_id;
+
 open search_result for 
 select * from(
   (select * from 
     (select * 
-     from message natural join message_image
+     from message natural join message_image natural join transpond
      where message_sender_user_id=user_id
      order by message_id asc)
   where rownum <rangelimitation+rangestart)
   minus
   (select * from 
     (select * 
-     from message natural join message_image
+     from message natural join message_image natural join transpond
      where message_sender_user_id=user_id
      order by message_id asc)
   where rownum <rangestart)
