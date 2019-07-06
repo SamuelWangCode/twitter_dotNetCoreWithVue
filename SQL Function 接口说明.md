@@ -183,7 +183,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
   
 * 已测试
 
-### 2. FUNC\_SHOW\_MESSAGE\_BY\_ID(message\_id in INTEGER, result out sys_refcursor)
+### 2. FUNC\_SHOW\_MESSAGE\_BY\_ID(message\_id\_input in INTEGER, result out sys_refcursor)
 * 接口功能：通过给定的推特ID来查询该推特的详细信息
 
 * 返回值：查询成功返回1，失败返回0
@@ -199,7 +199,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 已完成：是
 
   完成者：顾安琪于2019-06-01
-
+** 更改了输入变量名message\_id为message\_id\_input
 
 ### 3. FUNC\_SHOW\_HOME\_MESSAGE\_BY\_RANGE(user\_id in INTEGER, rangeStart in INTEGER, rangeLimitation in INTEGER, search\_result out sys_refcursor)
 * 接口功能：通过给定的用户ID，索引起点和查询范围来查询某用户发布过的推特

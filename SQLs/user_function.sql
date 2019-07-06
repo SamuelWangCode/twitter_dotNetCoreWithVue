@@ -223,3 +223,48 @@ end if;
 return state;
 end;
 /
+
+---------------FUNC_SEARCH_USER----------------------------
+---------------搜索用户信息--------------------------------
+CREATE OR REPLACE
+function FUNC_SEARCH_USER
+(searchKey in VARCHAR2, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+return INTEGER
+is 
+state INTEGER:=1;
+
+begin
+
+select count(*) into state 
+from USER_PUBLIC_INFO;
+
+if state=0
+then return state;
+else 
+state:=1;
+
+open search_result for 
+select * from 
+(select user_id, user_nickname
+from (select user_id, user_nickname
+	 from USER_PUBLIC_INFO 
+	 where user_nickname like searchKey 
+	 order by user_followers_num desc)
+where ROWNUM<(startFrom+limitation)) 
+minus 
+(select user_id, user_nickname
+from (select user_id, user_nickname
+	 from USER_PUBLIC_INFO 
+	 where user_nickname like searchKey 
+	 order by user_followers_num desc)
+where ROWNUM<startFrom);
+
+end if;
+return state;
+
+end;
+/
+
+
+
+
