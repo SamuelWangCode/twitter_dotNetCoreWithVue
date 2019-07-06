@@ -87,9 +87,6 @@ namespace twitter_dotNetCoreWithVue.Controllers
             [Required]
             public int message_has_image { get; set; }
 
-            [Display(Name = "发布人ID")]
-            public int message_sender_user_id { get; set; }
-
             [Display(Name = "推特含图数量")]
             public int message_image_count { get; set; }
 
