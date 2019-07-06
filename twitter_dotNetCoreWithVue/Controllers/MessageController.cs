@@ -439,9 +439,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     foreach(string at in ats)
                     {
                         //对于ats列表里的每一个话题，分别作为函数参数来执行一次FUNC_AT_USER函数
-                        //FUNC_AT_USER(at_nickname in VARCHAR2, message_id in INTEGER)
+                        //FUNC_AT_USER(at_nickname in VARCHAR2, message_id in INTEGER, source_user_id in INTEGER)
                         //return INTEGER
-                        string procedureName3 = "FUNC_AT_USER";
+                        string procedureName3 = "FUNC_ADD_AT_USER";
                         OracleCommand cmd3 = new OracleCommand(procedureName3, conn);
                         cmd3.CommandType = CommandType.StoredProcedure;
 
@@ -461,6 +461,12 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         p12 = cmd3.Parameters.Add("message_id", OracleDbType.Int32);
                         p12.Direction = ParameterDirection.Input;
                         p12.Value = p6.Value;
+
+                        //Add third parameter source_user_id
+                        OracleParameter p13 = new OracleParameter();
+                        p13 = cmd3.Parameters.Add("source_user_id", OracleDbType.Int32);
+                        p13.Direction = ParameterDirection.Input;
+                        p13.Value = userId;
 
                         cmd3.ExecuteReader();
                         if (int.Parse(p10.Value.ToString()) != 1)
@@ -626,9 +632,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 foreach (string at in ats)
                 {
                     //对于ats列表里的每一个话题，分别作为函数参数来执行一次FUNC_AT_USER函数
-                    //FUNC_AT_USER(at_nickname in VARCHAR2, message_id in INTEGER)
+                    //FUNC_AT_USER(at_nickname in VARCHAR2, message_id in INTEGER, source_user_id in INTEGER)
                     //return INTEGER
-                    string procedureName3 = "FUNC_AT_USER";
+                    string procedureName3 = "FUNC_ADD_AT_USER";
                     OracleCommand cmd3 = new OracleCommand(procedureName3, conn);
                     cmd3.CommandType = CommandType.StoredProcedure;
 
@@ -648,6 +654,12 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     p12 = cmd3.Parameters.Add("message_id", OracleDbType.Int32);
                     p12.Direction = ParameterDirection.Input;
                     p12.Value = p6.Value;
+
+                    //Add third parameter source_user_id
+                    OracleParameter p13 = new OracleParameter();
+                    p13 = cmd3.Parameters.Add("source_user_id", OracleDbType.Int32);
+                    p13.Direction = ParameterDirection.Input;
+                    p13.Value = userId;
 
                     cmd3.ExecuteReader();
                     if (int.Parse(p10.Value.ToString()) != 1)
