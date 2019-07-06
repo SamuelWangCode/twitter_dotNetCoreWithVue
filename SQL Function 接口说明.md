@@ -1,4 +1,4 @@
-# SQL Function 接口说明
+﻿# SQL Function 接口说明
 
 此文档由c#小组（杨紫超，周宇东，魏敬杰）负责编写。
 SQL小组通过阅读此文档，编写相应的SQL脚本。
@@ -680,13 +680,14 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 - 输出参数：
 	- result: table属性为(topic_id, topic_heat, topic_content)
 - 已完成：否
-### 34. FUNC\_AT\_USER(at\_nickname in VARCHAR2, message\_id in INTEGER)
+### 34. FUNC\_AT\_USER(at\_nickname in VARCHAR2, message\_id in INTEGER，source\_user\_id in INTEGER)
 
 - 接口功能：艾特指定名字的成员。若有多个成员具有同一名字，同时艾特他们。若没有任何一个成员有该名字，则忽视这条艾特（不进行实际的艾特），但也不因此返回失败值。
 - 返回值：添加成功返回1，失败返回0
 - 输入参数：
   - at\_nickname：VARCHAR2类型，表示艾特的人的名字
   - message\_id：INTEGER类型，表示出现这个艾特的推特的ID
+  - source\_user\_id: INTEGER类型，表示这条推特的来源的ID
 - 输出参数：无
 - 已完成：否
 
