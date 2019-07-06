@@ -1,4 +1,4 @@
-
+---------------FUNC_SHOW_ MESSAGE_BY_ID----------------------
 create or replace 
 function 
 FUNC_SHOW_MESSAGE_BY_ID(message_id_input in INTEGER, result out sys_refcursor)
@@ -40,16 +40,24 @@ select count(*) into state
 from MESSAGE 
 where MESSAGE_SENDER_USER_ID = user_id;
 
-if state=0 then 
-return state;
-else
+if state!=0 then 
 state:=1;
 open search_result for 
 select * from(
-select *
-from MESSAGE
-where MESSAGE_SENDER_USER_ID= user_id)
-where ROWNUM >= rangeStart and ROWNUM <= rangeLimitation;
+  (select * from 
+    (select * 
+     from message natural join message_image
+     where message_sender_user_id=user_id
+     order by message_id asc)
+  where rownum <rangelimitation+rangestart)
+  minus
+  (select * from 
+    (select * 
+     from message natural join message_image
+     where message_sender_user_id=user_id
+     order by message_id asc)
+  where rownum <rangestart)
+);
 
 end if;
 return state;
@@ -95,7 +103,7 @@ end;
 
 
 -------------------FUNC_TRANSPOND_MESSAGE--------------------
--------------------转发1条推特（Message和Transpond添加�?
+-------------------转发1条推特（Message和Transpond添加�??
 create or replace function
 FUNC_TRANSPOND_MESSAGE(message_content in VARCHAR2, message_source_is_transpond in INTEGER, message_sender_user_id in INTEGER, message_transpond_message_id in INTEGER, message_id out INTEGER)
 return INTEGER
@@ -141,24 +149,28 @@ end;
 -----------------------??ID????-------------------------------
 create or replace 
 function 
-FUNC_DELETE_MESSAGE(message_id in INTEGER, message_has_image out INTEGER)
+FUNC_DELETE_MESSAGE(message_id_input in INTEGER, message_has_image_iftrue out INTEGER)
 return INTEGER
 is 
 PRAGMA AUTONOMOUS_TRANSACTION;
-state INTEGER:=0;
+state integer:=0;
+temp_id integer:=message_id_input;
 
 begin
 select count(*) into state 
 from MESSAGE 
-where message_id = MESSAGE.message_id;
+where message_id = temp_id;
 
 if state != 0 then 
 state:=1;
 else
+select message_has_image into message_has_image_iftrue
+from  message
+where message_id = temp_id;
 delete from MESSAGE 
-where message_id = MESSAGE.message_id;
+where message_id = temp_id;
 delete from COMMENT_ON_MESSAGE 
-where message_id = COMMENT_MESSAGE_ID;
+where  COMMENT_MESSAGE_ID=temp_id ;
 end if;
 end;
 /
