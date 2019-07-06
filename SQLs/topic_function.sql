@@ -75,3 +75,42 @@ BEGIN
 END;
 
 /
+
+
+------------------FUNC_SREACH_TOPICS--------------------------------
+create or replace 
+function func_search_topics
+(Searchkey In Varchar2, Startfrom in Integer, Limitation In Integer, Search_Result Out Sys_Refcursor)
+return INTEGER
+is
+state integer:=0;
+
+begin
+	select count(*) into state 
+  from topic
+  where topic_content like '%'||Searchkey||'%';
+  
+if state!=0 then 
+state:=1;
+  open search_result for
+    select * from(
+     (select * from
+       (select topic_id
+       from topic
+       where topic_content like'%'||searchkey||'%'
+       order by topic_heat desc)
+      where rownum < startfrom+limitation)
+     minus
+     (select * from
+       (select topic_id
+       from topic
+       where topic_content like'%'||searchkey||'%'
+       order by topic_heat desc)
+      where rownum < startfrom)
+    )
+    where rownum >= startfrom and rownum <= limitation;   
+end if;
+
+return state;
+end;
+/

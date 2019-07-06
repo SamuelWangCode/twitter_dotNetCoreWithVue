@@ -265,6 +265,36 @@ return state;
 end;
 /
 
+--------------FUNC_RECOMMEND_USER----------------
+------------获取粉丝数最多的前五个用户-----------
+CREATE OR REPLACE 
+FUNCTION FUNC_RECOMMEND_USER (search_result OUT Sys_refcursor)
+RETURN INTEGER
+AS
+state INTEGER:=1;
+BEGIN
+
+	SELECT count(*) into state 
+  from USER_PUBLIC_INFO
+  WHERE USER_FOLLOWERS_NUM>0;
+
+  IF state=0
+  THEN
+    return state;
+  ELSE
+    open search_result for 
+    SELECT* FROM 
+         (SELECT USER_ID, USER_NICKNAME, USER_FOLLOWERS_NUM
+          FROM USER_PUBLIC_INFO
+          ORDER BY USER_FOLLOWERS_NUM DESC)
+    WHERE ROWNUM<=5 and ROWNUM<=state;
+    state:=1;
+  END IF;
+
+	RETURN state;
+END;
+/
+
 
 
 
