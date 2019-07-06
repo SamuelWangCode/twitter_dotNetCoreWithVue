@@ -279,7 +279,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     infos[i].message_sender_user_id = int.Parse(dt.Rows[i][9].ToString());
                     infos[i].message_heat = int.Parse(dt.Rows[i][10].ToString());
                     infos[i].message_transpond_message_id = int.Parse(dt.Rows[i][11].ToString());
-                    infos[i].message_image_count = int.Parse(dt.Rows[0][12].ToString());
+                    infos[i].message_image_count = int.Parse(dt.Rows[i][12].ToString());
                 }
                 for(int i=0;i<dt.Rows.Count;i++)
                 {
@@ -487,7 +487,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>成功与否</returns>
         /// <param name="message_id">Message identifier.</param>
         /// <param name="message">Message.</param>
-        [HttpPost("transpond/{message_id}")]
+        [HttpPost("transpond")]
         public IActionResult Transpond([Required][FromBody]MessageForTransponder message)
         {
             //需要验证身份
@@ -621,7 +621,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// </summary>
         /// <returns>The message.</returns>
         /// <param name="message_id">Message identifier.</param>
-        [HttpPost("delete/{message_id}")]
+        [HttpPost("delete")]
         public IActionResult Delete([Required]int message_id)
         {
             //需要验证登录态
