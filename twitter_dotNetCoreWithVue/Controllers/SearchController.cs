@@ -185,11 +185,10 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 receivedTwitters[i].message_comment_num = int.Parse(dt.Rows[i][5].ToString());
                 receivedTwitters[i].message_view_num = int.Parse(dt.Rows[i][6].ToString());
                 receivedTwitters[i].message_has_image = int.Parse(dt.Rows[i][7].ToString());
-                receivedTwitters[i].message_is_transpond = int.Parse(dt.Rows[i][8].ToString());
-                receivedTwitters[i].message_sender_user_id = int.Parse(dt.Rows[i][9].ToString());
-                receivedTwitters[i].message_heat = int.Parse(dt.Rows[i][10].ToString());
-                receivedTwitters[i].message_transpond_message_id = int.Parse(dt.Rows[i][11].ToString());
-                receivedTwitters[i].message_image_count = int.Parse(dt.Rows[i][12].ToString());
+                receivedTwitters[i].message_sender_user_id = int.Parse(dt.Rows[i][8].ToString());
+                receivedTwitters[i].message_heat = int.Parse(dt.Rows[i][9].ToString());
+                receivedTwitters[i].message_image_count = int.Parse(dt.Rows[i][10].ToString() == "" ? "0" : dt.Rows[i][10].ToString());
+                receivedTwitters[i].message_transpond_message_id = int.Parse(dt.Rows[i][11].ToString() == "" ? "0" : dt.Rows[i][10].ToString());
 
                 if (receivedTwitters[i].message_has_image == 1)
                 {
