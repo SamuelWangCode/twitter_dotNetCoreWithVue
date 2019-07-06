@@ -141,6 +141,12 @@
             <param name="user_id">接收私信用户的id</param>
             <param name="letterInfo">私信内容</param>
         </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.RecommendController.getRecommendedUsers">
+            <summary>
+            获得推荐的前五个用户，用于推荐栏
+            </summary>
+            <returns>The get.</returns>
+        </member>
         <member name="T:twitter_dotNetCoreWithVue.Controllers.RelationController">
             <summary>
             此控制器定义用户之间互相关注的相关api
