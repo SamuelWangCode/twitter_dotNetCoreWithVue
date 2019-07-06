@@ -6,6 +6,7 @@ FUNCTION FUNC_ADD_LIKE
 RETURN INTEGER
 AS
 temp_date VARCHAR2(30);
+temp_topic_state INTEGER:=0;
 state INTEGER:=1;
 BEGIN
 
@@ -18,22 +19,20 @@ BEGIN
     return state;
   END IF;
 
-  SELECT count(*) into state 
+  SELECT count(*) into temp_topic_state 
   FROM MESSAGE_OWNS_TOPIC
   WHERE MESSAGE_OWNS_TOPIC.MESSAGE_ID=message_id;
 
-  if state=0
+  if temp_topic_state>0
   THEN
-    return state;
+    UPDATE TOPIC temp_topic
+    SET TOPIC_HEAT=TOPIC_HEAT+1
+    WHERE TEMP_TOPIC.TOPIC_ID IN (SELECT TOPIC_ID
+                                  FROM MESSAGE_OWNS_TOPIC
+                                  WHERE MESSAGE_OWNS_TOPIC.MESSAGE_ID=message_id);
   END IF;
 
 
-
-  UPDATE TOPIC temp_topic
-  SET TOPIC_HEAT=TOPIC_HEAT+1
-  WHERE TEMP_TOPIC.TOPIC_ID IN (SELECT TOPIC_ID
-                                FROM MESSAGE_OWNS_TOPIC
-                                WHERE MESSAGE_OWNS_TOPIC.MESSAGE_ID=message_id);
 
   UPDATE MESSAGE
   set MESSAGE_AGREE_NUM=MESSAGE_AGREE_NUM+1,MESSAGE_HEAT=MESSAGE_HEAT+1
@@ -51,6 +50,7 @@ BEGIN
 
 	RETURN state;
 END;
+
 /
 
 --------------------------------------------------
