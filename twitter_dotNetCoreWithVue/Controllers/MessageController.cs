@@ -201,8 +201,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// </summary>
         /// <returns>The messages for index.</returns>
         /// <param name="range">Range.</param>
-        [HttpPost("queryForIndex")]
-        public IActionResult QueryForIndex([Required][FromBody]Range range,[Required]string user_id)
+        /// <param name="user_id">user_id</param>
+        [HttpGet("queryForIndex")]
+        public IActionResult QueryForIndex([Required][FromBody]Range range,[Required]int user_id)
         {
             //根据range来吧
             //这个稍微有些复杂，SQL会比较难写，加油。
@@ -224,7 +225,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 OracleParameter p2 = new OracleParameter();
                 p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
                 p2.Direction = ParameterDirection.Input;
-                p2.Value = int.Parse(user_id);
+                p2.Value = user_id;
 
                 //Add second parameter rangeStart
                 OracleParameter p3 = new OracleParameter();
