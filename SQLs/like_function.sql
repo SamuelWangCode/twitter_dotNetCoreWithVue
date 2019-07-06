@@ -126,13 +126,21 @@ BEGIN
   THEN 
     return state;
   ELSE  
-    open search_result for SELECT* FROM 
+    open search_result for 
+    SELECT* FROM 
          (SELECT LIKES_MESSAGE_ID
           FROM LIKES
-          WHERE LIKES.LIKES_ID>=startFrom
-              AND LIKES.LIKES_USER_ID=user_id
+          WHERE LIKES.LIKES_USER_ID=user_id
          ORDER BY LIKES.LIKES_TIME DESC)
-    WHERE ROWNUM<=limitation;
+    WHERE ROWNUM<=startFrom+limitation
+    MINUS
+    SELECT* 
+    FROM 
+         (SELECT LIKES_MESSAGE_ID
+          FROM LIKES
+          WHERE LIKES.LIKES_USER_ID=user_id
+         ORDER BY LIKES.LIKES_TIME DESC)
+    WHERE ROWNUM<=startFrom-1;
 
     state:=1;
   END IF;
