@@ -13,8 +13,8 @@ begin
 select to_char(sysdate,'yyyy-mm-dd HH24:MI:SS')into create_time from dual;
 
 insert into 
-Comment_On_Message(comment_id, comment_content, comment_is_read, comment_sender_id, comment_message_id, comment_create_time)
-values (seq_comment_on_Message.nextval, content, 0, user_id, be_commented_id, create_time);
+Comment_On_Message(comment_content, comment_is_read, comment_sender_id, comment_message_id, comment_create_time)
+values ( content, 0, user_id, be_commented_id, create_time);
 
 update Message set message_comment_num = message_comment_num + 1, message_heat = message_heat + 1 
 where message_id = be_commented_id;

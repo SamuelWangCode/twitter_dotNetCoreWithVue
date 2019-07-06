@@ -5,7 +5,7 @@ FUNCTION FUNC_ADD_LIKE
 (user_id IN INTEGER, message_id IN INTEGER)
 RETURN INTEGER
 AS
-temp_date DATE;
+temp_date VARCHAR2(30);
 state INTEGER:=1;
 BEGIN
 
@@ -42,11 +42,11 @@ BEGIN
 
 
 
-  SELECT SYSDATE into temp_date from dual ;
+  SELECT to_char(sysdate,'yyyy-mm-dd HH24:MI:SS')into temp_date from dual ;
 
   insert into LIKES
-      (LIKES_ID,LIKES_USER_ID, LIKES_MESSAGE_ID,LIKES_TIME)
-  values(seq_likes.nextval,user_id, message_id, temp_date);
+      (LIKES_USER_ID, LIKES_MESSAGE_ID,LIKES_TIME)
+  values(user_id, message_id, temp_date);
   state:=1;
 
 	RETURN state;

@@ -72,9 +72,9 @@ create_time VARCHAR2(30);
 temp_id INTEGER:=0;
 begin
 select to_char(sysdate, 'yyyy-mm-dd HH24:MI:SS') into create_time from dual;
-insert into Message(message_id, message_content, message_create_time, message_agree_num, message_transponded_num,
+insert into Message(message_content, message_create_time, message_agree_num, message_transponded_num,
 					message_comment_num, message_view_num, message_has_image, message_sender_user_id, message_heat)
-values(seq_message.nextval, message_content, create_time, '0', '0', '0', '0', message_has_image, user_id, '0');
+values(message_content, create_time, '0', '0', '0', '0', message_has_image, user_id, '0');
 
 select message_id into temp_id 
 from Message
@@ -111,9 +111,9 @@ begin
 select to_char(sysdate,'yyyy-mm-dd HH24:MI:SS')into transpond_time from dual;
 select message_has_image into message_has_image from Message where message_id=message_transpond_message_id;
 
-insert into Message(message_id, message_content, message_create_time, message_agree_num, message_transponded_num,
+insert into Message(message_content, message_create_time, message_agree_num, message_transponded_num,
 					message_comment_num, message_view_num, message_has_image, message_sender_user_id, message_heat)
-values(seq_message.nextval, message_content, transpond_time, 0, 0, 0, 0, message_has_image, message_sender_user_id, 0);
+values(message_content, transpond_time, 0, 0, 0, 0, message_has_image, message_sender_user_id, 0);
 
 select message_id into out_id from Message where message_create_time=transpond_time;
 message_id:=out_id;
