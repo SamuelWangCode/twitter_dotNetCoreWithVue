@@ -680,7 +680,21 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 - 输出参数：
 	- result: table属性为(topic_id, topic_heat, topic_content)
 - 已完成：否
-### 34. FUNC\_AT\_USER(at\_nickname in VARCHAR2, message\_id in INTEGER，source\_user\_id in INTEGER)
+
+
+### 34. FUNC_RECOMMEND_USER(search_result out sys_refcursor)
+
+接口功能：获取粉丝数最多的前五个用户，作为推荐的用户。
+
+- 返回值：同上
+- 输入参数：
+- - 无
+- 输出参数：
+	- result： table属性为(user_id, user_nickname, user_followers_num)
+- 已完成：否
+
+### 35. FUNC\_AT\_USER(at\_nickname in VARCHAR2, message\_id in INTEGER)
+
 
 - 接口功能：艾特指定名字的成员。若有多个成员具有同一名字，同时艾特他们。若没有任何一个成员有该名字，则忽视这条艾特（不进行实际的艾特），但也不因此返回失败值。
 - 返回值：添加成功返回1，失败返回0
@@ -691,6 +705,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 - 输出参数：无
 - 已完成：否
 
+
 ## 测试
 
 ### User Controller
@@ -700,7 +715,6 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 ### Message
 
 两个query和delete 缺at 
-
 
 
 

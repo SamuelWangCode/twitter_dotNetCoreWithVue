@@ -64,8 +64,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
             public string register_time { get; set; }
             public string self_introction { get; set; }
             public int followers_num { get; set; }
-
             public int follows_num { get; set; }
+            public string avatar_url { get; set; }
         }
 
         bool CheckUserEamil(string email, OracleConnection conn)
@@ -455,37 +455,44 @@ namespace twitter_dotNetCoreWithVue.Controllers
             //返回头像的url
             return Wrapper.wrap((OracleConnection conn) =>
             {
-                //FUNC_GET_USER_AVATAR(user_id in INTEGER, avatar_id out INTEGER)
-                //return INTEGER
-                string procedureName = "FUNC_GET_USER_AVATAR";
-                OracleCommand cmd = new OracleCommand(procedureName, conn);
-                cmd.CommandType = CommandType.StoredProcedure;
-                OracleParameter p1 = new OracleParameter();
-                p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
-                p1.Direction = ParameterDirection.ReturnValue;
-
-                OracleParameter p2 = new OracleParameter();
-                p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
-                p2.Direction = ParameterDirection.Input;
-                p2.Value = user_id;
-
-                OracleParameter p3 = new OracleParameter();
-                p3 = cmd.Parameters.Add("avatar_id", OracleDbType.Int32);
-                p3.Direction = ParameterDirection.Output;
-
-                cmd.ExecuteReader();
-                if (int.Parse(p1.Value.ToString()) != 1)
-                {
-                    throw new Exception("failed");
-                }
+                string avatarUrl = getAvatarUrl(user_id);
                 RestfulResult.RestfulData<string> rr = new RestfulResult.RestfulData<string>();
                 rr.Code = 200;
                 rr.Message = "sucess";
-                rr.Data = "/avatars/" + int.Parse(p3.Value.ToString()).ToString();
+                rr.Data = avatarUrl;
                 return new JsonResult(rr);
             });
         }
 
+
+        public static string getAvatarUrl(int user_id)
+        {
+            //FUNC_GET_USER_AVATAR(user_id in INTEGER, avatar_id out INTEGER)
+            //return INTEGER
+            OracleConnection conn = new OracleConnection();
+            string procedureName = "FUNC_GET_USER_AVATAR";
+            OracleCommand cmd = new OracleCommand(procedureName, conn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            OracleParameter p1 = new OracleParameter();
+            p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+            p1.Direction = ParameterDirection.ReturnValue;
+
+            OracleParameter p2 = new OracleParameter();
+            p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
+            p2.Direction = ParameterDirection.Input;
+            p2.Value = user_id;
+
+            OracleParameter p3 = new OracleParameter();
+            p3 = cmd.Parameters.Add("avatar_id", OracleDbType.Int32);
+            p3.Direction = ParameterDirection.Output;
+
+            cmd.ExecuteReader();
+            if (int.Parse(p1.Value.ToString()) != 1)
+            {
+                return "/avatars/0";
+            }
+            return "/avatars/" + int.Parse(p3.Value.ToString()).ToString();
+        }
 
         /// <summary>
         /// 用户注销时调用的api
@@ -556,6 +563,28 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         rr.Data.followers_num = int.Parse(reader["USER_FOLLOWERS_NUM"].ToString());
                         rr.Data.follows_num = int.Parse(reader["USER_FOLLOWS_NUM"].ToString());
 
+                        procedureName = "FUNC_GET_USER_AVATAR";
+                        cmd = new OracleCommand(procedureName, conn);
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        p1 = new OracleParameter();
+                        p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                        p1.Direction = ParameterDirection.ReturnValue;
+
+                        p2 = new OracleParameter();
+                        p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
+                        p2.Direction = ParameterDirection.Input;
+                        p2.Value = user_id;
+
+                        p3 = new OracleParameter();
+                        p3 = cmd.Parameters.Add("avatar_id", OracleDbType.Int32);
+                        p3.Direction = ParameterDirection.Output;
+
+                        cmd.ExecuteReader();
+                        if (int.Parse(p1.Value.ToString()) != 1)
+                        {
+                            throw new Exception("failed");
+                        }
+                        rr.Data.avatar_url = getAvatarUrl(user_id);
                         return new JsonResult(rr);
                     }
                     else
