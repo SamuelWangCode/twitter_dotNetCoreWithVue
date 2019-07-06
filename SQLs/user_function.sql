@@ -244,7 +244,7 @@ else
 state:=1;
 
 open search_result for 
-select * from 
+select * from (
 (select user_id, user_nickname
 from (select user_id, user_nickname
 	 from USER_PUBLIC_INFO 
@@ -257,7 +257,8 @@ from (select user_id, user_nickname
 	 from USER_PUBLIC_INFO 
 	 where user_nickname like searchKey 
 	 order by user_followers_num desc)
-where ROWNUM<startFrom);
+where ROWNUM<startFrom)
+);
 
 end if;
 return state;
