@@ -691,7 +691,8 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 - - 无
 - 输出参数：
 	- result： table属性为(user_id, user_nickname, user_followers_num)
-- 已完成：否
+- 已完成：是
+- 完成者：徐诚于2019-07-06
 
 ### 35. FUNC\_AT\_USER(at\_nickname in VARCHAR2, message\_id in INTEGER)
 
