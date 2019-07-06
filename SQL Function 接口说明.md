@@ -652,9 +652,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 接口功能：通过指定的搜索键searchKey，在Message相关表中搜索相关的推特，包括从Transpond表，Message_Image表中获取的数据。数据按时间排序，返回从startFrom开始，长度为limitation的数据表。
 
 - 返回值：同上
-
 - 输入参数：
-
 - - searchKey：VARCHAR2类型，搜索的关键字
   
   - startFrom：INTEGER类型，查找结果的起始索引
@@ -662,7 +660,8 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
   - limitation：INTEGER类型，查找结果的长度
 - 输出参数:
 	- result：sys_refcursor类型，推特信息，table属性为(message\_id, message\_content, message\_create\_time, message\_agree\_num, message\_transpond\_num, message\_comment\_num, message\_view\_num, message\_has\_image, message\_is\_transpond, message_sender\_user\_id, message\_heat, message\_transpond\_message\_id, message\_image\_count)。在5月25日更新后的message表里不再具有message\_transpond\_message\_id这个属性，若该条推特不为转发，该属性可返回-1值，若该条推特是转发，则照旧返回转发来源的ID。
-- 已完成：否
+- 已完成：是
+- 完成者：王笑天于2019-07-06
 
 
 ### 32. FUNC_SEARCH_USER(searchKey in VARCHAR2(50), startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
