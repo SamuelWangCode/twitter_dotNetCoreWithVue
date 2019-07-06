@@ -1,5 +1,5 @@
-﻿---------------FUNC_SHOW_MESSAGE_BY_ID----------------------
-------------------根据ID查询推特信息-------------------------------
+
+------------------??ID??????-------------------------------
 create or replace 
 function 
 FUNC_SHOW_MESSAGE_BY_ID(message_id_input in INTEGER, result out sys_refcursor)
@@ -30,7 +30,7 @@ end;
 
 
 ---------------FUNC_SHOW_ MESSAGE_BY_RANGE----------------------
------------------------根据索引查询推特信息-------------------------------
+-----------------------??????????-------------------------------
 create or replace 
 function 
 FUNC_SHOW_MESSAGE_BY_RANGE(user_id in INTEGER, rangeStart in INTEGER, rangeLimitation in INTEGER, search_result out sys_refcursor)
@@ -64,7 +64,7 @@ end;
 
 
 ---------------------FUNC_SEND_MESSAGE-------------------------------
----------------------发布新的推特（添加信息至Message）---------------
+---------------------????????????Message?---------------
 create or replace function
 FUNC_SEND_MESSAGE(message_content in VARCHAR2, message_has_image in INTEGER, user_id in INTEGER, message_image_count in INTEGER, message_id out INTEGER)
 return INTEGER
@@ -98,7 +98,7 @@ end;
 
 
 -------------------FUNC_TRANSPOND_MESSAGE--------------------
--------------------转发1条推特（Message和Transpond添加）
+-------------------??1????Message?Transpond???
 create or replace function
 FUNC_TRANSPOND_MESSAGE(message_content in VARCHAR2, message_source_is_transpond in INTEGER, message_sender_user_id in INTEGER, message_transpond_message_id in INTEGER, message_id out INTEGER)
 return INTEGER
@@ -141,7 +141,7 @@ end;
 /
 
 -------------------FUNC_DELETE_MESSAGE------------------------
------------------------根据ID删除推特-------------------------------
+-----------------------??ID????-------------------------------
 create or replace 
 function 
 FUNC_DELETE_MESSAGE(message_id in INTEGER, message_has_image out INTEGER)
@@ -167,7 +167,7 @@ end;
 /
 
 ------------FUNC_QUERY_MESSAGE_BY_TOPIC---------------
-----------------根据id查找message----------------------
+----------------??id??message----------------------
 create or replace 
 function
 FUNC_QUERY_MESSAGE_BY_TOPIC(topic_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
