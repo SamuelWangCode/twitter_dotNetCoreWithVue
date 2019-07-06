@@ -218,4 +218,42 @@ END;
 
 /
 
----------
+----------------FUNC_SEARCH_MESSAGE-------------------
+--------通过搜索键，在Message相关表中搜索相关的推特------
+CREATE OR REPLACE 
+FUNCTION FUNC_SEARCH_MESSAGE
+(searchKey IN VARCHAR2, startFrom IN INTEGER, limitation IN INTEGER, search_result OUT Sys_refcursor)
+RETURN INTEGER
+AS
+state INTEGER:=1;
+
+BEGIN
+
+  SELECT count(*) into state 
+  FROM MESSAGE
+  WHERE MESSAGE_CONTENT like'%'||searchKey||'%';
+
+  IF state=0
+  THEN
+    return state;
+  ELSE
+    open search_result for 
+    SELECT* FROM
+         (SELECT* 
+          FROM (MESSAGE NATURAL join MESSAGE_IMAGE) NATURAL join TRANSPOND
+          WHERE MESSAGE_CONTENT like'%'||searchKey||'%'
+          ORDER BY MESSAGE_CREATE_TIME DESC)
+    WHERE ROWNUM<=startFrom+limitation
+    MINUS
+    SELECT* FROM
+         (SELECT* 
+          FROM (MESSAGE NATURAL join MESSAGE_IMAGE) NATURAL join TRANSPOND
+          WHERE MESSAGE_CONTENT like'%'||searchKey||'%'
+          ORDER BY MESSAGE_CREATE_TIME DESC)
+    WHERE ROWNUM<=startFrom-1;
+    state:=1;
+  END IF;
+
+	RETURN state;
+END;
+/
