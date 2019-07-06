@@ -52,6 +52,22 @@ namespace twitter_dotNetCoreWithVue.Controllers
             //public int mode { get; set; }
         }
 
+        public class UserId
+        {
+            public int user_id { get; set; }
+        }
+
+        public class UserPublicInfo
+        {
+            public int user_id { get; set; }
+            public string nickname { get; set; }
+            public string register_time { get; set; }
+            public string self_introction { get; set; }
+            public int followers_num { get; set; }
+
+            public int follows_num { get; set; }
+        }
+
         bool CheckUserEamil(string email, OracleConnection conn)
         {
             string procedureName = "FUNC_CHECK_USER_EMAIL_EXIST";
@@ -77,8 +93,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
             //return INGETER
             return Wrapper.wrap((OracleConnection conn) =>
             {
-                
-                if (CheckUserEamil(email,conn))
+
+                if (CheckUserEamil(email, conn))
                 {
                     return new JsonResult(new RestfulResult.RestfulData(200, "The email is used"));
                 }
@@ -100,10 +116,16 @@ namespace twitter_dotNetCoreWithVue.Controllers
         {
             //TODO 注册啦
             //返回是否注册成功
-            
-            
-            return Wrapper.wrap((OracleConnection conn)=>{
-                if (CheckUserEamil(userInfoForSignUp.email,conn))
+
+
+            return Wrapper.wrap((OracleConnection conn) =>
+            {
+                if (!(ParameterChecker.CheckPara(userInfoForSignUp.email, ParameterChecker.ParaTpye.Email)
+                && ParameterChecker.CheckPara(userInfoForSignUp.password, ParameterChecker.ParaTpye.Password)))
+                {
+                    return new JsonResult(new RestfulResult.RestfulData(200, "Invalid Email or Password"));
+                }
+                if (CheckUserEamil(userInfoForSignUp.email, conn))
                 {
                     return new JsonResult(new RestfulResult.RestfulData(200, "The email is used"));
                 }
@@ -141,7 +163,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 RestfulResult.RestfulData rr = new RestfulResult.RestfulData(200, "success");
                 return new JsonResult(rr);
             });
-            
+
         }
 
         /// <summary>
@@ -165,13 +187,15 @@ namespace twitter_dotNetCoreWithVue.Controllers
             if (HttpContext.User.Identity.IsAuthenticated)
             {
                 //若已经登录，直接返回
-                RestfulResult.RestfulData<int> rr = new RestfulResult.RestfulData<int>();
+                RestfulResult.RestfulData<UserId> rr = new RestfulResult.RestfulData<UserId>();
                 userId = int.Parse(HttpContext.User.Claims.ElementAt(0).Value);
                 rr.Code = 200;
                 rr.Message = "Aready Sign In";
-                rr.Data = userId;
+                rr.Data = new UserId();
+                rr.Data.user_id = userId;
                 return new JsonResult(rr);
             }
+
             else
             {
                 return Wrapper.wrap((OracleConnection conn) =>
@@ -201,18 +225,19 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                     cmd.ExecuteReader();
 
-                    RestfulResult.RestfulData<int> rr = new RestfulResult.RestfulData<int>();
+                    RestfulResult.RestfulData<UserId> rr = new RestfulResult.RestfulData<UserId>();
                     rr.Code = 200;
                     if (int.Parse(p1.Value.ToString()) != 1)
                     {
-                        rr.Data = -1;
+                        rr.Data = null;
                         rr.Message = "E-mail or Password Wrong";
                         return new JsonResult(rr);
                     }
                     else
                     {
                         userId = int.Parse(p4.Value.ToString());
-                        rr.Data = userId;
+                        rr.Data = new UserId();
+                        rr.Data.user_id = userId;
                         rr.Message = "Sign in success";
                     }
 
@@ -268,6 +293,17 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
             return Wrapper.wrap((OracleConnection conn) =>
             {
+                if (!(ParameterChecker.CheckPara(userInfoEdit.password, ParameterChecker.ParaTpye.Password)
+                || userInfoEdit.password == ""))
+                {
+                    return new JsonResult(new RestfulResult.RestfulData(200, "Invalid Password"));
+                }
+                if (!(ParameterChecker.CheckPara(userInfoEdit.gender, ParameterChecker.ParaTpye.Gender)
+                || userInfoEdit.gender == ""))
+                {
+                    return new JsonResult(new RestfulResult.RestfulData(200, "Invalid Gender"));
+                }
+
                 //FUNC_SET_USER_INFO
                 //(nickname in VARCHAR, self_introduction in VARCHAR, password in VARCHAR, realname in VARCHAR, gender in VARCHAR,id in INTEGER, mode in INTEGER)
                 //return INTEGER
@@ -328,7 +364,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     mode |= 1 << 4;
                 }
 
-                
+
 
                 OracleParameter p7 = new OracleParameter();
                 p7 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
@@ -503,15 +539,23 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 {
                     if (reader.Read())
                     {
-                        RestfulResult.RestfulArray<string> rr = new RestfulResult.RestfulArray<string>();
+                        RestfulResult.RestfulData<UserPublicInfo> rr = new RestfulResult.RestfulData<UserPublicInfo>();
                         string[] temp = new string[reader.FieldCount];
                         for (int i = 0; i < reader.FieldCount; ++i)
                         {
                             temp[i] = reader.GetValue(i).ToString();
                         }
+                        
                         rr.Code = 200;
                         rr.Message = "success";
-                        rr.Data = temp;
+                        rr.Data = new UserPublicInfo();
+                        rr.Data.user_id = int.Parse(reader["USER_ID"].ToString());
+                        rr.Data.nickname = reader["USER_NICKNAME"].ToString();
+                        rr.Data.self_introction = reader["USER_SELF_INTRODUCTION"].ToString();
+                        rr.Data.register_time = reader["USER_REGISTER_TIME"].ToString();
+                        rr.Data.followers_num = int.Parse(reader["USER_FOLLOWERS_NUM"].ToString());
+                        rr.Data.follows_num = int.Parse(reader["USER_FOLLOWS_NUM"].ToString());
+
                         return new JsonResult(rr);
                     }
                     else

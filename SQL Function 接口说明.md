@@ -168,7 +168,9 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 ## 需求接口
 ### 1. FUNC\_CHECK\_USER\_EMAIL\_EXIST(email in VARCHAR)
 * 接口功能：检查用户Email是否存在于数据库中
+
 * 返回值：用户Email存在于数据库时返回1，不存在时返回0
+
 * 输入参数：
 
 	* email：VARCHAR类型，存放待检查的Email
@@ -178,6 +180,8 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 已完成：是
 
   完成者：周宇东于2019-05-22
+  
+* 已测试
 
 ### 2. FUNC\_SHOW\_MESSAGE\_BY\_ID(message\_id in INTEGER, result out sys_refcursor)
 * 接口功能：通过给定的推特ID来查询该推特的详细信息
@@ -185,11 +189,13 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 返回值：查询成功返回1，失败返回0
 
 * 输入参数：
-	* message_id：INTEGER类型，表示要查询的消息的ID
-
+	
+* message_id：INTEGER类型，表示要查询的消息的ID
+	
 * 输出参数：
-	* result：sys_refcursor类型，用户信息，table属性为(message\_id, message\_content, message\_create\_time, message\_agree\_num, message\_transpond\_num, message\_comment\_num, message\_view\_num, message\_has\_image, message\_is\_transpond, message_sender\_user\_id, message\_heat, message\_transpond\_message\_id, message\_image\_count)。在5月25日更新后的message表里不再具有message\_transpond\_message\_id这个属性，若该条推特不为转发，该属性可返回-1值，若该条推特是转发，则照旧返回转发来源的ID。
-
+	
+* result：sys_refcursor类型，用户信息，table属性为(message\_id, message\_content, message\_create\_time, message\_agree\_num, message\_transpond\_num, message\_comment\_num, message\_view\_num, message\_has\_image, message\_is\_transpond, message_sender\_user\_id, message\_heat, message\_transpond\_message\_id, message\_image\_count)。在5月25日更新后的message表里不再具有message\_transpond\_message\_id这个属性，若该条推特不为转发，该属性可返回-1值，若该条推特是转发，则照旧返回转发来源的ID。
+	
 * 已完成：是
 
   完成者：顾安琪于2019-06-01
@@ -206,8 +212,9 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* rangeLimitation：INTEGER类型，表示要查询多少条推特
 
 * 输出参数：
-	* search\_result：sys_refcursor类型，用户信息，table属性为(message\_id, message\_content, message\_create\_time, message\_agree\_num, message\_transpond\_num, message\_comment\_num, message\_view\_num, message\_has\_image, message\_is\_transpond, message_sender\_user\_id, message\_heat, message\_transpond\_message\_id, message\_image\_count)
-
+	
+* search\_result：sys_refcursor类型，用户信息，table属性为(message\_id, message\_content, message\_create\_time, message\_agree\_num, message\_transpond\_num, message\_comment\_num, message\_view\_num, message\_has\_image, message\_is\_transpond, message_sender\_user\_id, message\_heat, message\_transpond\_message\_id, message\_image\_count)
+	
 * 已完成：是
 
   完成者：顾安琪于2019-06-02
@@ -273,11 +280,13 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 返回值：删除成功返回1，失败返回0
 
 * 输入参数：
-	* message\_id：INTEGER类型，表示要删除的推特ID
-
+	
+* message\_id：INTEGER类型，表示要删除的推特ID
+	
 * 输出参数：
-	* message\_has\_image： INTEGER类型，表示删除的这条推特是否含图
-
+	
+* message\_has\_image： INTEGER类型，表示删除的这条推特是否含图
+	
 * 已完成：是
 
   完成者：顾安琪于2019-06-01
@@ -298,23 +307,33 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 已完成：是
 
   完成者：王笑天于2019-05-18
+  
+* 已测试
 
 ### 9. FUNC\_USER\_SIGN\_IN\_BY\_EMAIL(email in VARCHAR, password in VARCHAR, user_id out INTEGER)
 * 接口功能：通过用户Email和密码判断是否登录成功
+
 * 返回值：登录成功返回1，失败返回0
+
 * 输入参数：
 	* email：VARCHAR类型，存放用户Email
 	* password：VARCHAR类型，存放用户密码
 
 * 输出参数：
+	
 	* user_id：登录用户的id值
+	
 * 已完成：是
 
   完成者：周宇东于2019-05-29
+  
+* 已测试
 
 ### 10. FUNC\_SET\_USER\_INFO(nickname in VARCHAR, password in VARCHAR,self\_introduction in VARCHAR, realname in VARCHAR, gender in VARCHAR, user\_id in INTEGER, mode in INTEGER)
 * 接口功能：修改用户id为user_id的用户的个人信息
+
 * 返回值：修改成功返回1，失败返回0
+
 * 输入参数：
 	* nickname：VARCHAR类型，存放用户昵称
 	* self\_introduction：VARCHAR类型，存放用户个人介绍
@@ -325,9 +344,12 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* mode：INTERGER类型，判断修改哪几个信息，数值范围为1~31，当mode&(1<<i)==(1<<i)时，代表修改第i+1个输入参数所代表的信息
 
 * 输出参数：无
+
 * 已完成：是
 
   完成者：周宇东于2019-05-27
+  
+* 已测试
 
 ### 11. FUNC\_SET\_MAIN\_AVATAR(user\_id in INTEGER, avatar\_id in INTEGER)
 * 接口功能：设置用户的主要头像
@@ -356,8 +378,10 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 * 接口功能：通过用户id获取用户公开信息
 * 返回值：获得成功返回1，失败返回0
 * 输入参数：
+	
 	* user\_id：INTERGER类型，用户id
 * 输出参数：
+	
 	* info：sys_refcursor类型，用户信息，table属性为(user\_id,user\_nickname,user\_register\_time,user\_avatar\_image\_id,user\_self\_introduction,user\_followers\_num,user\_follows\_num)
 * 已完成：是
 
@@ -473,6 +497,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* startFrom: INTEGER类型，查找结果的起始索引
 	* limitation: INTEGER类型，查找结果的长度
 * 输出参数：
+	
 	* search\_result: sys_refcursor类型，推特id列表，table属性为(message\_id)
 * 已完成：是
 
@@ -583,6 +608,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* startFrom: INTEGER类型，查找结果的起始索引
 	* limitation: INTEGER类型，查找结果的长度
 * 输出参数：
+	
 	* search\_result: sys\_refcursor类型，推特id列表，table属性为(message\_id)
 * 已完成：是
 
@@ -597,6 +623,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 	* startFrom: INTEGER类型，查找结果的起始索引
 	* limitation: INTEGER类型，查找结果的长度
 * 输出参数：
+	
 	* search\_result: sys\_refcursor类型，推特id列表，table属性为(message\_id)
 * 已完成：是
 
