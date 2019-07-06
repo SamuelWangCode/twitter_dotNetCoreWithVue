@@ -87,7 +87,7 @@
             <returns>The message.</returns>
             <param name="message_id">Message identifier.</param>
         </member>
-        <member name="M:twitter_dotNetCoreWithVue.Controllers.MessageController.QueryForIndex(twitter_dotNetCoreWithVue.Controllers.Utils.Range,System.String)">
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.MessageController.QueryForIndex(twitter_dotNetCoreWithVue.Controllers.Utils.Range,System.Int32)">
             <summary>
             此api用于首页，需要查找所有的显示在首页的推特时调用
             根据range来返回前几条推荐的信息
@@ -96,6 +96,7 @@
             </summary>
             <returns>The messages for index.</returns>
             <param name="range">Range.</param>
+            <param name="user_id">user_id</param>
         </member>
         <member name="M:twitter_dotNetCoreWithVue.Controllers.MessageController.Send(twitter_dotNetCoreWithVue.Controllers.MessageController.MessageForSender)">
             <summary>
@@ -186,19 +187,19 @@
             <returns>是否成功</returns>
             <param name="user_id">User identifier.</param>
         </member>
-        <member name="M:twitter_dotNetCoreWithVue.Controllers.SearchController.getSearchResult(System.String)">
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.SearchController.getSearchResult(System.String,twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
             <summary>
-            Get the specified id.
+            搜索接口
             </summary>
-            <returns>The get.</returns>
+            <returns>搜索的内容，分三个部分，推特/用户/话题</returns>
             <param name="searchKey">Identifier.</param>
+        </member>
         <member name="M:twitter_dotNetCoreWithVue.Controllers.TestConnection.Get">
             <summary>
             Test DB Connection
             </summary>
             <param name="id"></param>
             <returns></returns>
-
         </member>
         <member name="T:twitter_dotNetCoreWithVue.Controllers.TopicController">
             <summary>
