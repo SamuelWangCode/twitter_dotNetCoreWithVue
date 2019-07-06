@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -250,13 +251,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 receivedUsers[i].user_id = int.Parse(dt.Rows[i][0].ToString());
                 receivedUsers[i].user_nickname = dt.Rows[i][1].ToString();
 
-                string avatar_image_id = dt.Rows[i][2].ToString();
-                string path = @"wwwroot\Messages\" + avatar_image_id.ToString();
-                if (System.IO.File.Exists(path)){
-                    receivedUsers[i].user_avatar_url = "/avatars/" + dt.Rows[i][2].ToString();
-                }
-                else { receivedUsers[i].user_avatar_url = "/avatars/1"; }
-
+                string avatarUrl = UserController.getAvatarUrl(receivedUsers[i].user_id);
+                receivedUsers[i].user_avatar_url = "/avatars/" + avatarUrl;
             }
             return receivedUsers;
         }
@@ -277,7 +273,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             p2 = cmd.Parameters.Add("searchKey", OracleDbType.Varchar2);
             p2.Value = searchKey;
             p2.Direction = ParameterDirection.Input;
-            //Add input parameter follower_id
+            //Add input parameter follower_idss
             OracleParameter p3 = new OracleParameter();
             //Add input parameter be_followed_id
             p3 = cmd.Parameters.Add("startFrom", OracleDbType.Int32);
