@@ -87,9 +87,6 @@ namespace twitter_dotNetCoreWithVue.Controllers
             [Required]
             public int message_has_image { get; set; }
 
-            [Display(Name = "发布人ID")]
-            public int message_sender_user_id { get; set; }
-
             [Display(Name = "推特含图数量")]
             public int message_image_count { get; set; }
 
@@ -106,9 +103,6 @@ namespace twitter_dotNetCoreWithVue.Controllers
             [Required]
             public bool message_source_is_transpond { get; set; }
 
-            [Display(Name = "发布人ID")]
-            public int message_sender_user_id { get; set; }
-
             [Display(Name = "转发来源推特ID")]
             public int message_transpond_message_id { get; set; }
 
@@ -122,7 +116,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// </summary>
         /// <returns>The message.</returns>
         /// <param name="message_id">Message identifier.</param>
-        [HttpGet("query/{message_id}")]
+        [HttpPost("query/{message_id}")]
         public IActionResult Query([Required]int message_id)
         {
             //获得推特的详细信息
@@ -179,10 +173,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                 if(infos.message_has_image==1)
                 {
-                    string path = @"wwwroot\Messages\" + infos.message_id.ToString();
                     for(int i=0;i<infos.message_image_count;i++)
-                    {                        
-                        infos.message_image_urls.Append<string>("/Messages/" + infos.message_id.ToString() + "/" + i.ToString());                       
+                    {
+                      infos.message_image_urls.Append<string>("/Messages/" + infos.message_id.ToString() + "/" + i.ToString());                       
                     }
                 }
 
@@ -205,11 +198,24 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// </summary>
         /// <returns>The messages for index.</returns>
         /// <param name="range">Range.</param>
+        /// <param name="user_id">user_id</param>
         [HttpPost("queryForIndex")]
-        public IActionResult QueryForIndex([Required][FromBody]Range range,[Required]string user_id)
+        public IActionResult QueryForIndex([Required][FromBody]Range range)
         {
             //根据range来吧
             //这个稍微有些复杂，SQL会比较难写，加油。
+            int user_id;
+            if (HttpContext.User.Identity.IsAuthenticated)
+            {
+                user_id = int.Parse(HttpContext.User.Claims.First().Value);
+            }
+            else
+            {
+                RestfulResult.RestfulData rr = new RestfulResult.RestfulData();
+                rr.Code = 200;
+                rr.Message = "Need Authentication";
+                return new JsonResult(rr);
+            }
 
             return Wrapper.wrap((OracleConnection conn) =>
             {
@@ -228,7 +234,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 OracleParameter p2 = new OracleParameter();
                 p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
                 p2.Direction = ParameterDirection.Input;
-                p2.Value = int.Parse(user_id);
+                p2.Value = user_id;
 
                 //Add second parameter rangeStart
                 OracleParameter p3 = new OracleParameter();
@@ -288,6 +294,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                             }
                             else break;
                         }
+                        
                     }
                 }
 
@@ -307,7 +314,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>The message.</returns>
         /// <param name="message">Message.</param>
         [HttpPost("send")]
-        public IActionResult Send([Required][FromBody]MessageForSender message)
+        public async Task<IActionResult> Send([Required][FromBody]MessageForSender message)
         {
             //TODO 需要验证身份
             //有很多参数都是有初始化的
@@ -342,101 +349,136 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 return new JsonResult(rr);
             }
 
-            return Wrapper.wrap((OracleConnection conn) =>
-            {
-                //FUNC_SEND_MESSAGE(message_content in VARCHAR2, message_has_image in INTEGER, user_id in INTEGER, message_image_count in INTEGER, message_id out INTEGER)
-                //return INTEGER
-                string procedureName = "FUNC_SEND_MESSAGE";
-                OracleCommand cmd = new OracleCommand(procedureName, conn);
-                cmd.CommandType = CommandType.StoredProcedure;
-
-                //Add return value
-                OracleParameter p1 = new OracleParameter();
-                p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
-                p1.Direction = ParameterDirection.ReturnValue;
-
-                //Add first parameter message_content
-                OracleParameter p2 = new OracleParameter();
-                p2 = cmd.Parameters.Add("message_content", OracleDbType.Varchar2);
-                p2.Direction = ParameterDirection.Input;
-                p2.Value = message.message_content;
-
-                //Add second parameter message_has_image
-                OracleParameter p3 = new OracleParameter();
-                p3 = cmd.Parameters.Add("message_content", OracleDbType.Int32);
-                p3.Direction = ParameterDirection.Input;
-                p3.Value = message.message_has_image;
-
-                //Add third parameter user_id
-                OracleParameter p4 = new OracleParameter();
-                p4 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
-                p4.Direction = ParameterDirection.Input;
-                p4.Value = userId;
-
-                //Add fourth parameter message_image_count
-                OracleParameter p5 = new OracleParameter();
-                p5 = cmd.Parameters.Add("message_image_count", OracleDbType.Int32);
-                p5.Direction = ParameterDirection.Input;
-                p5.Value = message.message_image_count;
-
-                //Add fifth parameter message_id
-                OracleParameter p6 = new OracleParameter();
-                p6 = cmd.Parameters.Add("message_id", OracleDbType.Int32);
-                p6.Direction = ParameterDirection.Output;
-
-                cmd.ExecuteReader();
-                if(int.Parse(p1.Value.ToString()) != 1)
-                {
-                    throw new Exception("failed");
-                }
-
-                if(topics.Count!=0)
-                {
-                    //对于topics列表里的每一个话题，分别作为函数参数来执行一次FUNC_ADD_TOPIC函数
-                    //FUNC_ADD_TOPIC(topic_content in VARCHAR2, message_id in INTEGER)
+           
+           
+            using (OracleConnection conn = new OracleConnection(ConnStr.getConnStr()))
+            { 
+                    try
+                    {
+                        conn.ConnectionString = ConnStr.getConnStr();
+                        conn.Open();
+                    //FUNC_SEND_MESSAGE(message_content in VARCHAR2, message_has_image in INTEGER, user_id in INTEGER, message_image_count in INTEGER, message_id out INTEGER)
                     //return INTEGER
-                    string procedureName2 = "FUNC_ADD_TOPIC";
-                    OracleCommand cmd2 = new OracleCommand(procedureName2, conn);
-                    cmd2.CommandType = CommandType.StoredProcedure;
+                    string procedureName = "FUNC_SEND_MESSAGE";
+                    OracleCommand cmd = new OracleCommand(procedureName, conn);
+                    cmd.CommandType = CommandType.StoredProcedure;
 
                     //Add return value
-                    OracleParameter p7 = new OracleParameter();
-                    p7 = cmd2.Parameters.Add("state", OracleDbType.Int32);
-                    p7.Direction = ParameterDirection.ReturnValue;
+                    OracleParameter p1 = new OracleParameter();
+                    p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                    p1.Direction = ParameterDirection.ReturnValue;
 
-                    //Add first parameter topic_content
-                    OracleParameter p8 = new OracleParameter();
-                    p8 = cmd2.Parameters.Add("topic_content", OracleDbType.Varchar2);
-                    p8.Direction = ParameterDirection.Input;
-                    p8.Value = topics[0];
+                    //Add first parameter message_content
+                    OracleParameter p2 = new OracleParameter();
+                    p2 = cmd.Parameters.Add("message_content", OracleDbType.Varchar2);
+                    p2.Direction = ParameterDirection.Input;
+                    p2.Value = message.message_content;
 
-                    //Add second parameter message_id
-                    OracleParameter p9 = new OracleParameter();
-                    p9 = cmd2.Parameters.Add("message_id", OracleDbType.Int32);
-                    p9.Direction = ParameterDirection.Input;
-                    p9.Value = p6.Value;
+                    //Add second parameter message_has_image
+                    OracleParameter p3 = new OracleParameter();
+                    p3 = cmd.Parameters.Add("message_content", OracleDbType.Int32);
+                    p3.Direction = ParameterDirection.Input;
+                    p3.Value = message.message_has_image;
 
-                    cmd2.ExecuteReader();
-                    for(int i = 1; i < topics.Count; i++)
+                    //Add third parameter user_id
+                    OracleParameter p4 = new OracleParameter();
+                    p4 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
+                    p4.Direction = ParameterDirection.Input;
+                    p4.Value = userId;
+
+                    //Add fourth parameter message_image_count
+                    OracleParameter p5 = new OracleParameter();
+                    p5 = cmd.Parameters.Add("message_image_count", OracleDbType.Int32);
+                    p5.Direction = ParameterDirection.Input;
+                    p5.Value = message.message_image_count;
+
+                    //Add fifth parameter message_id
+                    OracleParameter p6 = new OracleParameter();
+                    p6 = cmd.Parameters.Add("message_id", OracleDbType.Int32);
+                    p6.Direction = ParameterDirection.Output;
+
+                    cmd.ExecuteReader();
+                    if (int.Parse(p1.Value.ToString()) != 1)
                     {
+                        throw new Exception("failed");
+                    }
+
+                    if (topics.Count != 0)
+                    {
+                        //对于topics列表里的每一个话题，分别作为函数参数来执行一次FUNC_ADD_TOPIC函数
+                        //FUNC_ADD_TOPIC(topic_content in VARCHAR2, message_id in INTEGER)
+                        //return INTEGER
+                        string procedureName2 = "FUNC_ADD_TOPIC";
+                        OracleCommand cmd2 = new OracleCommand(procedureName2, conn);
+                        cmd2.CommandType = CommandType.StoredProcedure;
+
+                        //Add return value
+                        OracleParameter p7 = new OracleParameter();
+                        p7 = cmd2.Parameters.Add("state", OracleDbType.Int32);
+                        p7.Direction = ParameterDirection.ReturnValue;
+
+                        //Add first parameter topic_content
+                        OracleParameter p8 = new OracleParameter();
+                        p8 = cmd2.Parameters.Add("topic_content", OracleDbType.Varchar2);
+                        p8.Direction = ParameterDirection.Input;
+                        p8.Value = topics[0];
+
+                        //Add second parameter message_id
+                        OracleParameter p9 = new OracleParameter();
+                        p9 = cmd2.Parameters.Add("message_id", OracleDbType.Int32);
+                        p9.Direction = ParameterDirection.Input;
+                        p9.Value = p6.Value;
+
+                        cmd2.ExecuteReader();
+                        for (int i = 1; i < topics.Count; i++)
+                        {
+                            if (int.Parse(p7.Value.ToString()) != 1)
+                            {
+                                throw new Exception("failed");
+                            }
+                            p8.Value = topics[i];
+                            cmd2.ExecuteReader();
+                        }
                         if (int.Parse(p7.Value.ToString()) != 1)
                         {
                             throw new Exception("failed");
                         }
-                        p8.Value = topics[i];
-                        cmd2.ExecuteReader();
                     }
-                    if (int.Parse(p7.Value.ToString()) != 1)
+
+                    //TODO 若推特含图，从POST体内获得图的内容并保存到服务器
+                    if(message.message_has_image==1)
                     {
-                        throw new Exception("failed");
+                        var images = Request.Form.Files;
+                        int img_num = 0;
+                        Directory.CreateDirectory(@"wwwroot\Messages\" + p6.Value.ToString());
+                        foreach (var imgfile in images)
+                        {
+                            if (imgfile.Length > 0)
+                            {
+                                var img_path = @"wwwroot\Messages\" + p6.Value.ToString() + @"\" + img_num.ToString();
+                                using (var stream = new FileStream(img_path, FileMode.Create))
+                                {
+                                    await imgfile.CopyToAsync(stream);
+                                }
+                                img_num++;
+                            }
+                        }
                     }
-                }                
 
-                //TODO 若推特含图，从POST体内获得图的内容并保存到服务器，不清楚前端实现方式，搁置
+                    RestfulResult.RestfulData rr = new RestfulResult.RestfulData(200, "success");
+                    return new JsonResult(rr);
+                    }
+                    catch (Exception e)
+                    {
+                        RestfulResult.RestfulData rr = new RestfulResult.RestfulData(500, "fail");
+                        Console.Write(e.Message);
+                        Console.Write(e.StackTrace);
+                        return new JsonResult(rr);
+                    }
+                }
+           
 
-                RestfulResult.RestfulData rr = new RestfulResult.RestfulData(200, "success");
-                return new JsonResult(rr);
-            });
+            
         }
 
         /// <summary>
@@ -507,7 +549,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 OracleParameter p4 = new OracleParameter();
                 p4 = cmd.Parameters.Add("message_sender_user_id", OracleDbType.Int32);
                 p4.Direction = ParameterDirection.Input;
-                p4.Value = message.message_sender_user_id;
+                p4.Value = userId;
 
                 //Add fourth parameter message_transpond_message_id
                 OracleParameter p5 = new OracleParameter();
@@ -573,29 +615,13 @@ namespace twitter_dotNetCoreWithVue.Controllers
             });
         }
 
-        /// <summary>
-        /// 上传图片的接口
-        /// 暂时不清楚前端是通过怎样的方式来上传的
-        /// 看网上说有用IFormFile
-        /// 也有说用Requet.Form.Files来获取的
-        /// 具体再议
-        /// </summary>
-        /// <returns>success or not</returns>
-        [HttpPost("uploadImgs")]
-        public IActionResult UploadImgs()
-        {
-            //TODO 需要验证登录态
-            //返回成功与否
-            return new JsonResult(new { });
-        }
-
 
         /// <summary>
         /// 删除推特时使用
         /// </summary>
         /// <returns>The message.</returns>
         /// <param name="message_id">Message identifier.</param>
-        [HttpGet("delete/{message_id}")]
+        [HttpPost("delete/{message_id}")]
         public IActionResult Delete([Required]int message_id)
         {
             //需要验证登录态
