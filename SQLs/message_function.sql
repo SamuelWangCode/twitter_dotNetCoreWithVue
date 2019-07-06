@@ -165,37 +165,45 @@ end;
 
 ------------FUNC_QUERY_MESSAGE_BY_TOPIC---------------
 ----------------根据id查找message----------------------
-create or replace 
-function
-FUNC_QUERY_MESSAGE_BY_TOPIC(topic_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+CREATE OR REPLACE 
+FUNCTION FUNC_QUERY_MESSAGE_IDS_LIKES
+(user_id IN INTEGER, startFrom IN INTEGER, limitation IN INTEGER, search_result OUT Sys_refcursor)
 RETURN INTEGER
-is
+AS
 state INTEGER:=1;
 
 BEGIN
 
 	SELECT count(*) into state 
-  from MESSAGE_OWNS_TOPIC
-  WHERE MESSAGE_OWNS_TOPIC.TOPIC_ID=topic_id;
+  from LIKES
+  WHERE LIKES.LIKES_USER_ID=user_id;
 
   IF state=0
   THEN 
     return state;
   ELSE  
-    open search_result for SELECT message_id FROM 
-         (SELECT MESSAGE_OWNS_TOPIC.message_id
-          FROM MESSAGE, MESSAGE_OWNS_TOPIC
-          WHERE MESSAGE_OWNS_TOPIC.message_id>=startFrom
-              AND MESSAGE_OWNS_TOPIC.TOPIC_ID=topic_id
-			  AND MESSAGE.message_id=MESSAGE_OWNS_TOPIC.message_id
-         ORDER BY MESSAGE.MESSAGE_CREATE_TIME DESC)
-    WHERE ROWNUM<=limitation;
+    open search_result for 
+    SELECT* FROM 
+         (SELECT LIKES_MESSAGE_ID
+          FROM LIKES
+          WHERE LIKES.LIKES_USER_ID=user_id
+         ORDER BY LIKES.LIKES_TIME DESC)
+    WHERE ROWNUM<=startFrom+limitation
+    MINUS
+    SELECT* 
+    FROM 
+         (SELECT LIKES_MESSAGE_ID
+          FROM LIKES
+          WHERE LIKES.LIKES_USER_ID=user_id
+         ORDER BY LIKES.LIKES_TIME DESC)
+    WHERE ROWNUM<=startFrom-1;
 
     state:=1;
   END IF;
 	RETURN state;
 
 END;
+
 /
 
 ---------
