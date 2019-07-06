@@ -50,7 +50,7 @@ insert into USER_PUBLIC_INFO
 values(nickname, register_time, set_introduction, '0', '0');
 
 select USER_ID into temp_user_id from USER_PUBLIC_INFO
-where USER_NICKNAME = nickname;
+where USER_REGISTER_TIME = register_time;
 
 insert into USER_PRIVATE_INFO(USER_ID, USER_EMAIL, USER_PASSWORD)
 values(temp_user_id, email, password);

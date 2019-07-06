@@ -1,23 +1,20 @@
-﻿---------------FUNC_SHOW_MESSAGE_BY_ID----------------------
-------------------根据ID查询推特信息-------------------------------
+﻿------------------根据ID查询推特信息-------------------------------
 create or replace 
 function 
 FUNC_SHOW_MESSAGE_BY_ID(message_id_input in INTEGER, result out sys_refcursor)
 return INTEGER
 is
 state INTEGER:=0;
-c1 sys_refcursor;
-temp_id integer:=message_id_input;
 
 begin
-open c1 for
+open result for
 select *
 from message natural join message_image
-where message_id =temp_id;
+where message_id =message_id_input;
 
 select count(*) into state 
 from message
-where message_id=temp_id;
+where message_id=message_id_input;
 if state!=0 then
 state:=1;
 else
