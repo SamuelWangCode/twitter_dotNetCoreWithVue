@@ -23,7 +23,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             [Display(Name = "评论内容")]
             [Required]
             [StringLength(280)]
-            public int comment_content { set; get; }
+            public string comment_content { set; get; }
 
         }
 
@@ -74,7 +74,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p3.Value = message_id;
                 p3.Direction = ParameterDirection.Input;
                 OracleParameter p4 = new OracleParameter();
-                //Add input parameter message_id
+                //Add input parameter content
                 p4 = cmd.Parameters.Add("content", OracleDbType.Varchar2);
                 p4.Value = comment.comment_content;
                 p4.Direction = ParameterDirection.Input;

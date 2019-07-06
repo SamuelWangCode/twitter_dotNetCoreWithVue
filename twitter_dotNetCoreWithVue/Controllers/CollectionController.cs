@@ -23,7 +23,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// </summary>
         /// <returns>是否成功</returns>
         /// <param name="message_id">Message identifier.</param>
-        [HttpGet("add/{message_id}")]
+        [HttpPost("add")]
         public IActionResult Add([Required]int message_id)
         {
             //TODO 需要验证登录态 添加收藏 EZ

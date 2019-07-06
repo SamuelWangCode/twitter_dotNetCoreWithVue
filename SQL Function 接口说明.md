@@ -1,4 +1,4 @@
-# SQL Function 接口说明
+﻿# SQL Function 接口说明
 
 此文档由c#小组（杨紫超，周宇东，魏敬杰）负责编写。
 SQL小组通过阅读此文档，编写相应的SQL脚本。
@@ -680,7 +680,6 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 - 输出参数：
 	- result: table属性为(topic_id, topic_heat, topic_content)
 - 已完成：否
-<<<<<<< HEAD
 
 
 ### 34. FUNC_RECOMMEND_USER(search_result out sys_refcursor)
@@ -702,6 +701,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 - 输入参数：
   - at\_nickname：VARCHAR2类型，表示艾特的人的名字
   - message\_id：INTEGER类型，表示出现这个艾特的推特的ID
+  - source\_user\_id: INTEGER类型，表示这条推特的来源的ID
 - 输出参数：无
 - 已完成：否
 
