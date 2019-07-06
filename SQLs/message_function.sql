@@ -5,20 +5,23 @@ FUNC_SHOW_MESSAGE_BY_ID(message_id_input in INTEGER, result out sys_refcursor)
 return INTEGER
 is
 state INTEGER:=0;
-
 begin
-open result for
-select *
-from message natural join message_image
-where message_id =message_id_input;
-
 select count(*) into state 
 from message
 where message_id=message_id_input;
+
 if state!=0 then
-state:=1;
+select transponded_message_id into state
+from transpond
+where message_id=message_id_input;
+
+open result for
+select *
+from message natural join message_image natural join transpond
+where message_id =message_id_input;
+
 else
-state:=-1;
+state:=null;
 end if;
 
 return state;
@@ -40,20 +43,23 @@ select count(*) into state
 from MESSAGE 
 where MESSAGE_SENDER_USER_ID = user_id;
 
-if state!=0 then 
-state:=1;
+if state!=0 then
+select transponded_message_id into state
+from transpond natural join message
+where MESSAGE_SENDER_USER_ID = user_id;
+
 open search_result for 
 select * from(
   (select * from 
     (select * 
-     from message natural join message_image
+     from message natural join message_image natural join transpond
      where message_sender_user_id=user_id
      order by message_id asc)
   where rownum <rangelimitation+rangestart)
   minus
   (select * from 
     (select * 
-     from message natural join message_image
+     from message natural join message_image natural join transpond
      where message_sender_user_id=user_id
      order by message_id asc)
   where rownum <rangestart)
@@ -218,4 +224,42 @@ END;
 
 /
 
----------
+----------------FUNC_SEARCH_MESSAGE-------------------
+--------通过搜索键，在Message相关表中搜索相关的推特------
+CREATE OR REPLACE 
+FUNCTION FUNC_SEARCH_MESSAGE
+(searchKey IN VARCHAR2, startFrom IN INTEGER, limitation IN INTEGER, search_result OUT Sys_refcursor)
+RETURN INTEGER
+AS
+state INTEGER:=1;
+
+BEGIN
+
+  SELECT count(*) into state 
+  FROM MESSAGE
+  WHERE MESSAGE_CONTENT like'%'||searchKey||'%';
+
+  IF state=0
+  THEN
+    return state;
+  ELSE
+    open search_result for 
+    SELECT* FROM
+         (SELECT* 
+          FROM (MESSAGE NATURAL join MESSAGE_IMAGE) NATURAL join TRANSPOND
+          WHERE MESSAGE_CONTENT like'%'||searchKey||'%'
+          ORDER BY MESSAGE_CREATE_TIME DESC)
+    WHERE ROWNUM<=startFrom+limitation
+    MINUS
+    SELECT* FROM
+         (SELECT* 
+          FROM (MESSAGE NATURAL join MESSAGE_IMAGE) NATURAL join TRANSPOND
+          WHERE MESSAGE_CONTENT like'%'||searchKey||'%'
+          ORDER BY MESSAGE_CREATE_TIME DESC)
+    WHERE ROWNUM<=startFrom-1;
+    state:=1;
+  END IF;
+
+	RETURN state;
+END;
+/
