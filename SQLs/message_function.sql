@@ -1,4 +1,4 @@
-﻿---------------FUNC_SHOW_ MESSAGE_BY_ID----------------------
+---------------FUNC_SHOW_ MESSAGE_BY_ID----------------------
 create or replace 
 function 
 FUNC_SHOW_MESSAGE_BY_ID(message_id_input in INTEGER, result out sys_refcursor)
@@ -103,7 +103,7 @@ end;
 
 
 -------------------FUNC_TRANSPOND_MESSAGE--------------------
--------------------转发1条推特（Message和Transpond添加�?
+-------------------转发1条推特（Message和Transpond添加�??
 create or replace function
 FUNC_TRANSPOND_MESSAGE(message_content in VARCHAR2, message_source_is_transpond in INTEGER, message_sender_user_id in INTEGER, message_transpond_message_id in INTEGER, message_id out INTEGER)
 return INTEGER
