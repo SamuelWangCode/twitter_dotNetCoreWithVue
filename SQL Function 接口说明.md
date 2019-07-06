@@ -680,3 +680,14 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 - 输出参数：
 	- result: table属性为(topic_id, topic_heat, topic_content)
 - 已完成：否
+
+### 34. FUNC_RECOMMEND_USER(search_result out sys_refcursor)
+
+接口功能：获取粉丝数最多的前五个用户，作为推荐的用户。
+
+- 返回值：同上
+- 输入参数：
+- - 无
+- 输出参数：
+	- result： table属性为(user_id, user_nickname, user_followers_num)
+- 已完成：否
