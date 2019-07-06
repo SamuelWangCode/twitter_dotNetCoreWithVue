@@ -1,4 +1,4 @@
----------------FUNC_ADD_COLLECTION----------------------
+----------------FUNC_ADD_COLLECTION----------------------
 ---------------添加收藏---------------------------------
 create or replace function
 FUNC_ADD_COLLECTION(user_id in INTEGER, be_collected_id in INTEGER)
@@ -81,20 +81,12 @@ if state=0 then
 return state;
 else
 state:=1;
-open search_result for
-(
+open search_result for 
 select * from(
-(select MESSAGE_COLLECTION.MESSAGE_ID
+select MESSAGE_COLLECTION.MESSAGE_ID
 from MESSAGE_COLLECTION
 where MESSAGE_COLLECTION.USER_ID= user_id)
-where ROWNUM <startFrom+limitation)
-minus
-select * from(
-(select MESSAGE_COLLECTION.MESSAGE_ID
-from MESSAGE_COLLECTION
-where MESSAGE_COLLECTION.USER_ID= user_id)
-where ROWNUM <startFrom)
-)
+where ROWNUM >= startFrom and ROWNUM <= limitation;
 
 end if;
 return state;

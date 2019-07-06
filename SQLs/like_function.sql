@@ -1,10 +1,10 @@
---------------------------------------------------
+---------------------------------------------------
 --------------FUNC_ADD_LIKE--------------------------------//
 CREATE OR REPLACE 
 FUNCTION FUNC_ADD_LIKE 
 (user_id IN INTEGER, like_message_id IN INTEGER)
 RETURN INTEGER
-is
+AS
 temp_date VARCHAR2(30);
 temp_topic_state INTEGER:=0;
 state INTEGER:=1;
@@ -32,16 +32,23 @@ BEGIN
                                   WHERE MESSAGE_OWNS_TOPIC.MESSAGE_ID=like_message_id);
   END IF;
 
+
+
   UPDATE MESSAGE
   set MESSAGE_AGREE_NUM=MESSAGE_AGREE_NUM+1,MESSAGE_HEAT=MESSAGE_HEAT+1
-  WHERE MESSAGE_ID=like_message_id;
-  
-  SELECT to_char(sysdate,'yyyy-mm-dd HH24:MI:SS')into temp_date from dual;
+  WHERE MESSAGE.MESSAGE_ID=like_message_id;
+
+
+
+
+  SELECT to_char(sysdate,'yyyy-mm-dd HH24:MI:SS')into temp_date from dual ;
 
   insert into LIKES
       (LIKES_USER_ID, LIKES_MESSAGE_ID,LIKES_TIME)
   values(user_id, like_message_id, temp_date);
-  RETURN state;
+  state:=1;
+
+	RETURN state;
 END;
 
 /
@@ -119,13 +126,21 @@ BEGIN
   THEN 
     return state;
   ELSE  
-    open search_result for SELECT* FROM 
+    open search_result for 
+    SELECT* FROM 
          (SELECT LIKES_MESSAGE_ID
           FROM LIKES
-          WHERE LIKES.LIKES_ID>=startFrom
-              AND LIKES.LIKES_USER_ID=user_id
+          WHERE LIKES.LIKES_USER_ID=user_id
          ORDER BY LIKES.LIKES_TIME DESC)
-    WHERE ROWNUM<=limitation;
+    WHERE ROWNUM<=startFrom+limitation
+    MINUS
+    SELECT* 
+    FROM 
+         (SELECT LIKES_MESSAGE_ID
+          FROM LIKES
+          WHERE LIKES.LIKES_USER_ID=user_id
+         ORDER BY LIKES.LIKES_TIME DESC)
+    WHERE ROWNUM<=startFrom-1;
 
     state:=1;
   END IF;
