@@ -34,6 +34,12 @@ namespace twitter_dotNetCoreWithVue.Controllers
             [StringLength(280)]
             public string message_content { get; set; }
 
+            [Display(Name = "推特包含话题")]
+            public string[] message_topics { get; set; }
+
+            [Display(Name = "推特包含艾特")]
+            public string[] message_ats { get; set; }
+
             [Display(Name = "推特发布时间")]
             [Required]
             public string message_create_time { get; set; }
@@ -159,6 +165,24 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 MessageForShow infos = new MessageForShow();
                 infos.message_id = int.Parse(dt.Rows[0][0].ToString());
                 infos.message_content = dt.Rows[0][1].ToString();
+
+                infos.message_topics = new string[] { };
+                infos.message_ats = new string[] { };
+                System.Text.RegularExpressions.Regex topicRegex = new System.Text.RegularExpressions.Regex(@"#\w+#");
+                System.Text.RegularExpressions.Regex atRegex = new System.Text.RegularExpressions.Regex(@"@\w+");
+                System.Text.RegularExpressions.MatchCollection topicCollection = topicRegex.Matches(infos.message_content);
+                System.Text.RegularExpressions.MatchCollection atCollection = atRegex.Matches(infos.message_content);
+                for (int i = 0; i < topicCollection.Count; i++)
+                {
+                    infos.message_topics.Append(topicCollection[i].ToString());
+                    infos.message_content.Replace(topicCollection[i].ToString(), "");
+                }
+                for (int i = 0; i < atCollection.Count; i++)
+                {
+                    infos.message_ats.Append(atCollection[i].ToString());
+                    infos.message_content.Replace(atCollection[i].ToString(), "");
+                }
+
                 infos.message_create_time = dt.Rows[0][2].ToString();
                 infos.message_agree_num = int.Parse(dt.Rows[0][3].ToString());
                 infos.message_transpond_num = int.Parse(dt.Rows[0][4].ToString());
