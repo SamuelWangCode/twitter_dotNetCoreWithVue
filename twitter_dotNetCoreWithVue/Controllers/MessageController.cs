@@ -279,7 +279,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     infos[i].message_sender_user_id = int.Parse(dt.Rows[i][9].ToString());
                     infos[i].message_heat = int.Parse(dt.Rows[i][10].ToString());
                     infos[i].message_transpond_message_id = int.Parse(dt.Rows[i][11].ToString());
-                    infos[i].message_image_count = int.Parse(dt.Rows[0][12].ToString());
+                    infos[i].message_image_count = int.Parse(dt.Rows[i][12].ToString());
                 }
                 for(int i=0;i<dt.Rows.Count;i++)
                 {
