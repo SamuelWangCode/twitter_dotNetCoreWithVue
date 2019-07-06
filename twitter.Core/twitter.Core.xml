@@ -49,6 +49,13 @@
             <param name="message_id">Message identifier.</param>
             <param name="comment">Comment.</param>
         </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.CommentController.QueryComments(System.Int32,twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
+            <summary>
+            获取一个推特的评论
+            </summary>
+            <param name="message_id"></param>
+            <returns></returns>
+        </member>
         <member name="T:twitter_dotNetCoreWithVue.Controllers.LikeController">
             <summary>
             点赞api
@@ -87,7 +94,7 @@
             <returns>The message.</returns>
             <param name="message_id">Message identifier.</param>
         </member>
-        <member name="M:twitter_dotNetCoreWithVue.Controllers.MessageController.QueryForIndex(twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.MessageController.QueryMessages(System.Int32,twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
             <summary>
             此api用于首页，需要查找所有的显示在首页的推特时调用
             根据range来返回前几条推荐的信息

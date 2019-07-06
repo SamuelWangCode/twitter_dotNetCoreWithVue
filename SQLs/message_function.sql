@@ -1,6 +1,5 @@
 ---------------FUNC_SHOW_ MESSAGE_BY_ID----------------------
-create or replace 
-function 
+create or replace function 
 FUNC_SHOW_MESSAGE_BY_ID(message_id_input in INTEGER, result out sys_refcursor)
 return INTEGER
 is
@@ -9,20 +8,13 @@ begin
 select count(*) into state 
 from message
 where message_id=message_id_input;
-
-if state!=0 then
-select transponded_message_id into state
-from transpond
-where message_id=message_id_input;
-
+if state != 0 then
 open result for
 select *
-from message natural join message_image natural join transpond
+from message natural left join message_image natural left join transpond
 where message_id =message_id_input;
-
-else
-state:=null;
 end if;
+
 
 return state;
 end;
@@ -31,8 +23,7 @@ end;
 
 ---------------FUNC_SHOW_ MESSAGE_BY_RANGE----------------------
 -----------------------??????????-------------------------------
-CREATE OR REPLACE 
-function 
+create or replace function 
 FUNC_SHOW_MESSAGE_BY_RANGE(user_id in INTEGER, rangeStart in INTEGER, rangeLimitation in INTEGER, search_result out sys_refcursor)
 return INTEGER
 is 
@@ -45,24 +36,20 @@ from MESSAGE
 where MESSAGE_SENDER_USER_ID = user_id;
 
 if state!=0 then
-select transponded_message_id into state
-from transpond natural join message
-where MESSAGE_SENDER_USER_ID = user_id;
-
   open search_result for 
   select * from 
     (select * 
-     from message natural join message_image natural join transpond
+     from (message natural left join message_image) natural left join transpond
      where message_sender_user_id=user_id
-     order by message_id asc)
-  where rownum <rangelimitation+rangestart
+     order by message_id desc)
+  where rownum <rangeLimitation+rangeStart
   minus
   select * from 
     (select * 
-     from message natural join message_image natural join transpond
+     from (message natural left join message_image) natural left join transpond
      where message_sender_user_id=user_id
-     order by message_id asc)
-  where rownum <rangestart;
+     order by message_id desc)
+  where rownum <rangeStart;
 
 end if;
 return state;
@@ -224,9 +211,9 @@ END;
 /
 
 ----------------FUNC_SEARCH_MESSAGE-------------------
---------通过搜索键，在Message相关表中搜索相关的推特------
+--------通过搜索键，在Message相关表中搜索相关的推�?------
 ----返回的属性依次为message_id, message_content, message_create_time, message_agree_num, ---
-----message_transponded_num, message_comment_num, message_view_num, message_has_image，-----
+----message_transponded_num, message_comment_num, message_view_num, message_has_image�?-----
 ----message_sender_user_id, message_heat,message_image_count,transponded_message_id---------
 CREATE OR REPLACE 
 FUNCTION FUNC_SEARCH_MESSAGE
@@ -246,21 +233,17 @@ BEGIN
     return state;
   ELSE
     open search_result for 
-    SELECT* FROM
-         (SELECT  message_id, message_content, message_create_time, message_agree_num, 
-                  message_transponded_num, message_comment_num, message_view_num, message_has_image，
-                  message_sender_user_id, message_heat,message_image_count,transponded_message_id
-          FROM (MESSAGE NATURAL join MESSAGE_IMAGE) NATURAL join TRANSPOND
+    SELECT * FROM
+         (SELECT *
+          FROM (MESSAGE NATURAL left outer join MESSAGE_IMAGE) NATURAL left outer join TRANSPOND
           WHERE MESSAGE_CONTENT like'%'||searchKey||'%'
           ORDER BY MESSAGE_CREATE_TIME DESC)
     WHERE ROWNUM<=startFrom+limitation
     MINUS
     SELECT* FROM
-         (SELECT  message_id, message_content, message_create_time, message_agree_num, 
-                  message_transponded_num, message_comment_num, message_view_num, message_has_image，
-                  message_sender_user_id, message_heat,message_image_count,transponded_message_id
+         (SELECT *
           FROM (MESSAGE NATURAL join MESSAGE_IMAGE) NATURAL join TRANSPOND
-          WHERE MESSAGE_CONTENT like'%'||searchKey||'%'
+          WHERE MESSAGE_CONTENT like '%'||searchKey||'%'
           ORDER BY MESSAGE_CREATE_TIME DESC)
     WHERE ROWNUM<=startFrom-1;
     state:=1;

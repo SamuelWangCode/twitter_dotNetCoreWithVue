@@ -32,7 +32,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             public string message_create_time { get; set; }
 
             [Display(Name = "点赞量")]
-            public int message_agree_num { get; set; }
+            public int message_like_num { get; set; }
 
             [Display(Name = "转发量")]
             public int message_transpond_num { get; set; }
@@ -114,12 +114,12 @@ namespace twitter_dotNetCoreWithVue.Controllers
         {
             return Wrapper.wrap((OracleConnection conn) =>
             {
-                //TwitterResult[] twitterResults = GetTwitterResults(conn, searchKey, range);
-                UserResult[] userResults = GetUserResults(conn, searchKey, range);
+                TwitterResult[] twitterResults = GetTwitterResults(conn, searchKey, range);
+                //UserResult[] userResults = GetUserResults(conn, searchKey, range);
                 //TopicResult[] topicResults = GetTopicResults(conn, searchKey, range);
                 ResultSet resultSet = new ResultSet();
-                //resultSet.twitters = twitterResults;
-                resultSet.users = userResults;
+                resultSet.twitters = twitterResults;
+                //resultSet.users = userResults;
                 //resultSet.topics = topicResults;
                 RestfulResult.RestfulData<ResultSet> rr = new RestfulResult.RestfulData<ResultSet>();
                 rr.Code = 200;
@@ -167,7 +167,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             DataTable dt = new DataTable();
             DataAdapter.Fill(dt);
 
-            if (int.Parse(p1.Value.ToString()) != 1)
+            if (int.Parse(p1.Value.ToString()) == 0)
             {
                 throw new Exception("failed");
             }
@@ -180,7 +180,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 receivedTwitters[i].message_id = int.Parse(dt.Rows[i][0].ToString());
                 receivedTwitters[i].message_content = dt.Rows[i][1].ToString();
                 receivedTwitters[i].message_create_time = dt.Rows[i][2].ToString();
-                receivedTwitters[i].message_agree_num = int.Parse(dt.Rows[i][3].ToString());
+                receivedTwitters[i].message_like_num = int.Parse(dt.Rows[i][3].ToString());
                 receivedTwitters[i].message_transpond_num = int.Parse(dt.Rows[i][4].ToString());
                 receivedTwitters[i].message_comment_num = int.Parse(dt.Rows[i][5].ToString());
                 receivedTwitters[i].message_view_num = int.Parse(dt.Rows[i][6].ToString());
@@ -188,7 +188,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 receivedTwitters[i].message_sender_user_id = int.Parse(dt.Rows[i][8].ToString());
                 receivedTwitters[i].message_heat = int.Parse(dt.Rows[i][9].ToString());
                 receivedTwitters[i].message_image_count = int.Parse(dt.Rows[i][10].ToString() == "" ? "0" : dt.Rows[i][10].ToString());
-                receivedTwitters[i].message_transpond_message_id = int.Parse(dt.Rows[i][11].ToString() == "" ? "0" : dt.Rows[i][10].ToString());
+                receivedTwitters[i].message_transpond_message_id = int.Parse(dt.Rows[i][11].ToString() == "" ? "0" : dt.Rows[i][11].ToString());
 
                 if (receivedTwitters[i].message_has_image == 1)
                 {
@@ -239,7 +239,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             DataTable dt = new DataTable();
             DataAdapter.Fill(dt);
 
-            if (int.Parse(p1.Value.ToString()) != 1)
+            if (int.Parse(p1.Value.ToString()) == 0)
             {
                 throw new Exception("failed");
             }
@@ -295,7 +295,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             DataTable dt = new DataTable();
             DataAdapter.Fill(dt);
 
-            if (int.Parse(p1.Value.ToString()) != 1)
+            if (int.Parse(p1.Value.ToString()) == 0)
             {
                 throw new Exception("failed");
             }

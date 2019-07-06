@@ -74,7 +74,6 @@ else
 state:=1;
 
 open search_result for
-(
 select* from(
 select USER_PUBLIC_INFO.user_id, USER_PUBLIC_INFO.user_nickname,AVATAR_IMAGE.AVATAR_IMAGE_ID
 from USER_PUBLIC_INFO,AVATAR_IMAGE
@@ -95,8 +94,7 @@ select RELATION.RELATION_USER_BE_FOLLOWED_ID
 from RELATION
 where id_temp=RELATION.RELATION_USER_FOLLOWER_ID)
 order by create_time desc)
-where ROWNUM <startFrom
-)
+where ROWNUM <startFrom;
 
 end if;
 return state;
@@ -129,7 +127,6 @@ else
 state:=1;
 
 open search_result for
-(
 select* from(
 select USER_PUBLIC_INFO.user_id, USER_PUBLIC_INFO.user_nickname,AVATAR_IMAGE.AVATAR_IMAGE_ID
 from USER_PUBLIC_INFO,AVATAR_IMAGE
@@ -150,8 +147,7 @@ select RELATION.RELATION_USER_FOLLOWER_ID
 from RELATION
 where id_temp=RELATION.RELATION_USER_BE_FOLLOWED_ID)
 order by create_time desc)
-where  ROWNUM <startFrom
-)
+where  ROWNUM <startFrom;
 
 end if;
 return state;
