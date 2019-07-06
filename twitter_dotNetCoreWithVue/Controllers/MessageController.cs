@@ -103,9 +103,6 @@ namespace twitter_dotNetCoreWithVue.Controllers
             [Required]
             public bool message_source_is_transpond { get; set; }
 
-            [Display(Name = "发布人ID")]
-            public int message_sender_user_id { get; set; }
-
             [Display(Name = "转发来源推特ID")]
             public int message_transpond_message_id { get; set; }
 
@@ -203,10 +200,22 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <param name="range">Range.</param>
         /// <param name="user_id">user_id</param>
         [HttpGet("queryForIndex")]
-        public IActionResult QueryForIndex([Required][FromBody]Range range,[Required]int user_id)
+        public IActionResult QueryForIndex([Required][FromBody]Range range)
         {
             //根据range来吧
             //这个稍微有些复杂，SQL会比较难写，加油。
+            int user_id;
+            if (HttpContext.User.Identity.IsAuthenticated)
+            {
+                user_id = int.Parse(HttpContext.User.Claims.First().Value);
+            }
+            else
+            {
+                RestfulResult.RestfulData rr = new RestfulResult.RestfulData();
+                rr.Code = 200;
+                rr.Message = "Need Authentication";
+                return new JsonResult(rr);
+            }
 
             return Wrapper.wrap((OracleConnection conn) =>
             {
@@ -540,7 +549,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 OracleParameter p4 = new OracleParameter();
                 p4 = cmd.Parameters.Add("message_sender_user_id", OracleDbType.Int32);
                 p4.Direction = ParameterDirection.Input;
-                p4.Value = message.message_sender_user_id;
+                p4.Value = userId;
 
                 //Add fourth parameter message_transpond_message_id
                 OracleParameter p5 = new OracleParameter();
@@ -604,22 +613,6 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 RestfulResult.RestfulData rr = new RestfulResult.RestfulData(200, "success");
                 return new JsonResult(rr);
             });
-        }
-
-        /// <summary>
-        /// 上传图片的接口
-        /// 暂时不清楚前端是通过怎样的方式来上传的
-        /// 看网上说有用IFormFile
-        /// 也有说用Requet.Form.Files来获取的
-        /// 具体再议
-        /// </summary>
-        /// <returns>success or not</returns>
-
-        private IActionResult UploadImgs()
-        {
-            //TODO 需要验证登录态
-            //返回成功与否
-            return new JsonResult(new { });
         }
 
 
