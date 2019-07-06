@@ -1,4 +1,4 @@
-﻿# SQL Function 接口说明
+# SQL Function 接口说明
 
 此文档由c#小组（杨紫超，周宇东，魏敬杰）负责编写。
 SQL小组通过阅读此文档，编写相应的SQL脚本。
@@ -489,19 +489,25 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 完成者：徐诚于2019-06-02
 
 
-### 21. FUNC_QUERY\_MESSAGE\_BY\_TOPIC(topic_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result out sys\_refcursor)
+### 21.FUNC\_QUERY\_MESSAGE\_IDS\_CONTAINS\_CERTAIN\_TOPIC\_ID(topic_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result out sys\_refcursor)
 * 接口功能：通过给定的topic\_id，以及起始索引startFrom，以及搜索长度limitation，获取包含该topic的推特message_id的列表。按照时间降序排序
+
 * 返回值：同上
+
 * 输入参数：
 	* topic\_id: INTEGER类型，话题的id
 	* startFrom: INTEGER类型，查找结果的起始索引
 	* limitation: INTEGER类型，查找结果的长度
+	
 * 输出参数：
 	
 	* search\_result: sys_refcursor类型，推特id列表，table属性为(message\_id)
+	
 * 已完成：是
 
   完成者：周宇东于2019-06-02
+  
+  更名为"FUNC\_QUERY\_MESSAGE\By\_TOPIC" 
 
 ### 22. FUNC\_QUERY\_TOPIC\_IDS\_ORDER\_BY\_HEAT(startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
 * 接口功能：获取从startFrom开始，长度为limitation的，按照话题topic的热度降序排序的话题id列表
@@ -630,9 +636,6 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
   完成者：顾安琪于2019-06-02
 **更名为：FUNC\_QUERY\_MESSAGE\_AT\_USER(user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search\_result out sys\_refcursor))
 
-## 重命名接口
-* "FUNC\_QUERY\_MESSAGE\_IDS\_CONTAINS\_CERTAIN\_TOPIC\_ID" to "FUNC\_QUERY\_MESSAGE\_BY\_TOPIC"
-
 ### 31. FUNC_SEARCH_MESSAGE(searchKey in VARCHAR2(50), startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
 
 接口功能：通过指定的搜索键searchKey，在Message相关表中搜索相关的推特，包括从Transpond表，Message_Image表中获取的数据。数据按时间排序，返回从startFrom开始，长度为limitation的数据表。
@@ -677,6 +680,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 - 输出参数：
 	- result: table属性为(topic_id, topic_heat, topic_content)
 - 已完成：否
+<<<<<<< HEAD
 
 
 ### 34. FUNC_RECOMMEND_USER(search_result out sys_refcursor)
@@ -692,6 +696,7 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
 
 ### 35. FUNC\_AT\_USER(at\_nickname in VARCHAR2, message\_id in INTEGER)
 
+
 - 接口功能：艾特指定名字的成员。若有多个成员具有同一名字，同时艾特他们。若没有任何一个成员有该名字，则忽视这条艾特（不进行实际的艾特），但也不因此返回失败值。
 - 返回值：添加成功返回1，失败返回0
 - 输入参数：
@@ -699,5 +704,17 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
   - message\_id：INTEGER类型，表示出现这个艾特的推特的ID
 - 输出参数：无
 - 已完成：否
+
+
+## 测试
+
+### User Controller
+
+测试完成（除头像部分）
+
+### Message
+
+两个query和delete 缺at 
+
 
 

@@ -109,7 +109,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// </summary>
         /// <returns>搜索的内容，分三个部分，推特/用户/话题</returns>
         /// <param name="searchKey">Identifier.</param>
-        [HttpGet("{searchKey}")]
+        [HttpPost("{searchKey}")]
         public IActionResult getSearchResult(string searchKey, [FromBody]Range range)
         {
             return Wrapper.wrap((OracleConnection conn) =>
@@ -167,7 +167,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             DataTable dt = new DataTable();
             DataAdapter.Fill(dt);
 
-            if (int.Parse(p1.ToString()) != 1)
+            if (int.Parse(p1.Value.ToString()) != 1)
             {
                 throw new Exception("failed");
             }
@@ -176,6 +176,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             TwitterResult[] receivedTwitters = new TwitterResult[dt.Rows.Count];
             for (int i = 0; i < dt.Rows.Count; ++i)
             {
+                receivedTwitters[i] = new TwitterResult();
                 receivedTwitters[i].message_id = int.Parse(dt.Rows[i][0].ToString());
                 receivedTwitters[i].message_content = dt.Rows[i][1].ToString();
                 receivedTwitters[i].message_create_time = dt.Rows[i][2].ToString();
@@ -239,7 +240,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             DataTable dt = new DataTable();
             DataAdapter.Fill(dt);
 
-            if (int.Parse(p1.ToString()) != 1)
+            if (int.Parse(p1.Value.ToString()) != 1)
             {
                 throw new Exception("failed");
             }
@@ -248,11 +249,13 @@ namespace twitter_dotNetCoreWithVue.Controllers
             UserResult[] receivedUsers = new UserResult[dt.Rows.Count];
             for (int i = 0; i < dt.Rows.Count; ++i)
             {
+                receivedUsers[i] = new UserResult();
                 receivedUsers[i].user_id = int.Parse(dt.Rows[i][0].ToString());
                 receivedUsers[i].user_nickname = dt.Rows[i][1].ToString();
 
                 string avatarUrl = UserController.getAvatarUrl(receivedUsers[i].user_id);
                 receivedUsers[i].user_avatar_url = "/avatars/" + avatarUrl;
+
             }
             return receivedUsers;
         }
@@ -293,7 +296,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             DataTable dt = new DataTable();
             DataAdapter.Fill(dt);
 
-            if (int.Parse(p1.ToString()) != 1)
+            if (int.Parse(p1.Value.ToString()) != 1)
             {
                 throw new Exception("failed");
             }
@@ -302,6 +305,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             TopicResult[] receivedTopics = new TopicResult[dt.Rows.Count];
             for (int i = 0; i < dt.Rows.Count; ++i)
             {
+                receivedTopics[i] = new TopicResult();
                 receivedTopics[i].topic_id = int.Parse(dt.Rows[i][0].ToString());
                 receivedTopics[i].topic_heat = int.Parse(dt.Rows[i][1].ToString());
                 receivedTopics[i].topic_content = dt.Rows[i][2].ToString();
