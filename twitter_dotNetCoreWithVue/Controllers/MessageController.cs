@@ -116,7 +116,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// </summary>
         /// <returns>The message.</returns>
         /// <param name="message_id">Message identifier.</param>
-        [HttpGet("query/{message_id}")]
+        [HttpPost("query/{message_id}")]
         public IActionResult Query([Required]int message_id)
         {
             //获得推特的详细信息
@@ -199,7 +199,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>The messages for index.</returns>
         /// <param name="range">Range.</param>
         /// <param name="user_id">user_id</param>
-        [HttpGet("queryForIndex")]
+        [HttpPost("queryForIndex")]
         public IActionResult QueryForIndex([Required][FromBody]Range range)
         {
             //根据range来吧
@@ -621,7 +621,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// </summary>
         /// <returns>The message.</returns>
         /// <param name="message_id">Message identifier.</param>
-        [HttpGet("delete/{message_id}")]
+        [HttpPost("delete/{message_id}")]
         public IActionResult Delete([Required]int message_id)
         {
             //需要验证登录态
