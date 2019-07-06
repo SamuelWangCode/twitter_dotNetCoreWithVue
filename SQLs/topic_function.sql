@@ -50,15 +50,22 @@ BEGIN
   THEN 
     return state;
   ELSE  
-    open search_result for SELECT* FROM 
+    open search_result for 
+    SELECT* FROM 
          (SELECT TOPIC_ID
           FROM TOPIC
-          WHERE TOPIC.TOPIC_ID>=startFrom
          ORDER BY TOPIC.TOPIC_HEAT DESC)
-    WHERE ROWNUM<=limitation;
+    WHERE ROWNUM<=startFrom+limitation
+    MINUS
+    SELECT* FROM 
+         (SELECT TOPIC_ID
+          FROM TOPIC
+         ORDER BY TOPIC.TOPIC_HEAT DESC)
+    WHERE ROWNUM<=startFrom-1;
 
     state:=1;
   END IF;
 	RETURN state;
 END;
+
 /
