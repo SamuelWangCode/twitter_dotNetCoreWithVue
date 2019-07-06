@@ -262,7 +262,6 @@ where ROWNUM<startFrom)
 
 end if;
 return state;
-
 end;
 /
 
