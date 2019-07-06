@@ -46,8 +46,8 @@ begin
 select to_char(sysdate, 'yyyy-mm-dd HH24:MI:SS') into register_time from dual;
 
 insert into USER_PUBLIC_INFO
-(USER_ID, USER_NICKNAME, USER_REGISTER_TIME, USER_SELF_INTRODUCTION, USER_FOLLOWERS_NUM, USER_FOLLOWS_NUM)
-values(SEQ_USER_PUBLIC_INFO.nextval, nickname, register_time, set_introduction, '0', '0');
+(USER_NICKNAME, USER_REGISTER_TIME, USER_SELF_INTRODUCTION, USER_FOLLOWERS_NUM, USER_FOLLOWS_NUM)
+values(nickname, register_time, set_introduction, '0', '0');
 
 select USER_ID into temp_user_id from USER_PUBLIC_INFO
 where USER_NICKNAME = nickname;

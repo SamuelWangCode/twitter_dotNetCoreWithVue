@@ -48,7 +48,7 @@ CREATE TABLE User_Public_Info (
 CREATE TABLE User_Private_Info(
   user_id INTEGER PRIMARY KEY,
   user_password VARCHAR2(20) NOT NULL,
-  user_gender VARCHAR2(4),
+  user_gender VARCHAR2(6),
   user_real_name VARCHAR2(20),
   user_email VARCHAR2(50) NOT NULL UNIQUE,
   CONSTRAINT fk_user_private_info FOREIGN KEY (user_id)

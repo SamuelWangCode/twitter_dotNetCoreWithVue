@@ -18,8 +18,8 @@ commit;
 end if;
 
 if topic_exist=0 then
-insert into Topic(topic_id, topic_heat, topic_content) 
-values (seq_topic.nextval, 1, topic_name);
+insert into Topic(topic_heat, topic_content) 
+values ( 1, topic_name);
 select topic_id into temp_topic_id from Topic where topic_content=topic_name;
 commit;
 end if;

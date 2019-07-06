@@ -1,17 +1,17 @@
 --------------------------------------------------
 --------------FUNC_ADD_PRIVATE_LETTER--------------------------------//
 CREATE OR REPLACE 
-FUNCTION "FUNC_ADD_PRIVATE_LETTER" (sender_user_id IN INTEGER, receiver_user_id IN INTEGER, content IN VARCHAR2)
+FUNCTION FUNC_ADD_PRIVATE_LETTER(sender_user_id IN INTEGER, receiver_user_id IN INTEGER, content IN VARCHAR2)
 RETURN INTEGER
 AS
-temp_date DATE;
+temp_date VARCHAR2(30);
 state integer:=1;
 BEGIN
-  select sysdate  into temp_date from dual ;
+  select to_char(sysdate,'yyyy-mm-dd HH24:MI:SS')into temp_date from dual;
 
   insert into PRIVATE_LETTER
-      (PRIVATE_LETTER_ID,PRIVATE_LETTER_CONTENT, PRIVATE_LETTER_IS_READ,PRIVATE_LETTER_CREATE_TIME,PRIVATE_LETTER_SENDER_ID,PRIVATE_LETTER_RECEIVER_ID)
-  values(seq_private_letter.nextval, content, '0', temp_date, sender_user_id, receiver_user_id);
+      (PRIVATE_LETTER_CONTENT, PRIVATE_LETTER_IS_READ,PRIVATE_LETTER_CREATE_TIME,PRIVATE_LETTER_SENDER_ID,PRIVATE_LETTER_RECEIVER_ID)
+  values(content, '0', temp_date, sender_user_id, receiver_user_id);
 
 	RETURN state;
 END;
