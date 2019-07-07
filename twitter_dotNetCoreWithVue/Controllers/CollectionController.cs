@@ -300,6 +300,30 @@ namespace twitter_dotNetCoreWithVue.Controllers
             public int collection_num;
         }
 
+        static public int GetCollectionCount(int user_id)
+        {
+            string procudureName = "FUNC_GET_COLLECTION_NUM";
+            OracleCommand cmd = new OracleCommand(procudureName, conn);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            //Add return value
+            OracleParameter p1 = new OracleParameter();
+            p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+            p1.Direction = ParameterDirection.ReturnValue;
+            //Add input parameter user_id
+            OracleParameter p2 = new OracleParameter();
+            p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
+            p2.Direction = ParameterDirection.Input;
+            p2.Value = user_id;
+            OracleParameter p3 = new OracleParameter();
+            //Add input parameter message_id
+            p3 = cmd.Parameters.Add("message_id", OracleDbType.Int32);
+            p3.Direction = ParameterDirection.Output;
+
+            cmd.ExecuteReader();
+            return int.Parse(p3.Value.ToString());
+        }
+
         /// </summary>
         /// 获取收藏个数
         /// <param name="user_id"></param>
@@ -310,30 +334,12 @@ namespace twitter_dotNetCoreWithVue.Controllers
         {
             return Wrapper.wrap((OracleConnection conn) =>
             {
-                string procudureName = "FUNC_GET_COLLECTION_NUM";
-                OracleCommand cmd = new OracleCommand(procudureName, conn);
-                cmd.CommandType = CommandType.StoredProcedure;
-
-                //Add return value
-                OracleParameter p1 = new OracleParameter();
-                p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
-                p1.Direction = ParameterDirection.ReturnValue;
-                //Add input parameter user_id
-                OracleParameter p2 = new OracleParameter();
-                p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
-                p2.Direction = ParameterDirection.Input;
-                p2.Value = user_id;
-                OracleParameter p3 = new OracleParameter();
-                //Add input parameter message_id
-                p3 = cmd.Parameters.Add("message_id", OracleDbType.Int32);
-                p3.Direction = ParameterDirection.Output;
-
-                cmd.ExecuteReader();
+               
                 RestfulResult.RestfulData<CollectionNum> rr = new RestfulResult.RestfulData<CollectionNum>();
                 rr.Code = 200;
                 rr.Message = "success";
                 rr.Data = new CollectionNum();
-                rr.Data.collection_num = int.Parse(p3.Value.ToString());
+                rr.Data.collection_num = GetCollectionCount(user_id);
                 return new JsonResult(rr);
 
 
