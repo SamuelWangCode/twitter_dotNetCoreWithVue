@@ -253,6 +253,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
         }
 
+        
+
         public static bool checkUserCollectMessageBool(int user_id, int message_id)
         {
             return Wrapper.wrap((OracleConnection conn) =>
@@ -291,6 +293,52 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 }
 
             });
+        }
+
+        public class CollectionNum
+        {
+            public int collection_num;
+        }
+
+        /// </summary>
+        /// 获取收藏个数
+        /// <param name="user_id"></param>
+        /// <returns></returns>
+        /// 
+        [HttpPost("getCollectionNum")]
+        public IActionResult CollectionCount([Required]int user_id)
+        {
+            return Wrapper.wrap((OracleConnection conn) =>
+            {
+                string procudureName = "FUNC_GET_COLLECTION_NUM";
+                OracleCommand cmd = new OracleCommand(procudureName, conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                //Add return value
+                OracleParameter p1 = new OracleParameter();
+                p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                p1.Direction = ParameterDirection.ReturnValue;
+                //Add input parameter user_id
+                OracleParameter p2 = new OracleParameter();
+                p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
+                p2.Direction = ParameterDirection.Input;
+                p2.Value = user_id;
+                OracleParameter p3 = new OracleParameter();
+                //Add input parameter message_id
+                p3 = cmd.Parameters.Add("message_id", OracleDbType.Int32);
+                p3.Direction = ParameterDirection.Output;
+
+                cmd.ExecuteReader();
+                RestfulResult.RestfulData<CollectionNum> rr = new RestfulResult.RestfulData<CollectionNum>();
+                rr.Code = 200;
+                rr.Message = "success";
+                rr.Data = new CollectionNum();
+                rr.Data.collection_num = int.Parse(p3.Value.ToString());
+                return new JsonResult(rr);
+
+
+            });
+
         }
     }
 }
