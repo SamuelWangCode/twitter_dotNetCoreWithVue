@@ -29,7 +29,7 @@ DROP SEQUENCE  SEQ_USER_PUBLIC_INFO;
 
 CREATE TABLE User_Public_Info (
   user_id INTEGER GENERATED ALWAYS AS IDENTITY,
-  user_nickname VARCHAR2(20) NOT NULL,
+  user_nickname VARCHAR2(20) NOT NULL UNIQUE,
   user_register_time VARCHAR2(30) NOT NULL,
   user_self_introduction VARCHAR2(255) NOT NULL,
   user_followers_num INTEGER NOT NULL,
