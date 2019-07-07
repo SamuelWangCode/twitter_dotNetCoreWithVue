@@ -16,6 +16,15 @@
             <returns>包含 message_id组成的列表 的Json对象</returns>
             <param name="range">Range.</param>
         </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.AtController.AddAtsInTwitter(System.String,System.Int32,System.Int32)">
+            <summary>
+            根据传入的内容，将内容中的At全都ADD
+            </summary>
+            <returns>AtInfos的类.</returns>
+            <param name="content">Twitter Content.</param>
+            <param name="messageID">Twitter ID.</param>
+            <param name="source_user_id">Source User ID.</param>
+        </member>
         <member name="T:twitter_dotNetCoreWithVue.Controllers.CollectionController">
             <summary>
             这个控制器定义用户收藏推特的相关api
@@ -254,6 +263,14 @@
             </summary>
             <returns>Json 包含Topics</returns>
             <param name="range">Range.</param>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.TopicController.AddTopicsInTwitter(System.String,System.Int32)">
+            <summary>
+            根据传入的内容，将内容中的Topic全都ADD，并返回内容中所包含的话题以及其ID
+            </summary>
+            <returns>TopicInfos Class.</returns>
+            <param name="content">Twitter Content.</param>
+            <param name="messageID">Twitter ID.</param>
         </member>
         <member name="T:twitter_dotNetCoreWithVue.Controllers.UserController">
             <summary>

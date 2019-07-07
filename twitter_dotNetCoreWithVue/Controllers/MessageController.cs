@@ -34,6 +34,12 @@ namespace twitter_dotNetCoreWithVue.Controllers
             [StringLength(280)]
             public string message_content { get; set; }
 
+            [Display(Name = "推特所含话题")]
+            public TopicController.TopicInfos[] message_topics { get; set; }
+
+            [Display(Name = "推特所含艾特")]
+            public AtController.AtInfos[] message_ats { get; set; }
+
             [Display(Name = "推特发布时间")]
             [Required]
             public string message_create_time { get; set; }
@@ -107,7 +113,16 @@ namespace twitter_dotNetCoreWithVue.Controllers
             public int message_transpond_message_id { get; set; }
 
         }
+        
 
+        //推特中包含的艾特类
+        public class AtInfos
+        {
+            public List<string> atList = new List<string>();
+            public List<int> atIds = new List<int>();
+        }
+
+        
 
         /// <summary>
         /// 查看推特详情时调用的api
@@ -169,6 +184,10 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 infos.message_heat = int.Parse(dt.Rows[0][9].ToString());
                 infos.message_image_count = int.Parse(dt.Rows[0][10].ToString() == "" ? "0" : dt.Rows[0][10].ToString());
                 infos.message_transpond_message_id = int.Parse(dt.Rows[0][11].ToString() == "" ? "0" : dt.Rows[0][11].ToString());
+
+                infos.message_topics = TopicController.SearchTopicsInTwitter(infos.message_content);
+                infos.message_ats = AtController.SearchAtsInTwitter(infos.message_content);
+
                 RestfulResult.RestfulData<MessageForShow> rr = new RestfulResult.RestfulData<MessageForShow>();
                 rr.Code = 200;
                 rr.Message = "success";
@@ -180,6 +199,65 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     
         }
 
+        //内部调用的，根据ID查询返回MessageForShow类型的函数
+        static public MessageForShow InnerQuery(int message_id)
+        {
+            return Wrapper.wrap((OracleConnection conn) =>
+            {
+                //function FUNC_SHOW_MESSAGE_BY_ID(message_id in INTEGER, result out sys_refcursor)
+                //return INTEGER
+                string procedurename = "FUNC_SHOW_MESSAGE_BY_ID";
+                OracleCommand cmd = new OracleCommand(procedurename, conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                //Add return value
+                OracleParameter p1 = new OracleParameter();
+                p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                p1.Direction = ParameterDirection.ReturnValue;
+
+                //Add first parameter message_id
+                OracleParameter p2 = new OracleParameter();
+                p2 = cmd.Parameters.Add("message_id", OracleDbType.Int32);
+                p2.Direction = ParameterDirection.Input;
+                p2.Value = message_id;
+
+                //Add second parameter search_result
+                OracleParameter p3 = new OracleParameter();
+                p3 = cmd.Parameters.Add("result", OracleDbType.RefCursor);
+                p3.Direction = ParameterDirection.Output;
+
+                //Get the result table
+                OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                DataAdapter.Fill(dt);
+
+                if (int.Parse(p1.Value.ToString()) == 0)
+                {
+                    throw new Exception("failed");
+                }
+                MessageForShow infos = new MessageForShow();
+                infos.message_id = int.Parse(dt.Rows[0][0].ToString());
+                infos.message_content = dt.Rows[0][1].ToString();
+                infos.message_create_time = dt.Rows[0][2].ToString();
+                infos.message_like_num = int.Parse(dt.Rows[0][3].ToString());
+                infos.message_transpond_num = int.Parse(dt.Rows[0][4].ToString());
+                infos.message_comment_num = int.Parse(dt.Rows[0][5].ToString());
+                infos.message_view_num = int.Parse(dt.Rows[0][6].ToString());
+                infos.message_has_image = int.Parse(dt.Rows[0][7].ToString());
+                infos.message_sender_user_id = int.Parse(dt.Rows[0][8].ToString());
+                infos.message_heat = int.Parse(dt.Rows[0][9].ToString());
+                infos.message_image_count = int.Parse(dt.Rows[0][10].ToString() == "" ? "0" : dt.Rows[0][10].ToString());
+                infos.message_transpond_message_id = int.Parse(dt.Rows[0][11].ToString() == "" ? "0" : dt.Rows[0][11].ToString());
+
+                infos.message_topics = TopicController.SearchTopicsInTwitter(infos.message_content);
+                infos.message_ats = AtController.SearchAtsInTwitter(infos.message_content);
+
+                return infos;
+
+            });
+        }
+
+
         /// <summary>
         /// 此api用于首页，需要查找所有的显示在首页的推特时调用
         /// 根据range来返回前几条推荐的信息
@@ -189,7 +267,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>The messages for index.</returns>
         /// <param name="range">Range.</param>
         /// <param name="user_id">user_id</param>
-        [HttpPost("queryForIndex/{user_id}")]
+        [HttpPost("queryMessage/{user_id}")]
         public IActionResult QueryMessages([Required]int user_id, [Required][FromBody]Range range)
         {
             return Wrapper.wrap((OracleConnection conn) =>
@@ -376,78 +454,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         throw new Exception("failed");
                     }
 
-                    foreach(string topic in topics)
-                    {
-                        //对于topics列表里的每一个话题，分别作为函数参数来执行一次FUNC_ADD_TOPIC函数
-                        //FUNC_ADD_TOPIC(topic_content in VARCHAR2, message_id in INTEGER)
-                        //return INTEGER
-                        string procedureName2 = "FUNC_ADD_TOPIC";
-                        OracleCommand cmd2 = new OracleCommand(procedureName2, conn);
-                        cmd2.CommandType = CommandType.StoredProcedure;
-
-                        //Add return value
-                        OracleParameter p7 = new OracleParameter();
-                        p7 = cmd2.Parameters.Add("state", OracleDbType.Int32);
-                        p7.Direction = ParameterDirection.ReturnValue;
-
-                        //Add first parameter topic_content
-                        OracleParameter p8 = new OracleParameter();
-                        p8 = cmd2.Parameters.Add("topic_content", OracleDbType.Varchar2);
-                        p8.Direction = ParameterDirection.Input;
-                        p8.Value = topic;
-
-                        //Add second parameter message_id
-                        OracleParameter p9 = new OracleParameter();
-                        p9 = cmd2.Parameters.Add("message_id", OracleDbType.Int32);
-                        p9.Direction = ParameterDirection.Input;
-                        p9.Value = p6.Value;
-
-                        cmd2.ExecuteReader();
-                        
-                        if (int.Parse(p7.Value.ToString()) == 0)
-                        {
-                            throw new Exception("failed");
-                        }
-                    }
-
-                    foreach(string at in ats)
-                    {
-                        //对于ats列表里的每一个话题，分别作为函数参数来执行一次FUNC_AT_USER函数
-                        //FUNC_AT_USER(at_nickname in VARCHAR2, message_id in INTEGER, source_user_id in INTEGER)
-                        //return INTEGER
-                        string procedureName3 = "FUNC_ADD_AT_USER";
-                        OracleCommand cmd3 = new OracleCommand(procedureName3, conn);
-                        cmd3.CommandType = CommandType.StoredProcedure;
-
-                        //Add return value
-                        OracleParameter p10 = new OracleParameter();
-                        p10 = cmd3.Parameters.Add("state", OracleDbType.Int32);
-                        p10.Direction = ParameterDirection.ReturnValue;
-
-                        //Add first parameter topic_content
-                        OracleParameter p11 = new OracleParameter();
-                        p11 = cmd3.Parameters.Add("at_nickname", OracleDbType.Varchar2);
-                        p11.Direction = ParameterDirection.Input;
-                        p11.Value = at;
-
-                        //Add second parameter message_id
-                        OracleParameter p12 = new OracleParameter();
-                        p12 = cmd3.Parameters.Add("message_id", OracleDbType.Int32);
-                        p12.Direction = ParameterDirection.Input;
-                        p12.Value = p6.Value;
-
-                        //Add third parameter source_user_id
-                        OracleParameter p13 = new OracleParameter();
-                        p13 = cmd3.Parameters.Add("source_user_id", OracleDbType.Int32);
-                        p13.Direction = ParameterDirection.Input;
-                        p13.Value = userId;
-
-                        cmd3.ExecuteReader();
-                        if (int.Parse(p10.Value.ToString()) == 0)
-                        {
-                            throw new Exception("failed");
-                        }
-                    }
+                    TopicController.TopicInfos[] aaa = TopicController.AddTopicsInTwitter(message.message_content, int.Parse(p6.Value.ToString()));
+                    AtController.AddAtsInTwitter(message.message_content, int.Parse(p6.Value.ToString()), userId);
 
                     //若推特含图，从POST体内获得图的内容并保存到服务器
                     if (message.message_has_image==1)
@@ -498,20 +506,10 @@ namespace twitter_dotNetCoreWithVue.Controllers
             //返回是否转发成功
             //同样存在与Topic的联动
             int userId;
-            List<string> topics = new List<string>();
-            List<string> ats = new List<string>();
-            System.Text.RegularExpressions.Regex topicRegex = new System.Text.RegularExpressions.Regex(@"#(\w+)#");
-            System.Text.RegularExpressions.Regex atRegex = new System.Text.RegularExpressions.Regex(@"@(\w+)");
             if (HttpContext.User.Identity.IsAuthenticated)
             {
                 userId = int.Parse(HttpContext.User.Claims.First().Value);
-
-                //检查message_content里含有的话题，用两个#包含的内容作为话题。若出现两个连续的#，则忽略之。
-                //所有的话题内容会被保存到topics列表内，并在调用第二个函数FUNC_ADD_TOPIC时，逐一对topic的内容进行处理（不存在则创建，存在则热度+1）
-                System.Text.RegularExpressions.MatchCollection topicCollection = topicRegex.Matches(message.message_content);
-                System.Text.RegularExpressions.MatchCollection atCollection = atRegex.Matches(message.message_content);
-                for (int i = 0; i < topicCollection.Count; i++) topics.Add(topicCollection[i].Groups[1].ToString());
-                for (int i = 0; i < atCollection.Count; i++) ats.Add(atCollection[i].Groups[1].ToString());
+                
             }
             else
             {
@@ -569,78 +567,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     throw new Exception("failed");
                 }
 
-                foreach (string topic in topics)
-                {
-                    //对于topics列表里的每一个话题，分别作为函数参数来执行一次FUNC_ADD_TOPIC函数
-                    //FUNC_ADD_TOPIC(topic_content in VARCHAR2, message_id in INTEGER)
-                    //return INTEGER
-                    string procedureName2 = "FUNC_ADD_TOPIC";
-                    OracleCommand cmd2 = new OracleCommand(procedureName2, conn);
-                    cmd2.CommandType = CommandType.StoredProcedure;
-
-                    //Add return value
-                    OracleParameter p7 = new OracleParameter();
-                    p7 = cmd2.Parameters.Add("state", OracleDbType.Int32);
-                    p7.Direction = ParameterDirection.ReturnValue;
-
-                    //Add first parameter topic_content
-                    OracleParameter p8 = new OracleParameter();
-                    p8 = cmd2.Parameters.Add("topic_content", OracleDbType.Varchar2);
-                    p8.Direction = ParameterDirection.Input;
-                    p8.Value = topic;
-
-                    //Add second parameter message_id
-                    OracleParameter p9 = new OracleParameter();
-                    p9 = cmd2.Parameters.Add("message_id", OracleDbType.Int32);
-                    p9.Direction = ParameterDirection.Input;
-                    p9.Value = p6.Value;
-
-                    cmd2.ExecuteReader();
-
-                    if (int.Parse(p7.Value.ToString()) == 0)
-                    {
-                        throw new Exception("failed");
-                    }
-                }
-
-                foreach (string at in ats)
-                {
-                    //对于ats列表里的每一个话题，分别作为函数参数来执行一次FUNC_AT_USER函数
-                    //FUNC_AT_USER(at_nickname in VARCHAR2, message_id in INTEGER, source_user_id in INTEGER)
-                    //return INTEGER
-                    string procedureName3 = "FUNC_ADD_AT_USER";
-                    OracleCommand cmd3 = new OracleCommand(procedureName3, conn);
-                    cmd3.CommandType = CommandType.StoredProcedure;
-
-                    //Add return value
-                    OracleParameter p10 = new OracleParameter();
-                    p10 = cmd3.Parameters.Add("state", OracleDbType.Int32);
-                    p10.Direction = ParameterDirection.ReturnValue;
-
-                    //Add first parameter topic_content
-                    OracleParameter p11 = new OracleParameter();
-                    p11 = cmd3.Parameters.Add("at_nickname", OracleDbType.Varchar2);
-                    p11.Direction = ParameterDirection.Input;
-                    p11.Value = at;
-
-                    //Add second parameter message_id
-                    OracleParameter p12 = new OracleParameter();
-                    p12 = cmd3.Parameters.Add("message_id", OracleDbType.Int32);
-                    p12.Direction = ParameterDirection.Input;
-                    p12.Value = p6.Value;
-
-                    //Add third parameter source_user_id
-                    OracleParameter p13 = new OracleParameter();
-                    p13 = cmd3.Parameters.Add("source_user_id", OracleDbType.Int32);
-                    p13.Direction = ParameterDirection.Input;
-                    p13.Value = userId;
-
-                    cmd3.ExecuteReader();
-                    if (int.Parse(p10.Value.ToString()) == 0)
-                    {
-                        throw new Exception("failed");
-                    }
-                }
+                TopicController.AddTopicsInTwitter(message.message_content, int.Parse(p6.Value.ToString()));
 
                 RestfulResult.RestfulData rr = new RestfulResult.RestfulData(200, "success");
                 return new JsonResult(rr);

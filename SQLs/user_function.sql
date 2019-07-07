@@ -1,4 +1,4 @@
-------------------FUNC_CHECK_USER_EMAIL_EXIST(email in VARCHAR)----------------
+﻿------------------FUNC_CHECK_USER_EMAIL_EXIST(email in VARCHAR)----------------
 -----------------------检查用户Email是否存在于数据库中---------------------------
 create or replace function 
 FUNC_CHECK_USER_EMAIL_EXIST(email in VARCHAR)
@@ -295,6 +295,28 @@ BEGIN
 END;
 /
 
+--------------FUNC_GET_USER_ID_BY_NAME----------------
+------------根据用户名字获取ID-----------
+create or replace function func_get_user_id_by_name
+(Searchkey In Varchar2, Search_Result Out Integer)
+return INTEGER
+is
+state integer:=0;
 
+begin
+	select count(*) into state 
+  from user_public_info
+  where USER_NICKNAME = Searchkey;
+  
+if state!=0 then 
+state:=1;
+  select user_id into Search_Result
+  from user_public_info
+  where USER_NICKNAME = Searchkey;
+end if;
+
+return state;
+end;
+/
 
 

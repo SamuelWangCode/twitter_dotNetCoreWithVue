@@ -101,6 +101,186 @@ namespace twitter_dotNetCoreWithVue.Controllers
             });
         }
 
-        
+        //推特中包含的艾特信息的类
+        public class AtInfos
+        {
+            public string atName = "";
+            public int atIds = 0;
+        }
+
+        /// <summary>
+        /// 根据传入的内容，将内容中的At全都ADD
+        /// </summary>
+        /// <returns>AtInfos的类.</returns>
+        /// <param name="content">Twitter Content.</param>
+        /// <param name="messageID">Twitter ID.</param>
+        /// <param name="source_user_id">Source User ID.</param>
+        static public AtInfos[] AddAtsInTwitter(string content, int messageID, int source_user_id)
+        {
+            System.Text.RegularExpressions.Regex atRegex = new System.Text.RegularExpressions.Regex(@"@\w+");
+            System.Text.RegularExpressions.MatchCollection atCollection = atRegex.Matches(content);
+            AtInfos[] atInfos = new AtInfos[atCollection.Count];
+            for (int i = 0; i < atCollection.Count; i++)
+            {
+                AtInfos at = new AtInfos();
+                at.atName = atCollection[i].ToString();
+                atInfos[i] = at;
+            }
+            if (atInfos.Count() == 0) return atInfos;
+
+            using (OracleConnection conn = new OracleConnection(ConnStr.getConnStr()))
+            {
+                try
+                {
+                    conn.ConnectionString = ConnStr.getConnStr();
+                    conn.Open();
+
+                    foreach (AtInfos temp_at in atInfos)
+                    {
+                        string at = temp_at.atName.Replace("@", "");
+                        //对于ats列表里的每一个话题，分别作为函数参数来执行一次FUNC_AT_USER函数
+                        //FUNC_AT_USER(at_nickname in VARCHAR2, message_id in INTEGER, source_user_id in INTEGER)
+                        //return INTEGER
+                        string procedureName = "FUNC_ADD_AT_USER";
+                        OracleCommand cmd = new OracleCommand(procedureName, conn);
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        //Add return value
+                        OracleParameter p1 = new OracleParameter();
+                        p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                        p1.Direction = ParameterDirection.ReturnValue;
+
+                        //Add first parameter topic_content
+                        OracleParameter p2 = new OracleParameter();
+                        p2 = cmd.Parameters.Add("at_nickname", OracleDbType.Varchar2);
+                        p2.Direction = ParameterDirection.Input;
+                        p2.Value = at;
+
+                        //Add second parameter message_id
+                        OracleParameter p3 = new OracleParameter();
+                        p3 = cmd.Parameters.Add("message_id", OracleDbType.Int32);
+                        p3.Direction = ParameterDirection.Input;
+                        p3.Value = messageID;
+
+                        //Add third parameter source_user_id
+                        OracleParameter p4 = new OracleParameter();
+                        p4 = cmd.Parameters.Add("source_user_id", OracleDbType.Int32);
+                        p4.Direction = ParameterDirection.Input;
+                        p4.Value = source_user_id;
+
+                        cmd.ExecuteReader();
+                        if (int.Parse(p1.Value.ToString()) == 0)
+                        {
+                            throw new Exception("failed");
+                        }
+
+                        //FUNC_GET_USER_ID_BY_NAME(Searchkey in VARCHAR2, Search_Result out INTEGER)
+                        //return INTEGER
+                        string procedureName2 = "FUNC_GET_USER_ID_BY_NAME";
+                        OracleCommand cmd2 = new OracleCommand(procedureName2, conn);
+                        cmd2.CommandType = CommandType.StoredProcedure;
+
+                        //Add return value
+                        OracleParameter p5 = new OracleParameter();
+                        p5 = cmd2.Parameters.Add("state", OracleDbType.Int32);
+                        p5.Direction = ParameterDirection.ReturnValue;
+
+                        //Add first parameter Searchkey
+                        OracleParameter p6 = new OracleParameter();
+                        p6 = cmd2.Parameters.Add("Searchkey", OracleDbType.Varchar2);
+                        p6.Direction = ParameterDirection.Input;
+                        p6.Value = at;
+
+                        //Add second parameter Search_Result
+                        OracleParameter p7 = new OracleParameter();
+                        p7 = cmd2.Parameters.Add("Search_Result", OracleDbType.Int32);
+                        p7.Direction = ParameterDirection.Output;
+
+                        cmd2.ExecuteReader();
+                        if (int.Parse(p5.Value.ToString()) == 0)
+                        {
+                            throw new Exception("failed");
+                        }
+                        temp_at.atIds = int.Parse(p6.Value.ToString());
+                    }
+                }
+                catch (Exception e)
+                {
+                    RestfulResult.RestfulData rr = new RestfulResult.RestfulData(500, "fail");
+                    Console.Write(e.Message);
+                    Console.Write(e.StackTrace);
+                    return new AtInfos[] { };
+                }
+            }
+
+            return atInfos;
+        }
+
+        static public AtInfos[] SearchAtsInTwitter(string content)
+        {
+            System.Text.RegularExpressions.Regex atRegex = new System.Text.RegularExpressions.Regex(@"@\w+");
+            System.Text.RegularExpressions.MatchCollection atCollection = atRegex.Matches(content);
+            AtInfos[] atInfos = new AtInfos[atCollection.Count];
+            for (int i = 0; i < atCollection.Count; i++)
+            {
+                AtInfos at = new AtInfos();
+                at.atName = atCollection[i].ToString();
+                atInfos[i] = at;
+            }
+            if (atInfos.Count() == 0) return atInfos;
+
+            using (OracleConnection conn = new OracleConnection(ConnStr.getConnStr()))
+            {
+                try
+                {
+                    conn.ConnectionString = ConnStr.getConnStr();
+                    conn.Open();
+
+                    foreach (AtInfos temp_at in atInfos)
+                    {
+                        string at = temp_at.atName.Replace("@", "");
+                        //对于ats列表里的每一个话题，分别作为函数参数来执行一次FUNC_AT_USER函数
+
+                        //FUNC_GET_USER_ID_BY_NAME(Searchkey in VARCHAR2, Search_Result out INTEGER)
+                        //return INTEGER
+                        string procedureName2 = "FUNC_GET_USER_ID_BY_NAME";
+                        OracleCommand cmd2 = new OracleCommand(procedureName2, conn);
+                        cmd2.CommandType = CommandType.StoredProcedure;
+
+                        //Add return value
+                        OracleParameter p5 = new OracleParameter();
+                        p5 = cmd2.Parameters.Add("state", OracleDbType.Int32);
+                        p5.Direction = ParameterDirection.ReturnValue;
+
+                        //Add first parameter Searchkey
+                        OracleParameter p6 = new OracleParameter();
+                        p6 = cmd2.Parameters.Add("Searchkey", OracleDbType.Varchar2);
+                        p6.Direction = ParameterDirection.Input;
+                        p6.Value = at;
+
+                        //Add second parameter Search_Result
+                        OracleParameter p7 = new OracleParameter();
+                        p7 = cmd2.Parameters.Add("Search_Result", OracleDbType.Int32);
+                        p7.Direction = ParameterDirection.Output;
+
+                        cmd2.ExecuteReader();
+                        if (int.Parse(p5.Value.ToString()) == 0)
+                        {
+                            throw new Exception("failed");
+                        }
+                        temp_at.atIds = int.Parse(p6.Value.ToString());
+                    }
+                }
+                catch (Exception e)
+                {
+                    RestfulResult.RestfulData rr = new RestfulResult.RestfulData(500, "fail");
+                    Console.Write(e.Message);
+                    Console.Write(e.StackTrace);
+                    return new AtInfos[] { };
+                }
+            }
+
+            return atInfos;
+        }
     }
 }

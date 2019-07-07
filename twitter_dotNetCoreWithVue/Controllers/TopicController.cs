@@ -157,6 +157,181 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
         }
 
+        //推特中包含的话题类
+        public class TopicInfos
+        {
+            public string topicName = "";
+            public int topicId = 0;
+        }
+
+        /// <summary>
+        /// 根据传入的内容，将内容中的Topic全都ADD，并返回内容中所包含的话题以及其ID
+        /// </summary>
+        /// <returns>TopicInfos Class.</returns>
+        /// <param name="content">Twitter Content.</param>
+        /// <param name="messageID">Twitter ID.</param>
+        static public TopicInfos[] AddTopicsInTwitter(string content,int messageID)
+        {
+            System.Text.RegularExpressions.Regex topicRegex = new System.Text.RegularExpressions.Regex(@"#\w+#");
+            System.Text.RegularExpressions.MatchCollection topicCollection = topicRegex.Matches(content);
+            TopicInfos[] topicInfos = new TopicInfos[topicCollection.Count];
+            for (int i = 0; i < topicCollection.Count; i++)
+            {
+                TopicInfos topic = new TopicInfos();
+                topic.topicName = topicCollection[i].ToString();
+                topicInfos[i] = topic;
+            }
+            if (topicInfos.Count() == 0) return topicInfos;
+
+            using (OracleConnection conn = new OracleConnection(ConnStr.getConnStr()))
+            {
+                try
+                {
+                    conn.ConnectionString = ConnStr.getConnStr();
+                    conn.Open();
+
+                    foreach (TopicInfos temp_topic in topicInfos)
+                    {
+                        string topic = temp_topic.topicName.Replace("#", "");
+                        //对于topics列表里的每一个话题，分别作为函数参数来执行一次FUNC_ADD_TOPIC和FUNC_SEARCH_TOPICS函数
+                        //FUNC_ADD_TOPIC(topic_content in VARCHAR2, message_id in INTEGER)
+                        //return INTEGER
+                        string procedureName = "FUNC_ADD_TOPIC";
+                        OracleCommand cmd = new OracleCommand(procedureName, conn);
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        //Add return value
+                        OracleParameter p1 = new OracleParameter();
+                        p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                        p1.Direction = ParameterDirection.ReturnValue;
+
+                        //Add first parameter topic_content
+                        OracleParameter p2 = new OracleParameter();
+                        p2 = cmd.Parameters.Add("topic_content", OracleDbType.Varchar2);
+                        p2.Direction = ParameterDirection.Input;
+                        p2.Value = topic;
+
+                        //Add second parameter message_id
+                        OracleParameter p3 = new OracleParameter();
+                        p3 = cmd.Parameters.Add("message_id", OracleDbType.Int32);
+                        p3.Direction = ParameterDirection.Input;
+                        p3.Value = messageID;
+
+                        cmd.ExecuteReader();
+
+                        if (int.Parse(p1.Value.ToString()) == 0)
+                        {
+                            throw new Exception("failed");
+                        }
+
+                        //FUNC_GET_TOPIC_ID_BY_NAME(Searchkey in VARCHAR2, Search_Result out INTEGER)
+                        //return INTEGER
+                        string procedureName2 = "FUNC_GET_TOPIC_ID_BY_NAME";
+                        OracleCommand cmd2 = new OracleCommand(procedureName2, conn);
+                        cmd2.CommandType = CommandType.StoredProcedure;
+
+                        //Add return value
+                        OracleParameter p4 = new OracleParameter();
+                        p4 = cmd2.Parameters.Add("state", OracleDbType.Int32);
+                        p4.Direction = ParameterDirection.ReturnValue;
+
+                        //Add first parameter Searchkey
+                        OracleParameter p5 = new OracleParameter();
+                        p5 = cmd2.Parameters.Add("Searchkey", OracleDbType.Varchar2);
+                        p5.Direction = ParameterDirection.Input;
+                        p5.Value = topic;
+
+                        //Add second parameter Search_Result
+                        OracleParameter p6 = new OracleParameter();
+                        p6 = cmd2.Parameters.Add("Search_Result", OracleDbType.Int32);
+                        p6.Direction = ParameterDirection.Output;
+
+                        cmd2.ExecuteReader();
+                        if (int.Parse(p4.Value.ToString()) == 0)
+                        {
+                            throw new Exception("failed");
+                        }
+                        temp_topic.topicId = int.Parse(p6.Value.ToString());
+                    }
+                }
+                catch (Exception e)
+                {
+                    RestfulResult.RestfulData rr = new RestfulResult.RestfulData(500, "fail");
+                    Console.Write(e.Message);
+                    Console.Write(e.StackTrace);
+                    return new TopicInfos[] { };
+                }
+            }
+
+            return topicInfos;
+        }
+
+        static public TopicInfos[] SearchTopicsInTwitter(string content)
+        {
+            System.Text.RegularExpressions.Regex topicRegex = new System.Text.RegularExpressions.Regex(@"#\w+#");
+            System.Text.RegularExpressions.MatchCollection topicCollection = topicRegex.Matches(content);
+            TopicInfos[] topicInfos = new TopicInfos[topicCollection.Count];
+            for (int i = 0; i < topicCollection.Count; i++)
+            {
+                TopicInfos topic = new TopicInfos();
+                topic.topicName = topicCollection[i].ToString();
+                topicInfos[i] = topic;
+            }
+            if (topicInfos.Count() == 0) return topicInfos;
+
+            using (OracleConnection conn = new OracleConnection(ConnStr.getConnStr()))
+            {
+                try
+                {
+                    conn.ConnectionString = ConnStr.getConnStr();
+                    conn.Open();
+
+                    foreach (TopicInfos temp_topic in topicInfos)
+                    {
+                        string topic = temp_topic.topicName.Replace("#", "");
+                       
+                        //FUNC_GET_TOPIC_ID_BY_NAME(Searchkey in VARCHAR2, Search_Result out INTEGER)
+                        //return INTEGER
+                        string procedureName2 = "FUNC_GET_TOPIC_ID_BY_NAME";
+                        OracleCommand cmd2 = new OracleCommand(procedureName2, conn);
+                        cmd2.CommandType = CommandType.StoredProcedure;
+
+                        //Add return value
+                        OracleParameter p4 = new OracleParameter();
+                        p4 = cmd2.Parameters.Add("state", OracleDbType.Int32);
+                        p4.Direction = ParameterDirection.ReturnValue;
+
+                        //Add first parameter Searchkey
+                        OracleParameter p5 = new OracleParameter();
+                        p5 = cmd2.Parameters.Add("Searchkey", OracleDbType.Varchar2);
+                        p5.Direction = ParameterDirection.Input;
+                        p5.Value = topic;
+
+                        //Add second parameter Search_Result
+                        OracleParameter p6 = new OracleParameter();
+                        p6 = cmd2.Parameters.Add("Search_Result", OracleDbType.Int32);
+                        p6.Direction = ParameterDirection.Output;
+
+                        cmd2.ExecuteReader();
+                        if (int.Parse(p4.Value.ToString()) == 0)
+                        {
+                            throw new Exception("failed");
+                        }
+                        temp_topic.topicId = int.Parse(p6.Value.ToString());
+                    }
+                }
+                catch (Exception e)
+                {
+                    RestfulResult.RestfulData rr = new RestfulResult.RestfulData(500, "fail");
+                    Console.Write(e.Message);
+                    Console.Write(e.StackTrace);
+                    return new TopicInfos[] { };
+                }
+            }
+
+            return topicInfos;
+        }
+
     }
 
 }
