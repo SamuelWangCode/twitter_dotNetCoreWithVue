@@ -80,7 +80,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
 
         /// <summary>
-        /// 添加收藏
+        /// 删除收藏
         /// </summary>
         /// <returns>是否成功</returns>
         /// <param name="message_id">Message identifier.</param>
@@ -237,7 +237,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// </summary>
         /// <param name="userLikeMessage"></param>
         /// <returns></returns>
-        [HttpPost("checkUserLikesMessage")]
+        [HttpPost("checkUserCollectMessage")]
         public IActionResult checkUserCollectMessge([Required]User_Collect_Message userCollectMessage)
         {
             return Wrapper.wrap((OracleConnection conn) =>
