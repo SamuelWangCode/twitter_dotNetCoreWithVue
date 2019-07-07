@@ -7,3 +7,4 @@
 @@comment_function.sql;
 @@collection_function.sql;
 @@at_function.sql;
+@@avatar_function.sql;

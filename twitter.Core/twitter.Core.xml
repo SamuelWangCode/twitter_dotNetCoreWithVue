@@ -59,6 +59,7 @@
             <param name="userLikeMessage"></param>
             <returns></returns>
         </member>
+        <!-- 对于成员“M:twitter_dotNetCoreWithVue.Controllers.CollectionController.CollectionCount(System.Int32)”忽略有格式错误的 XML 注释 -->
         <member name="T:twitter_dotNetCoreWithVue.Controllers.CommentController">
             <summary>
             有关评论推特的api
