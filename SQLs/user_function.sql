@@ -1,5 +1,5 @@
-﻿------------------FUNC_CHECK_USER_EMAIL_EXIST(email in VARCHAR)----------------
------------------------检查用户Email是否存在于数据库中---------------------------
+------------------FUNC_CHECK_USER_EMAIL_EXIST(email in VARCHAR)----------------
+-----------------------�?查用户Email是否存在于数据库�?---------------------------
 create or replace function 
 FUNC_CHECK_USER_EMAIL_EXIST(email in VARCHAR)
 return INTEGER
@@ -15,7 +15,7 @@ end;
 /
 
 ------------------FUNC_CHECK_USER_ID_EXIST(email in VARCHAR)----------------
------------------------检查用户id是否存在于数据库---------------------------
+-----------------------�?查用户id是否存在于数据库---------------------------
 create or replace function 
 FUNC_CHECK_USER_ID_EXIST(userid in VARCHAR)
 return INTEGER
@@ -266,7 +266,7 @@ end;
 /
 
 --------------FUNC_RECOMMEND_USER----------------
-------------获取粉丝数最多的前五个用户-----------
+------------获取粉丝数最多的前五个用�?-----------
 CREATE OR REPLACE 
 FUNCTION FUNC_RECOMMEND_USER (search_result OUT Sys_refcursor)
 RETURN INTEGER

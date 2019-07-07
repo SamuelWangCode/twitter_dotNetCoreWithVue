@@ -81,5 +81,22 @@ namespace twitter_dotNetCoreWithVue.Controllers.Utils
                 }
             }
         }
+        static public UserController.UserPublicInfo wrap(Func<OracleConnection, UserController.UserPublicInfo> func)
+        {
+            using (OracleConnection conn = new OracleConnection(ConnStr.getConnStr()))
+            {
+                try
+                {
+                    conn.ConnectionString = ConnStr.getConnStr();
+                    conn.Open();
+                    return func(conn);
+                }
+                catch (Exception e)
+                {
+                    return null;
+                }
+            }
+        }
+
     }
 }
