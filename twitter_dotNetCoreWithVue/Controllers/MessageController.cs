@@ -34,6 +34,12 @@ namespace twitter_dotNetCoreWithVue.Controllers
             [StringLength(280)]
             public string message_content { get; set; }
 
+            [Display(Name = "推特所含话题")]
+            public TopicController.TopicInfos[] message_topics { get; set; }
+
+            [Display(Name = "推特所含艾特")]
+            public AtController.AtInfos[] message_ats { get; set; }
+
             [Display(Name = "推特发布时间")]
             [Required]
             public string message_create_time { get; set; }
@@ -178,6 +184,10 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 infos.message_heat = int.Parse(dt.Rows[0][9].ToString());
                 infos.message_image_count = int.Parse(dt.Rows[0][10].ToString() == "" ? "0" : dt.Rows[0][10].ToString());
                 infos.message_transpond_message_id = int.Parse(dt.Rows[0][11].ToString() == "" ? "0" : dt.Rows[0][11].ToString());
+
+                infos.message_topics = TopicController.SearchTopicsInTwitter(infos.message_content);
+                infos.message_ats = AtController.SearchAtsInTwitter(infos.message_content);
+
                 RestfulResult.RestfulData<MessageForShow> rr = new RestfulResult.RestfulData<MessageForShow>();
                 rr.Code = 200;
                 rr.Message = "success";
@@ -188,6 +198,65 @@ namespace twitter_dotNetCoreWithVue.Controllers
             
                     
         }
+
+        //内部调用的，根据ID查询返回MessageForShow类型的函数
+        static public MessageForShow InnerQuery(int message_id)
+        {
+            return Wrapper.wrap((OracleConnection conn) =>
+            {
+                //function FUNC_SHOW_MESSAGE_BY_ID(message_id in INTEGER, result out sys_refcursor)
+                //return INTEGER
+                string procedurename = "FUNC_SHOW_MESSAGE_BY_ID";
+                OracleCommand cmd = new OracleCommand(procedurename, conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                //Add return value
+                OracleParameter p1 = new OracleParameter();
+                p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                p1.Direction = ParameterDirection.ReturnValue;
+
+                //Add first parameter message_id
+                OracleParameter p2 = new OracleParameter();
+                p2 = cmd.Parameters.Add("message_id", OracleDbType.Int32);
+                p2.Direction = ParameterDirection.Input;
+                p2.Value = message_id;
+
+                //Add second parameter search_result
+                OracleParameter p3 = new OracleParameter();
+                p3 = cmd.Parameters.Add("result", OracleDbType.RefCursor);
+                p3.Direction = ParameterDirection.Output;
+
+                //Get the result table
+                OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                DataAdapter.Fill(dt);
+
+                if (int.Parse(p1.Value.ToString()) == 0)
+                {
+                    throw new Exception("failed");
+                }
+                MessageForShow infos = new MessageForShow();
+                infos.message_id = int.Parse(dt.Rows[0][0].ToString());
+                infos.message_content = dt.Rows[0][1].ToString();
+                infos.message_create_time = dt.Rows[0][2].ToString();
+                infos.message_like_num = int.Parse(dt.Rows[0][3].ToString());
+                infos.message_transpond_num = int.Parse(dt.Rows[0][4].ToString());
+                infos.message_comment_num = int.Parse(dt.Rows[0][5].ToString());
+                infos.message_view_num = int.Parse(dt.Rows[0][6].ToString());
+                infos.message_has_image = int.Parse(dt.Rows[0][7].ToString());
+                infos.message_sender_user_id = int.Parse(dt.Rows[0][8].ToString());
+                infos.message_heat = int.Parse(dt.Rows[0][9].ToString());
+                infos.message_image_count = int.Parse(dt.Rows[0][10].ToString() == "" ? "0" : dt.Rows[0][10].ToString());
+                infos.message_transpond_message_id = int.Parse(dt.Rows[0][11].ToString() == "" ? "0" : dt.Rows[0][11].ToString());
+
+                infos.message_topics = TopicController.SearchTopicsInTwitter(infos.message_content);
+                infos.message_ats = AtController.SearchAtsInTwitter(infos.message_content);
+
+                return infos;
+
+            });
+        }
+
 
         /// <summary>
         /// 此api用于首页，需要查找所有的显示在首页的推特时调用
@@ -385,7 +454,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         throw new Exception("failed");
                     }
 
-                    TopicController.AddTopicsInTwitter(message.message_content, int.Parse(p6.Value.ToString()));
+                    TopicController.TopicInfos[] aaa = TopicController.AddTopicsInTwitter(message.message_content, int.Parse(p6.Value.ToString()));
                     AtController.AddAtsInTwitter(message.message_content, int.Parse(p6.Value.ToString()), userId);
 
                     //若推特含图，从POST体内获得图的内容并保存到服务器

@@ -65,5 +65,21 @@ namespace twitter_dotNetCoreWithVue.Controllers.Utils
                 }
             }
         }
+        static public MessageController.MessageForShow wrap(Func<OracleConnection, MessageController.MessageForShow> func)
+        {
+            using (OracleConnection conn = new OracleConnection(ConnStr.getConnStr()))
+            {
+                try
+                {
+                    conn.ConnectionString = ConnStr.getConnStr();
+                    conn.Open();
+                    return func(conn);
+                }
+                catch (Exception e)
+                {
+                    return null;
+                }
+            }
+        }
     }
 }
