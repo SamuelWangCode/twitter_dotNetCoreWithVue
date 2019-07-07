@@ -76,9 +76,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
             return Wrapper.wrap((OracleConnection conn) =>
             {
-                //FUNC_QUERY_PRIVATE_LETTERS_SEND_TO_USER(user_id in INTEGER ,startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+                //FUNC_QUERY_PRIVATE_LETTERS(user_id in INTEGER ,startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
-                string procudureName = "FUNC_QUERY_PRIVATE_LETTERS_SEND_TO_USER";
+                string procudureName = "FUNC_QUERY_PRIVATE_LETTERS";
                 OracleCommand cmd = new OracleCommand(procudureName, conn);
                 cmd.CommandType = CommandType.StoredProcedure;
 
@@ -120,10 +120,11 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 ReceivedPrivateLetter[] receiveds = new ReceivedPrivateLetter[dt.Rows.Count];
                 for (int i = 0; i < dt.Rows.Count; ++i)
                 {
+                    receiveds[i] = new ReceivedPrivateLetter();
                     receiveds[i].sender_user_id = int.Parse(dt.Rows[i][0].ToString());
                     receiveds[i].private_letter_id = int.Parse(dt.Rows[i][1].ToString());
-                    receiveds[i].private_letter_content = dt.Rows[i][1].ToString();
-                    receiveds[i].timeStamp = dt.Rows[i][2].ToString();
+                    receiveds[i].private_letter_content = dt.Rows[i][2].ToString();
+                    receiveds[i].timeStamp = dt.Rows[i][3].ToString();
                 }
 
                 RestfulResult.RestfulArray<ReceivedPrivateLetter> rr = new RestfulResult.RestfulArray<ReceivedPrivateLetter>();

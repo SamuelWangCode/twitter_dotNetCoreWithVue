@@ -12,6 +12,11 @@ using twitter_dotNetCoreWithVue.Controllers.Utils;
 
 namespace twitter_dotNetCoreWithVue.Controllers
 {
+    public class FollowStatus
+    {
+        [Required]
+        public bool if_following;
+    }
     /// <summary>
     /// 此控制器定义用户之间互相关注的相关api
     /// </summary>
@@ -27,6 +32,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
             public string nickName { get; set; }
             [Required]
             public string avatarUrl { get; set; }
+
+            [Required]
+            public string create_time { get; set; }
         }
 
         /// <summary>
@@ -103,7 +111,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             //注意需要按时间排序
             //使用range作为限制参数
             //返回Json对象
-            return Wrapper.wrap((OracleConnection conn) => 
+            return Wrapper.wrap((OracleConnection conn) =>
             {
                 //FUNC_QUERY_FOLLOWING_LIST(user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
@@ -140,15 +148,15 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                 //dt: user_id, nickName, avatarId
                 Simple_User_Info[] a = new Simple_User_Info[dt.Rows.Count];
-                for (int i = dt.Rows.Count-1; i>=0; --i)
+                for (int i = 0; i < dt.Rows.Count; ++i)
                 {
                     Simple_User_Info info = new Simple_User_Info();
                     info.user_id = int.Parse(dt.Rows[i][0].ToString());
                     info.nickName = dt.Rows[i][1].ToString();
                     info.avatarUrl = UserController.getAvatarUrl(info.user_id);
-                    a[dt.Rows.Count-1-i] = info;
+                    info.create_time = dt.Rows[i][2].ToString();
+                    a[i] = info;
                 }
-
                 RestfulResult.RestfulArray<Simple_User_Info> rr = new RestfulResult.RestfulArray<Simple_User_Info>();
                 rr.Code = 200;
                 rr.Message = "success";
@@ -168,7 +176,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <param name="user_id"></param>
         /// <param name="range">Range</param>
         [HttpPost("queryFollowersFor/{user_id}")]
-        public IActionResult QueryFollowersFor([Required]int user_id,[Required][FromBody]Range range)
+        public IActionResult QueryFollowersFor([Required]int user_id, [Required][FromBody]Range range)
         {
             //TODO 查找关注我的人的列表
             //该函数逻辑和上面的相同，只是查找的对象不同
@@ -176,8 +184,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
             //注意需要按时间排序
             //使用range作为限制参数
             //返回Json对象
-            
-            return Wrapper.wrap((OracleConnection conn) => 
+
+            return Wrapper.wrap((OracleConnection conn) =>
             {
                 //FUNC_QUERY_FOLLOWERS_LIST(user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
@@ -215,12 +223,13 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                 //dt: user_id, nickName, avatarId
                 Simple_User_Info[] a = new Simple_User_Info[dt.Rows.Count];
-                for (int i = 0; i <dt.Rows.Count; ++i)
+                for (int i = 0; i < dt.Rows.Count; ++i)
                 {
                     Simple_User_Info info = new Simple_User_Info();
                     info.user_id = int.Parse(dt.Rows[i][0].ToString());
                     info.nickName = dt.Rows[i][1].ToString();
                     info.avatarUrl = UserController.getAvatarUrl(info.user_id);
+                    info.create_time = dt.Rows[i][2].ToString();
                     a[i] = info;
                 }
 
@@ -256,7 +265,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 rr.Message = "Need Authentication";
                 return new JsonResult(rr);
             }
-            return Wrapper.wrap((OracleConnection conn) => 
+            return Wrapper.wrap((OracleConnection conn) =>
             {
                 //FUNC_REMOVE_RELATION(follower_id in INTEGER, be_followed_id in INTEGER)
                 //return INTEGER
@@ -289,6 +298,78 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 RestfulResult.RestfulData rr = new RestfulResult.RestfulData(200, "success");
                 return new JsonResult(rr);
             });
+        }
+
+        /// </summary>
+        /// <param name="follower_id"></param>
+        /// <param name="be_followed_id"></param>
+        /// <returns>flowwer是否关注be_followed</returns>
+        /// 
+        [HttpPost("if_following")]
+        public IActionResult IfFollowing(int follower_id, int be_followed_id)
+        {
+            return Wrapper.wrap((OracleConnection conn) =>
+            {
+                //FUNC_REMOVE_RELATION(follower_id in INTEGER, be_followed_id in INTEGER)
+                //return INTEGER
+                string procudureName = "FUNC_IF_FOLLOWING";
+                OracleCommand cmd = new OracleCommand(procudureName, conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                //Add return value
+                OracleParameter p1 = new OracleParameter();
+                p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                p1.Direction = ParameterDirection.ReturnValue;
+                //Add first parameter follower_id
+                OracleParameter p2 = new OracleParameter();
+                p2 = cmd.Parameters.Add("follower_id", OracleDbType.Int32);
+                p2.Direction = ParameterDirection.Input;
+                p2.Value = follower_id;
+                OracleParameter p3 = new OracleParameter();
+                //Add second parameter be_followed_id
+                p3 = cmd.Parameters.Add("be_followed_id", OracleDbType.Int32);
+                p3.Value = be_followed_id;
+                p3.Direction = ParameterDirection.Input;
+                cmd.ExecuteReader();
+
+
+                RestfulResult.RestfulData<FollowStatus> rr = new RestfulResult.RestfulData<FollowStatus>();
+                rr.Code = 200;
+                rr.Data = new FollowStatus();
+                if (int.Parse(p1.Value.ToString()) > 0)
+                {
+                    rr.Data.if_following = true;
+                }
+                else
+                {
+                    rr.Data.if_following = false;
+                }
+
+                rr.Message = "success";
+                return new JsonResult(rr);
+            });
+        }
+        /// </summary>
+        /// <param name="be_followed_id"></param>
+        /// <returns>用户是否关注be_followed</returns>
+        /// 
+        [HttpPost("if_following_by_me")]
+        public IActionResult IfFollowing(int be_followed_id)
+        {
+            int my_user_id = -1;
+            if (HttpContext.User.Identity.IsAuthenticated)
+            {
+                my_user_id = int.Parse(HttpContext.User.Claims.ElementAt(0).Value);
+            }
+            else
+            {
+                //进入到这部分意味着用户登录态已经失效，需要返回给客户端信息，即需要登录。
+                RestfulResult.RestfulData rr = new RestfulResult.RestfulData();
+                rr.Code = 200;
+                rr.Message = "Need Authentication";
+                return new JsonResult(rr);
+            }
+            return IfFollowing(my_user_id, be_followed_id);
         }
 
     }
