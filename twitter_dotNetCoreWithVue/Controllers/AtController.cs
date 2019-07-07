@@ -104,8 +104,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
         //推特中包含的艾特信息的类
         public class AtInfos
         {
-            public List<string> atList = new List<string>();
-            public List<int> atIds = new List<int>();
+            public string atName = "";
+            public int atIds = 0;
         }
 
         /// <summary>
@@ -115,13 +115,18 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <param name="content">Twitter Content.</param>
         /// <param name="messageID">Twitter ID.</param>
         /// <param name="source_user_id">Source User ID.</param>
-        static public AtInfos AddAtsInTwitter(string content, int messageID, int source_user_id)
+        static public AtInfos[] AddAtsInTwitter(string content, int messageID, int source_user_id)
         {
-            AtInfos atInfos = new AtInfos();
             System.Text.RegularExpressions.Regex atRegex = new System.Text.RegularExpressions.Regex(@"@\w+");
             System.Text.RegularExpressions.MatchCollection atCollection = atRegex.Matches(content);
-            for (int i = 0; i < atCollection.Count; i++) atInfos.atList.Add(atCollection[i].ToString());
-            if (atInfos.atList.Count == 0) return atInfos;
+            AtInfos[] atInfos = new AtInfos[atCollection.Count];
+            for (int i = 0; i < atCollection.Count; i++)
+            {
+                AtInfos at = new AtInfos();
+                at.atName = atCollection[i].ToString();
+                atInfos[i] = at;
+            }
+            if (atInfos.Count() == 0) return atInfos;
 
             using (OracleConnection conn = new OracleConnection(ConnStr.getConnStr()))
             {
@@ -130,9 +135,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     conn.ConnectionString = ConnStr.getConnStr();
                     conn.Open();
 
-                    foreach (string temp_at in atInfos.atList)
+                    foreach (AtInfos temp_at in atInfos)
                     {
-                        string at = temp_at.Replace("@", "");
+                        string at = temp_at.atName.Replace("@", "");
                         //对于ats列表里的每一个话题，分别作为函数参数来执行一次FUNC_AT_USER函数
                         //FUNC_AT_USER(at_nickname in VARCHAR2, message_id in INTEGER, source_user_id in INTEGER)
                         //return INTEGER
@@ -196,7 +201,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         {
                             throw new Exception("failed");
                         }
-                        atInfos.atIds.Add(int.Parse(p6.Value.ToString()));
+                        temp_at.atIds = int.Parse(p6.Value.ToString());
                     }
                 }
                 catch (Exception e)
@@ -204,7 +209,74 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     RestfulResult.RestfulData rr = new RestfulResult.RestfulData(500, "fail");
                     Console.Write(e.Message);
                     Console.Write(e.StackTrace);
-                    return new AtInfos();
+                    return new AtInfos[] { };
+                }
+            }
+
+            return atInfos;
+        }
+
+        static public AtInfos[] SearchAtsInTwitter(string content)
+        {
+            System.Text.RegularExpressions.Regex atRegex = new System.Text.RegularExpressions.Regex(@"@\w+");
+            System.Text.RegularExpressions.MatchCollection atCollection = atRegex.Matches(content);
+            AtInfos[] atInfos = new AtInfos[atCollection.Count];
+            for (int i = 0; i < atCollection.Count; i++)
+            {
+                AtInfos at = new AtInfos();
+                at.atName = atCollection[i].ToString();
+                atInfos[i] = at;
+            }
+            if (atInfos.Count() == 0) return atInfos;
+
+            using (OracleConnection conn = new OracleConnection(ConnStr.getConnStr()))
+            {
+                try
+                {
+                    conn.ConnectionString = ConnStr.getConnStr();
+                    conn.Open();
+
+                    foreach (AtInfos temp_at in atInfos)
+                    {
+                        string at = temp_at.atName.Replace("@", "");
+                        //对于ats列表里的每一个话题，分别作为函数参数来执行一次FUNC_AT_USER函数
+
+                        //FUNC_GET_USER_ID_BY_NAME(Searchkey in VARCHAR2, Search_Result out INTEGER)
+                        //return INTEGER
+                        string procedureName2 = "FUNC_GET_USER_ID_BY_NAME";
+                        OracleCommand cmd2 = new OracleCommand(procedureName2, conn);
+                        cmd2.CommandType = CommandType.StoredProcedure;
+
+                        //Add return value
+                        OracleParameter p5 = new OracleParameter();
+                        p5 = cmd2.Parameters.Add("state", OracleDbType.Int32);
+                        p5.Direction = ParameterDirection.ReturnValue;
+
+                        //Add first parameter Searchkey
+                        OracleParameter p6 = new OracleParameter();
+                        p6 = cmd2.Parameters.Add("Searchkey", OracleDbType.Varchar2);
+                        p6.Direction = ParameterDirection.Input;
+                        p6.Value = at;
+
+                        //Add second parameter Search_Result
+                        OracleParameter p7 = new OracleParameter();
+                        p7 = cmd2.Parameters.Add("Search_Result", OracleDbType.Int32);
+                        p7.Direction = ParameterDirection.Output;
+
+                        cmd2.ExecuteReader();
+                        if (int.Parse(p5.Value.ToString()) == 0)
+                        {
+                            throw new Exception("failed");
+                        }
+                        temp_at.atIds = int.Parse(p6.Value.ToString());
+                    }
+                }
+                catch (Exception e)
+                {
+                    RestfulResult.RestfulData rr = new RestfulResult.RestfulData(500, "fail");
+                    Console.Write(e.Message);
+                    Console.Write(e.StackTrace);
+                    return new AtInfos[] { };
                 }
             }
 
