@@ -20,20 +20,20 @@ END;
 --------------------------------------------------
 --------------FUNC_DELETE_PRIVATE_LETTER--------------------------------//
 CREATE OR REPLACE 
-FUNCTION "FUNC_DELETE_PRIVATE_LETTER" (private_letter_id IN INTEGER)
+FUNCTION FUNC_DELETE_PRIVATE_LETTER (d_private_letter_id IN INTEGER)
 RETURN INTEGER
 AS
 state integer:=1;
 BEGIN
   select count(*) into state 
   from PRIVATE_LETTER
-  where private_letter_id=PRIVATE_LETTER.PRIVATE_LETTER_ID;
+  where d_private_letter_id=PRIVATE_LETTER.PRIVATE_LETTER_ID;
 if state=0
   then 
   return state;
 ELSE
   DELETE from PRIVATE_LETTER
-  where PRIVATE_LETTER.PRIVATE_LETTER_ID=private_letter_id;
+  where PRIVATE_LETTER.PRIVATE_LETTER_ID=d_private_letter_id;
   state:=1;
 end if;
 return state;
@@ -66,14 +66,14 @@ BEGIN
          from PRIVATE_LETTER
          WHERE PRIVATE_LETTER.PRIVATE_LETTER_RECEIVER_ID=user_id 
          ORDER BY PRIVATE_LETTER.PRIVATE_LETTER_CREATE_TIME DESC)
-    WHERE ROWNUM<=startFrom+limitation
+    WHERE ROWNUM<startFrom+limitation
     MINUS
     SELECT* FROM 
          (SELECT PRIVATE_LETTER_SENDER_ID,PRIVATE_LETTER_ID,PRIVATE_LETTER_CONTENT,PRIVATE_LETTER_CREATE_TIME
          from PRIVATE_LETTER
          WHERE PRIVATE_LETTER.PRIVATE_LETTER_RECEIVER_ID=user_id 
          ORDER BY PRIVATE_LETTER.PRIVATE_LETTER_CREATE_TIME DESC)
-    WHERE ROWNUM<=startFrom-1;
+    WHERE ROWNUM<startFrom;
 
     state:=1;
   END IF;

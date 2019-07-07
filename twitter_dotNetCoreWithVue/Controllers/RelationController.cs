@@ -27,6 +27,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
             public string nickName { get; set; }
             [Required]
             public string avatarUrl { get; set; }
+
+            [Required]
+            public string create_time{ get; set; }
         }
 
         /// <summary>
@@ -140,15 +143,15 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                 //dt: user_id, nickName, avatarId
                 Simple_User_Info[] a = new Simple_User_Info[dt.Rows.Count];
-                for (int i = dt.Rows.Count-1; i>=0; --i)
+                for (int i = 0; i<dt.Rows.Count; ++i)
                 {
                     Simple_User_Info info = new Simple_User_Info();
                     info.user_id = int.Parse(dt.Rows[i][0].ToString());
                     info.nickName = dt.Rows[i][1].ToString();
                     info.avatarUrl = UserController.getAvatarUrl(info.user_id);
-                    a[dt.Rows.Count-1-i] = info;
+                    info.create_time = dt.Rows[i][2].ToString();
+                    a[i] = info;
                 }
-
                 RestfulResult.RestfulArray<Simple_User_Info> rr = new RestfulResult.RestfulArray<Simple_User_Info>();
                 rr.Code = 200;
                 rr.Message = "success";
@@ -221,6 +224,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     info.user_id = int.Parse(dt.Rows[i][0].ToString());
                     info.nickName = dt.Rows[i][1].ToString();
                     info.avatarUrl = UserController.getAvatarUrl(info.user_id);
+                    info.create_time = dt.Rows[i][2].ToString();
                     a[i] = info;
                 }
 

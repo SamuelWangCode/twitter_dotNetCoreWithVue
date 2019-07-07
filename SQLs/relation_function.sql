@@ -72,15 +72,15 @@ end if;
 
 open search_result for
 select* from(
-select user_id, user_nickname
-from USER_PUBLIC_INFO,RELATION 
+select user_id, user_nickname,RELATION_CREATE_TIME 
+from USER_PUBLIC_INFO,RELATION
 where user_id=RELATION.RELATION_USER_BE_FOLLOWED_ID and
 my_user_id=RELATION.RELATION_USER_FOLLOWER_ID
 order by RELATION_CREATE_TIME desc)
 where ROWNUM <startFrom+limitation
 minus
 select* from(
-select user_id, user_nickname
+select user_id, user_nickname, RELATION_CREATE_TIME
 from USER_PUBLIC_INFO,RELATION 
 where user_id=RELATION.RELATION_USER_BE_FOLLOWED_ID and
 my_user_id=RELATION.RELATION_USER_FOLLOWER_ID
@@ -114,7 +114,7 @@ state:=1;
 end if;
 open search_result for
 select* from(
-select user_id, user_nickname
+select user_id, user_nickname, RELATION_CREATE_TIME
 from USER_PUBLIC_INFO,RELATION 
 where my_user_id=RELATION.RELATION_USER_BE_FOLLOWED_ID and
 user_id=RELATION.RELATION_USER_FOLLOWER_ID
@@ -122,7 +122,7 @@ order by RELATION_CREATE_TIME desc)
 where ROWNUM <startFrom+limitation
 minus
 select* from(
-select user_id, user_nickname
+select user_id, user_nickname, RELATION_CREATE_TIME
 from USER_PUBLIC_INFO,RELATION 
 where my_user_id=RELATION.RELATION_USER_BE_FOLLOWED_ID and
 user_id=RELATION.RELATION_USER_FOLLOWER_ID
