@@ -458,7 +458,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 string avatarUrl = getAvatarUrl(user_id);
                 RestfulResult.RestfulData<string> rr = new RestfulResult.RestfulData<string>();
                 rr.Code = 200;
-                rr.Message = "sucess";
+                rr.Message = "success";
                 rr.Data = avatarUrl;
                 return new JsonResult(rr);
             });
