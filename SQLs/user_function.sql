@@ -144,38 +144,6 @@ end;
 /
 
 
----------------------FUNC_SET_MAIN_AVATAR-------------------------
----------------------------设置头像--------------------------------
-create or replace function FUNC_SET_MAIN_AVATAR(userid in INTEGER, avatarid in INTEGER)
-return INTEGER
-is
-PRAGMA AUTONOMOUS_TRANSACTION;
-state INTEGER:=1;
-temp INTEGER;
-begin
-
-state:=FUNC_CHECK_USER_ID_EXIST(userid);
-
-if state=0 then
-return state;
-end if;
-
-update Avatar_Image
-set avatar_image_in_use=0
-where userid=USER_ID;
-select count(*) into temp from Avatar_Image where userid=USER_ID AND avatarid=avatar_image_id;
-if temp!=0 then
-update Avatar_Image
-set avatar_image_in_use=1
-where userid=USER_ID AND avatarid=avatar_image_id;
-else 
-insert into Avatar_Image (USER_ID,avatar_image_id,avatar_image_in_use)
-values (userid,avatarid,1);
-end if;
-commit;
-return state;
-end;
-/
 
 ---------------------FUNC_GET_USER_PUBLIC_INFO-------------------------
 --------------------获取个人公开信息--------------------------------
@@ -197,32 +165,6 @@ return state;
 end;
 /
 
---------------------------------------------------
---------------FUNC_GET_USER_AVATAR--------------------------------//
-CREATE OR REPLACE 
-function 
-FUNC_GET_USER_AVATAR(user_id in INTEGER, avatar_id out INTEGER)
-return INTEGER
-is 
-state INTEGER;
-begin 
-
-  select count(*) into state 
-  from Avatar_Image
-  where user_id=Avatar_Image.user_id and avatar_image_in_use=1;
-
-if state>0
-  then 
-  state:=1;
-  select 
-  avatar_image_id into avatar_id 
-  from Avatar_Image
-  where user_id=Avatar_Image.user_id and avatar_image_in_use=1;
-  return state;
-end if;
-return state;
-end;
-/
 
 ---------------FUNC_SEARCH_USER----------------------------
 ---------------搜索用户信息--------------------------------
@@ -328,10 +270,12 @@ state integer:=1;
 
 begin
 open search_result for
-	select count(*) as message_num from USER_PUBLIC_INFO join MESSAGE on USER_PUBLIC_INFO.user_id = Message.message_sender_user_id
+	select count(*) as message_num from USER_PUBLIC_INFO join MESSAGE on user_id = Message.message_sender_user_id
   where USER_PUBLIC_INFO.user_id = user_id;
 
 
 return state;
 end;
 /
+
+
