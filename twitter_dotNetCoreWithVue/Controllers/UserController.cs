@@ -458,7 +458,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 string avatarUrl = getAvatarUrl(user_id);
                 RestfulResult.RestfulData<string> rr = new RestfulResult.RestfulData<string>();
                 rr.Code = 200;
-                rr.Message = "sucess";
+                rr.Message = "success";
                 rr.Data = avatarUrl;
                 return new JsonResult(rr);
             });
@@ -491,9 +491,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
             cmd.ExecuteReader();
             if (int.Parse(p1.Value.ToString()) == 0)
             {
-                return "/avatars/0";
+                return "/avatars/0.jpg";
             }
-            return "/avatars/" + int.Parse(p3.Value.ToString()).ToString();
+            return "/avatars/" + int.Parse(p3.Value.ToString()).ToString() + ".jpg";
         }
 
 

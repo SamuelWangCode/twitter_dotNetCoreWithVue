@@ -86,6 +86,21 @@
             <returns>是否成功</returns>
             <param name="message_id">Message identifier.</param>
         </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.LikeController.QueryUserLikes(System.Int32,twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
+            <summary>
+            
+            </summary>
+            <param name="user_id"></param>
+            <param name="range"></param>
+            <returns></returns>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.LikeController.checkUserLikesMessge(twitter_dotNetCoreWithVue.Controllers.LikeController.User_Like_Message)">
+            <summary>
+            
+            </summary>
+            <param name="userLikeMessage"></param>
+            <returns></returns>
+        </member>
         <member name="T:twitter_dotNetCoreWithVue.Controllers.MessageController">
             <summary>
             定义有关推特信息的api
@@ -184,12 +199,13 @@
             <param name="user_id">User identifier.</param>
             <param name="range">Range</param>
         </member>
-        <member name="M:twitter_dotNetCoreWithVue.Controllers.RelationController.QueryFollowersForMe(twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.RelationController.QueryFollowersFor(System.Int32,twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
             <summary>
             查询关注自己的用户列表
             需要range作为参数
             </summary>
             <returns>Json</returns>
+            <param name="user_id"></param>
             <param name="range">Range</param>
         </member>
         <member name="M:twitter_dotNetCoreWithVue.Controllers.RelationController.CancelFollowingTo(System.Int32)">

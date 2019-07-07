@@ -49,6 +49,21 @@ namespace twitter_dotNetCoreWithVue.Controllers.Utils
             }
         }
 
-
+        static public bool wrap(Func<OracleConnection, bool> func)
+        {
+            using (OracleConnection conn = new OracleConnection(ConnStr.getConnStr()))
+            {
+                try
+                {
+                    conn.ConnectionString = ConnStr.getConnStr();
+                    conn.Open();
+                    return func(conn);
+                }
+                catch (Exception e)
+                {
+                    return false;
+                }
+            }
+        }
     }
 }
