@@ -201,7 +201,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         {
                             throw new Exception("failed");
                         }
-                        temp_at.atIds = int.Parse(p6.Value.ToString());
+                        temp_at.atIds = int.Parse(p7.Value.ToString());
                     }
                 }
                 catch (Exception e)
@@ -268,7 +268,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         {
                             throw new Exception("failed");
                         }
-                        temp_at.atIds = int.Parse(p6.Value.ToString());
+                        temp_at.atIds = int.Parse(p7.Value.ToString());
                     }
                 }
                 catch (Exception e)

@@ -32,9 +32,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
             //返回Json对象
             return Wrapper.wrap((OracleConnection conn) => 
             {
-                //FUNC_QUERY_MESSAGE_IDS_CONTAINS_CERTAIN_TOPIC_ID(topic_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+                //FUNC_QUERY_MESSAGE_BY_TOPIC(topic_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
-                string procudureName = "FUNC_QUERY_MESSAGE_IDS_CONTAINS_CERTAIN_TOPIC_ID";
+                string procudureName = "FUNC_QUERY_MESSAGE_BY_TOPIC";
                 OracleCommand cmd = new OracleCommand(procudureName, conn);
                 cmd.CommandType = CommandType.StoredProcedure;
 

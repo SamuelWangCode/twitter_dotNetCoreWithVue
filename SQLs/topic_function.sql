@@ -138,3 +138,38 @@ end if;
 return state;
 end;
 /
+
+
+-----FUNC_QUERY_MESSAGE_BY_TOPIC
+create or replace 
+function
+FUNC_QUERY_MESSAGE_BY_TOPIC(topic_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+RETURN INTEGER
+is
+state INTEGER:=1;
+m_topic_id INTEGER:=topic_id;
+BEGIN
+
+	SELECT count(*) into state 
+  from MESSAGE_OWNS_TOPIC
+  WHERE MESSAGE_OWNS_TOPIC.TOPIC_ID=topic_id;
+
+
+    open search_result for
+    select * from
+    ( 
+      select Message_Owns_Topic.message_id from Message_owns_topic
+      where Message_Owns_Topic.topic_id = m_topic_id)
+    where rownum <= limitation+startFrom
+      minus
+    select * from
+    (
+      select Message_Owns_Topic.message_id from Message_owns_topic
+      where Message_Owns_Topic.topic_id = m_topic_id)
+    where rownum <= startFrom - 1;
+    state:=1;
+
+	RETURN state;
+
+END;
+/
