@@ -547,7 +547,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         rr.Data.follows_num = int.Parse(reader["USER_FOLLOWS_NUM"].ToString());
                         rr.Data.messages_num = getUserMessageNum(rr.Data.user_id);
                         rr.Data.avatar_url = getAvatarUrl(user_id);
-                        rr.Data.collection_num = CollectionController.GetCollectionCount(user_id);
+                        rr.Data.collection_num = CollectionController.GetCollectionCount(user_id,conn);
                         return rr.Data;
                     }
                     else

@@ -300,7 +300,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             public int collection_num;
         }
 
-        static public int GetCollectionCount(int user_id)
+        static public int GetCollectionCount(int user_id,OracleConnection conn)
         {
             string procudureName = "FUNC_GET_COLLECTION_NUM";
             OracleCommand cmd = new OracleCommand(procudureName, conn);
@@ -339,7 +339,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 rr.Code = 200;
                 rr.Message = "success";
                 rr.Data = new CollectionNum();
-                rr.Data.collection_num = GetCollectionCount(user_id);
+                rr.Data.collection_num = GetCollectionCount(user_id,conn);
                 return new JsonResult(rr);
 
 
