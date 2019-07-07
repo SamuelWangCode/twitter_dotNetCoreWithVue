@@ -133,3 +133,17 @@ where ROWNUM <startFrom;
 return state;
 end;
 /
+
+create or replace 
+function 
+FUNC_IF_FOLLOWING(following_id integer,be_followed_id integer)
+return integer
+is
+state integer :=0;
+begin
+select count(*) into state
+from relation
+where relation_user_follower_id=following_id and relation_user_be_followed_id=be_followed_id;
+return state;
+end;
+/
