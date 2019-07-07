@@ -675,22 +675,19 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     rr.Code = 200;
                     rr.Message = "success";
 
-                    var images = Request.Form.Files;
-                    int img_num = 0;
+                    var imgfile = Request.Form.Files[0];
                     int avatar_id = addAvatarAndGetAvatarID(user_id);
-                    //Directory.CreateDirectory(@"wwwroot\avatars\" + userId.ToString());
-                    //foreach (var imgfile in images)
-                    //{
-                    //    if (imgfile.Length > 0)
-                    //    {
-                    //        var img_path = @"wwwroot\avatars\" + userId.ToString() + @"\" + img_num.ToString();
-                    //        using (var stream = new FileStream(img_path, FileMode.Create))
-                    //        {
-                    //            await imgfile.CopyToAsync(stream);
-                    //        }
-                    //        img_num++;
-                    //    }
-                    //}
+                    Directory.CreateDirectory(@"wwwroot\avatars\" + user_id.ToString());
+                    
+                    if (imgfile.Length > 0)
+                    {
+                        var img_path = @"wwwroot\avatars\" + user_id.ToString() + @"\" + avatar_id.ToString() + ".jpg";
+                        using (var stream = new FileStream(img_path, FileMode.Create))
+                        {
+                            await imgfile.CopyToAsync(stream);
+                        }
+                    }
+                    
 
                     return new JsonResult(rr);
                 }
