@@ -96,7 +96,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>Json</returns>
         /// <param name="user_id">User identifier.</param>
         /// <param name="range">Range</param>
-        [HttpGet("queryFollowingFor/{user_id}")]
+        [HttpPost("queryFollowingFor/{user_id}")]
         public IActionResult QueryFollowingFor([Required]int user_id, [Required][FromBody]Range range)
         {
             //TODO do the CURD
