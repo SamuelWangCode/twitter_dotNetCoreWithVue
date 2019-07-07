@@ -122,14 +122,14 @@ open search_result for
           FROM LIKES
           WHERE LIKES.LIKES_USER_ID=user_id
           ORDER BY LIKES.LIKES_TIME DESC)
-          WHERE ROWNUM<=startFrom+limitation
+          WHERE ROWNUM<startFrom+limitation
         MINUS
       SELECT* FROM 
          (SELECT LIKES_MESSAGE_ID
           FROM LIKES
           WHERE LIKES.LIKES_USER_ID=user_id
          ORDER BY LIKES.LIKES_TIME DESC)
-    WHERE ROWNUM<=startFrom-1;
+    WHERE ROWNUM<startFrom;
 
 state:=1;
 RETURN state;

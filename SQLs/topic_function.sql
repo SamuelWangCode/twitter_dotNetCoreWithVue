@@ -1,4 +1,4 @@
-﻿-------------------FUNC_ADD_TOPIC----------------------------
+-------------------FUNC_ADD_TOPIC----------------------------
 -------------------添加话题/增加话题热度---------------------
 create or replace function
 FUNC_ADD_TOPIC(topic_name in VARCHAR2, message_id in INTEGER)
