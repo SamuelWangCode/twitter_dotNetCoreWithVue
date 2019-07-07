@@ -12,6 +12,11 @@ using twitter_dotNetCoreWithVue.Controllers.Utils;
 
 namespace twitter_dotNetCoreWithVue.Controllers
 {
+    public class Message_Id
+    {
+        [Required]
+        public int[] like_message_id { get; set; }
+    }
     /// <summary>
     /// 点赞api
     /// </summary>
@@ -148,20 +153,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns></returns>
         [HttpGet("query/{user_id}")]
         public IActionResult QueryUserLikes([Required]int user_id, [Required]Range range)
-        {
-            int my_user_id = -1;
-            if (HttpContext.User.Identity.IsAuthenticated)
-            {
-                my_user_id = int.Parse(HttpContext.User.Claims.ElementAt(0).Value);
-            }
-            else
-            {
-                //进入到这部分意味着用户登录态已经失效，需要返回给客户端信息，即需要登录。
-                RestfulResult.RestfulData rr = new RestfulResult.RestfulData();
-                rr.Code = 200;
-                rr.Message = "Need Authentication";
-                return new JsonResult(rr);
-            }
+        { 
 
             return Wrapper.wrap((OracleConnection conn) =>
             {
@@ -179,7 +171,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 OracleParameter p2 = new OracleParameter();
                 p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
                 p2.Direction = ParameterDirection.Input;
-                p2.Value = my_user_id;
+                p2.Value = user_id;
                 OracleParameter p3 = new OracleParameter();
                 //Add input parameter startFrom
                 p3 = cmd.Parameters.Add("startFrom", OracleDbType.Int32);
@@ -199,11 +191,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 DataTable dt = new DataTable();
                 DataAdapter.Fill(dt);
 
-                if (int.Parse(p1.Value.ToString()) == 0)
-                {
-                    throw new Exception("failed");
-                }
-
+                
                 //dt: message_id
                 int[] message_ids = new int[dt.Rows.Count];
                 for (int i = 0; i < dt.Rows.Count; ++i)
@@ -211,10 +199,11 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     message_ids[i] = int.Parse(dt.Rows[i][0].ToString());
                 }
 
-                RestfulResult.RestfulArray<int> rr = new RestfulResult.RestfulArray<int>();
+                RestfulResult.RestfulData<Message_Id> rr = new RestfulResult.RestfulData<Message_Id>();
                 rr.Code = 200;
                 rr.Message = "success";
-                rr.Data = message_ids;
+                rr.Data = new Message_Id();
+                rr.Data.like_message_id = message_ids;
 
                 return new JsonResult(rr);
             });

@@ -139,7 +139,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     {
                         string at = temp_at.atName.Replace("@", "");
                         //对于ats列表里的每一个话题，分别作为函数参数来执行一次FUNC_AT_USER函数
-                        //FUNC_AT_USER(at_nickname in VARCHAR2, message_id in INTEGER, source_user_id in INTEGER)
+                        //FUNC_AT_USER(at_nickname in VARCHAR2, atmessage_id in INTEGER, source_user_id in INTEGER)
                         //return INTEGER
                         string procedureName = "FUNC_ADD_AT_USER";
                         OracleCommand cmd = new OracleCommand(procedureName, conn);
@@ -158,7 +158,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                         //Add second parameter message_id
                         OracleParameter p3 = new OracleParameter();
-                        p3 = cmd.Parameters.Add("message_id", OracleDbType.Int32);
+                        p3 = cmd.Parameters.Add("atmessage_id", OracleDbType.Int32);
                         p3.Direction = ParameterDirection.Input;
                         p3.Value = messageID;
 
@@ -201,7 +201,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         {
                             throw new Exception("failed");
                         }
-                        temp_at.atIds = int.Parse(p6.Value.ToString());
+                        temp_at.atIds = int.Parse(p7.Value.ToString());
                     }
                 }
                 catch (Exception e)
@@ -268,7 +268,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         {
                             throw new Exception("failed");
                         }
-                        temp_at.atIds = int.Parse(p6.Value.ToString());
+                        temp_at.atIds = int.Parse(p7.Value.ToString());
                     }
                 }
                 catch (Exception e)
