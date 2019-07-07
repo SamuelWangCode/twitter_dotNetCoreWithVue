@@ -28,6 +28,13 @@
             <returns>是否成功</returns>
             <param name="message_id">Message identifier.</param>
         </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.CollectionController.Delete(System.Int32)">
+            <summary>
+            添加收藏
+            </summary>
+            <returns>是否成功</returns>
+            <param name="message_id">Message identifier.</param>
+        </member>
         <member name="M:twitter_dotNetCoreWithVue.Controllers.CollectionController.Query(twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
             <summary>
             查询收藏的列表
@@ -35,6 +42,13 @@
             </summary>
             <returns>包含所有收藏的推特id的Json数据</returns>
             <param name="range">Range.</param>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.CollectionController.checkUserCollectMessge(twitter_dotNetCoreWithVue.Controllers.CollectionController.User_Collect_Message)">
+            <summary>
+            
+            </summary>
+            <param name="userLikeMessage"></param>
+            <returns></returns>
         </member>
         <member name="T:twitter_dotNetCoreWithVue.Controllers.CommentController">
             <summary>

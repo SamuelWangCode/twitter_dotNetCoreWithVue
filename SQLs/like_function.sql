@@ -148,7 +148,6 @@ state INTEGER:=1;
 BEGIN
 select count(*) into state
 from LIKES where LIKES_USER_ID = user_id and LIKES_MESSAGE_ID = message_id;
-state:=1;
 RETURN state;
 
 END;

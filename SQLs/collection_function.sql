@@ -43,7 +43,6 @@ where message_id = message_id_input;
 
 if state != 0 then 
 state:=1;
-else
 delete from message_collection
 where message_id = message_id_input and user_id=user_id_input;
 update MESSAGE 
@@ -91,4 +90,23 @@ where ROWNUM >= startFrom and ROWNUM <= limitation;
 end if;
 return state;
 end;
+/
+
+--------------------------------------------------
+--------------FUNC_QUERY_IF_USER_COLLECTS--------------------------------//
+create or replace FUNCTION FUNC_QUERY_IF_USER_COLLECTS
+(user_id IN INTEGER, message_id IN INTEGER)
+RETURN INTEGER
+AS
+state INTEGER:=1;
+q_user_id INTEGER:= user_id;
+q_message_id INTEGER:= message_id;
+
+BEGIN
+select count(*) into state
+from MESSAGE_COLLECTION tb where tb.user_id = q_user_id and tb.message_id = q_message_id;
+
+RETURN state;
+
+END;
 /
