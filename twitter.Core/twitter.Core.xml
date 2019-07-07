@@ -39,7 +39,7 @@
         </member>
         <member name="M:twitter_dotNetCoreWithVue.Controllers.CollectionController.Delete(System.Int32)">
             <summary>
-            添加收藏
+            删除收藏
             </summary>
             <returns>是否成功</returns>
             <param name="message_id">Message identifier.</param>
@@ -59,6 +59,7 @@
             <param name="userLikeMessage"></param>
             <returns></returns>
         </member>
+        <!-- 对于成员“M:twitter_dotNetCoreWithVue.Controllers.CollectionController.CollectionCount(System.Int32)”忽略有格式错误的 XML 注释 -->
         <member name="T:twitter_dotNetCoreWithVue.Controllers.CommentController">
             <summary>
             有关评论推特的api
@@ -250,7 +251,7 @@
             定义用于有关话题Topic的api
             </summary>
         </member>
-        <member name="M:twitter_dotNetCoreWithVue.Controllers.TopicController.QueryMessageIdsContains(System.Int32,twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.TopicController.QueryMessagesContains(System.Int32,twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
             <summary>
             查找包含topic_id的最近range范围内的message_id组成的列表
             </summary>
@@ -330,7 +331,7 @@
             <returns>User_Public_Info的实例</returns>
             <param name="user_id">User identifier.</param>
         </member>
-        <member name="M:twitter_dotNetCoreWithVue.Controllers.UserController.UploadAvatar">
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.UserController.UploadAvatar(System.Int32)">
             <summary>
             上传头像图片的api, 目前不知道前端如何上传，待议
             </summary>

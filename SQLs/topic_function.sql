@@ -39,9 +39,8 @@ end;
 
 --------------------------------------------------
 --------------FUNC_QUERY_TOPIC_IDS_BY_HEAT--------------------------------//
-
-CREATE OR REPLACE 
-FUNCTION FUNC_QUERY_TOPIC_IDS_BY_HEAT
+create or replace 
+FUNCTION FUNC_QUERY_TOPICS_BY_HEAT
 (startFrom IN INTEGER, limitation IN INTEGER, search_result OUT sys_refcursor)
 RETURN INTEGER
 AS
@@ -58,13 +57,13 @@ BEGIN
   ELSE  
     open search_result for 
     SELECT* FROM 
-         (SELECT TOPIC_ID
+         (SELECT *
           FROM TOPIC
          ORDER BY TOPIC.TOPIC_HEAT DESC)
     WHERE ROWNUM<=startFrom+limitation
     MINUS
     SELECT* FROM 
-         (SELECT TOPIC_ID
+         (SELECT *
           FROM TOPIC
          ORDER BY TOPIC.TOPIC_HEAT DESC)
     WHERE ROWNUM<=startFrom-1;
@@ -73,7 +72,6 @@ BEGIN
   END IF;
 	RETURN state;
 END;
-
 /
 
 

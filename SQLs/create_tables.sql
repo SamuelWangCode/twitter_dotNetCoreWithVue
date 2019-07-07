@@ -172,12 +172,12 @@ CREATE TABLE Message_Image(
 ------------------At_User------------------------
 
 CREATE TABLE At_User(
-  at_user_id INTEGER NOT NULL,
-  message_id INTEGER NOT NULL,
+  at_user_id INTEGER,
+  message_id INTEGER,
   user_id INTEGER NOT NULL,
   at_time VARCHAR2(30) NOT NULL,
   at_is_read INTEGER NOT NULL,
-  PRIMARY KEY (at_user_id, message_id),
+  PRIMARY KEY(at_user_id, message_id),
   CONSTRAINT fk_at_user_1 FOREIGN KEY
     (message_id) REFERENCES
       Message(message_id)

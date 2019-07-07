@@ -112,3 +112,16 @@ RETURN state;
 
 END;
 /
+
+create or replace function
+FUNC_GET_COLLECTION_NUM(my_user_id in INTEGER, num out integer)
+return integer
+is
+state integer:=1;
+begin
+select count(*) into num
+from message_collection
+where user_id=my_user_id;
+return state;
+end;
+/
