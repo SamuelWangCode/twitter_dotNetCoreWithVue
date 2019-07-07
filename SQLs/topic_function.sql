@@ -1,4 +1,4 @@
--------------------FUNC_ADD_TOPIC----------------------------
+﻿-------------------FUNC_ADD_TOPIC----------------------------
 -------------------添加话题/增加话题热度---------------------
 create or replace function
 FUNC_ADD_TOPIC(topic_name in VARCHAR2, message_id in INTEGER)
@@ -109,6 +109,30 @@ state:=1;
       where rownum < startfrom)
     )
     where rownum >= startfrom and rownum <= limitation;   
+end if;
+
+return state;
+end;
+/
+
+-------------------FUNC_GET_TOPIC_ID_BY_NAME----------------------------
+-------------------通过话题内容来获得ID---------------------
+create or replace function func_get_topic_id_by_name
+(Searchkey In Varchar2, Search_Result Out Integer)
+return INTEGER
+is
+state integer:=0;
+
+begin
+	select count(*) into state 
+  from topic
+  where topic_content = Searchkey;
+  
+if state!=0 then 
+state:=1;
+  select topic_id into Search_Result
+  from TOPIC
+  where TOPIC_CONTENT = Searchkey;
 end if;
 
 return state;
