@@ -69,7 +69,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 cmd.ExecuteReader();
                 Console.WriteLine(p1.Value);
 
-                if (int.Parse(p1.Value.ToString()) != 1)
+                if (int.Parse(p1.Value.ToString()) == 0)
                 {
                     throw new Exception("failed");
                 }
@@ -130,7 +130,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 cmd.ExecuteReader();
                 Console.WriteLine(p1.Value);
 
-                if (int.Parse(p1.Value.ToString()) != 1)
+                if (int.Parse(p1.Value.ToString()) == 0)
                 {
                     throw new Exception("failed");
                 }
@@ -159,9 +159,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
             return Wrapper.wrap((OracleConnection conn) =>
             {
-                //FUNC_QUERY_MESSAGE_IDS_THAT_USER_LIKES(user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+                //FUNC_QUERY_MESSAGE_IDS_LIKES(user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
-                string procudureName = "FUNC_QUERY_MESSAGE_IDS_THAT_USER_LIKES";
+                string procudureName = "FUNC_QUERY_MESSAGE_IDS_LIKES";
                 OracleCommand cmd = new OracleCommand(procudureName, conn);
                 cmd.CommandType = CommandType.StoredProcedure;
 
@@ -193,7 +193,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 DataTable dt = new DataTable();
                 DataAdapter.Fill(dt);
 
-                if (int.Parse(p1.Value.ToString()) != 1)
+                if (int.Parse(p1.Value.ToString()) == 0)
                 {
                     throw new Exception("failed");
                 }

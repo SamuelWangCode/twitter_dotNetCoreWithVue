@@ -155,7 +155,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                 cmd.ExecuteReader();
 
-                if (int.Parse(p1.Value.ToString()) != 1)
+                if (int.Parse(p1.Value.ToString()) == 0)
                 {
                     throw new Exception("failed");
                 }
@@ -227,7 +227,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                     RestfulResult.RestfulData<UserId> rr = new RestfulResult.RestfulData<UserId>();
                     rr.Code = 200;
-                    if (int.Parse(p1.Value.ToString()) != 1)
+                    if (int.Parse(p1.Value.ToString()) == 0)
                     {
                         rr.Data = null;
                         rr.Message = "E-mail or Password Wrong";
@@ -378,7 +378,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                 cmd.ExecuteReader();
 
-                if (int.Parse(p1.Value.ToString()) != 1)
+                if (int.Parse(p1.Value.ToString()) == 0)
                 {
                     throw new Exception("failed");
                 }
@@ -433,7 +433,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p3.Value = avatar_id;
 
                 cmd.ExecuteReader();
-                if (int.Parse(p1.Value.ToString()) != 1)
+                if (int.Parse(p1.Value.ToString()) == 0)
                 {
                     throw new Exception("failed");
                 }
@@ -469,8 +469,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
         {
             //FUNC_GET_USER_AVATAR(user_id in INTEGER, avatar_id out INTEGER)
             //return INTEGER
-            OracleConnection conn = new OracleConnection();
-            conn.ConnectionString = Utils.ConnStr.getConnStr();
+            OracleConnection conn = new OracleConnection(ConnStr.getConnStr());
+            conn.ConnectionString = ConnStr.getConnStr();
             conn.Open();
             string procedureName = "FUNC_GET_USER_AVATAR";
             OracleCommand cmd = new OracleCommand(procedureName, conn);
@@ -489,11 +489,74 @@ namespace twitter_dotNetCoreWithVue.Controllers
             p3.Direction = ParameterDirection.Output;
 
             cmd.ExecuteReader();
-            if (int.Parse(p1.Value.ToString()) != 1)
+            if (int.Parse(p1.Value.ToString()) == 0)
             {
                 return "/avatars/0";
             }
             return "/avatars/" + int.Parse(p3.Value.ToString()).ToString();
+        }
+
+
+        public static UserPublicInfo getUserPublicInfo(int user_id)
+        {
+            using(OracleConnection conn = new OracleConnection(ConnStr.getConnStr()))
+            {
+                try
+                {
+                    //FUNC_GET_USER_PUBLIC_INFO(user_id in INTEGER, info out sys_refcursor)
+                    //return INGETER
+                    string procedureName = "FUNC_GET_USER_PUBLIC_INFO";
+                    OracleCommand cmd = new OracleCommand(procedureName, conn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    OracleParameter p1 = new OracleParameter();
+                    p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                    p1.Direction = ParameterDirection.ReturnValue;
+
+                    OracleParameter p2 = new OracleParameter();
+                    p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
+                    p2.Direction = ParameterDirection.Input;
+                    p2.Value = user_id;
+
+                    OracleParameter p3 = new OracleParameter();
+                    p3 = cmd.Parameters.Add("info", OracleDbType.RefCursor);
+                    p3.Direction = ParameterDirection.Output;
+
+                    var reader = cmd.ExecuteReader();
+                    if (int.Parse(p1.Value.ToString()) == 0)
+                    {
+                        throw new Exception("failed");
+                    }
+                    else
+                    {
+                        if (reader.Read())
+                        {
+                            RestfulResult.RestfulData<UserPublicInfo> rr = new RestfulResult.RestfulData<UserPublicInfo>();
+                            string[] temp = new string[reader.FieldCount];
+                            for (int i = 0; i < reader.FieldCount; ++i)
+                            {
+                                temp[i] = reader.GetValue(i).ToString();
+                            }
+                            rr.Data = new UserPublicInfo();
+                            rr.Data.user_id = int.Parse(reader["USER_ID"].ToString());
+                            rr.Data.nickname = reader["USER_NICKNAME"].ToString();
+                            rr.Data.self_introction = reader["USER_SELF_INTRODUCTION"].ToString();
+                            rr.Data.register_time = reader["USER_REGISTER_TIME"].ToString();
+                            rr.Data.followers_num = int.Parse(reader["USER_FOLLOWERS_NUM"].ToString());
+                            rr.Data.follows_num = int.Parse(reader["USER_FOLLOWS_NUM"].ToString());
+                            rr.Data.avatar_url = getAvatarUrl(user_id);
+                            return rr.Data;
+                        }
+                        else
+                        {
+                            throw new Exception("failed");
+                        }
+                    }
+                }
+                catch(Exception e)
+                {
+                    return new UserPublicInfo();
+                }
+            }
         }
 
         /// <summary>
@@ -540,7 +603,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p3.Direction = ParameterDirection.Output;
 
                 var reader = cmd.ExecuteReader();
-                if (int.Parse(p1.Value.ToString()) != 1)
+                if (int.Parse(p1.Value.ToString()) == 0)
                 {
                     throw new Exception("failed");
                 }
@@ -564,28 +627,6 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         rr.Data.register_time = reader["USER_REGISTER_TIME"].ToString();
                         rr.Data.followers_num = int.Parse(reader["USER_FOLLOWERS_NUM"].ToString());
                         rr.Data.follows_num = int.Parse(reader["USER_FOLLOWS_NUM"].ToString());
-
-                        procedureName = "FUNC_GET_USER_AVATAR";
-                        cmd = new OracleCommand(procedureName, conn);
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        p1 = new OracleParameter();
-                        p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
-                        p1.Direction = ParameterDirection.ReturnValue;
-
-                        p2 = new OracleParameter();
-                        p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
-                        p2.Direction = ParameterDirection.Input;
-                        p2.Value = user_id;
-
-                        p3 = new OracleParameter();
-                        p3 = cmd.Parameters.Add("avatar_id", OracleDbType.Int32);
-                        p3.Direction = ParameterDirection.Output;
-
-                        cmd.ExecuteReader();
-                        if (int.Parse(p1.Value.ToString()) != 1)
-                        {
-                            throw new Exception("failed");
-                        }
                         rr.Data.avatar_url = getAvatarUrl(user_id);
                         return new JsonResult(rr);
                     }

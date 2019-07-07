@@ -34,18 +34,12 @@ namespace twitter_dotNetCoreWithVue.Controllers
             [StringLength(280)]
             public string message_content { get; set; }
 
-            [Display(Name = "推特包含话题")]
-            public string[] message_topics { get; set; }
-
-            [Display(Name = "推特包含艾特")]
-            public string[] message_ats { get; set; }
-
             [Display(Name = "推特发布时间")]
             [Required]
             public string message_create_time { get; set; }
 
             [Display(Name = "点赞量")]
-            public int message_agree_num { get; set; }
+            public int message_like_num { get; set; }
 
             [Display(Name = "转发量")]
             public int message_transpond_num { get; set; }
@@ -158,51 +152,23 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 DataTable dt = new DataTable();
                 DataAdapter.Fill(dt);
 
-                if (int.Parse(p1.Value.ToString()) != 1)
+                if (int.Parse(p1.Value.ToString()) == 0)
                 {
                     throw new Exception("failed");
                 }
                 MessageForShow infos = new MessageForShow();
                 infos.message_id = int.Parse(dt.Rows[0][0].ToString());
                 infos.message_content = dt.Rows[0][1].ToString();
-
-                infos.message_topics = new string[] { };
-                infos.message_ats = new string[] { };
-                System.Text.RegularExpressions.Regex topicRegex = new System.Text.RegularExpressions.Regex(@"#\w+#");
-                System.Text.RegularExpressions.Regex atRegex = new System.Text.RegularExpressions.Regex(@"@\w+");
-                System.Text.RegularExpressions.MatchCollection topicCollection = topicRegex.Matches(infos.message_content);
-                System.Text.RegularExpressions.MatchCollection atCollection = atRegex.Matches(infos.message_content);
-                for (int i = 0; i < topicCollection.Count; i++)
-                {
-                    infos.message_topics.Append(topicCollection[i].ToString());
-                    infos.message_content.Replace(topicCollection[i].ToString(), "");
-                }
-                for (int i = 0; i < atCollection.Count; i++)
-                {
-                    infos.message_ats.Append(atCollection[i].ToString());
-                    infos.message_content.Replace(atCollection[i].ToString(), "");
-                }
-
                 infos.message_create_time = dt.Rows[0][2].ToString();
-                infos.message_agree_num = int.Parse(dt.Rows[0][3].ToString());
+                infos.message_like_num = int.Parse(dt.Rows[0][3].ToString());
                 infos.message_transpond_num = int.Parse(dt.Rows[0][4].ToString());
                 infos.message_comment_num = int.Parse(dt.Rows[0][5].ToString());
                 infos.message_view_num = int.Parse(dt.Rows[0][6].ToString());
                 infos.message_has_image = int.Parse(dt.Rows[0][7].ToString());
-                infos.message_is_transpond = int.Parse(dt.Rows[0][8].ToString());
-                infos.message_sender_user_id = int.Parse(dt.Rows[0][9].ToString());
-                infos.message_heat = int.Parse(dt.Rows[0][10].ToString());
-                infos.message_transpond_message_id = int.Parse(dt.Rows[0][11].ToString());
-                infos.message_image_count = int.Parse(dt.Rows[0][12].ToString());
-
-                if(infos.message_has_image==1)
-                {
-                    for(int i=0;i<infos.message_image_count;i++)
-                    {
-                      infos.message_image_urls.Append<string>("/Messages/" + infos.message_id.ToString() + "/" + i.ToString());                       
-                    }
-                }
-
+                infos.message_sender_user_id = int.Parse(dt.Rows[0][8].ToString());
+                infos.message_heat = int.Parse(dt.Rows[0][9].ToString());
+                infos.message_image_count = int.Parse(dt.Rows[0][10].ToString() == "" ? "0" : dt.Rows[0][10].ToString());
+                infos.message_transpond_message_id = int.Parse(dt.Rows[0][11].ToString() == "" ? "0" : dt.Rows[0][11].ToString());
                 RestfulResult.RestfulData<MessageForShow> rr = new RestfulResult.RestfulData<MessageForShow>();
                 rr.Code = 200;
                 rr.Message = "success";
@@ -223,24 +189,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>The messages for index.</returns>
         /// <param name="range">Range.</param>
         /// <param name="user_id">user_id</param>
-        [HttpPost("queryForIndex")]
-        public IActionResult QueryForIndex([Required][FromBody]Range range)
+        [HttpPost("queryForIndex/{user_id}")]
+        public IActionResult QueryMessages([Required]int user_id, [Required][FromBody]Range range)
         {
-            //根据range来吧
-            //这个稍微有些复杂，SQL会比较难写，加油。
-            int user_id;
-            if (HttpContext.User.Identity.IsAuthenticated)
-            {
-                user_id = int.Parse(HttpContext.User.Claims.First().Value);
-            }
-            else
-            {
-                RestfulResult.RestfulData rr = new RestfulResult.RestfulData();
-                rr.Code = 200;
-                rr.Message = "Need Authentication";
-                return new JsonResult(rr);
-            }
-
             return Wrapper.wrap((OracleConnection conn) =>
             {
                 //function FUNC_SHOW_HOME_MESSAGE_BY_RANGE(user_id in INTEGER, rangeStart in INTEGER, rangeLimitation in INTEGER, search_result out sys_refcursor)
@@ -282,39 +233,38 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 DataTable dt = new DataTable();
                 DataAdapter.Fill(dt);
 
-                if (int.Parse(p1.Value.ToString()) != 1)
+                if (int.Parse(p1.Value.ToString()) == 0)
                 {
                     throw new Exception("failed");
                 }
-                MessageForShow[] infos = new MessageForShow[dt.Rows.Count];
+                MessageForShow[] receivedTwitters = new MessageForShow[dt.Rows.Count];
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    infos[i] = new MessageForShow();
-                    infos[i].message_id = int.Parse(dt.Rows[i][0].ToString());
-                    infos[i].message_content = dt.Rows[i][1].ToString();
-                    infos[i].message_create_time = dt.Rows[i][2].ToString();
-                    infos[i].message_agree_num = int.Parse(dt.Rows[i][3].ToString());
-                    infos[i].message_transpond_num = int.Parse(dt.Rows[i][4].ToString());
-                    infos[i].message_comment_num = int.Parse(dt.Rows[i][5].ToString());
-                    infos[i].message_view_num = int.Parse(dt.Rows[i][6].ToString());
-                    infos[i].message_has_image = int.Parse(dt.Rows[i][7].ToString());
-                    infos[i].message_is_transpond = int.Parse(dt.Rows[i][8].ToString());
-                    infos[i].message_sender_user_id = int.Parse(dt.Rows[i][9].ToString());
-                    infos[i].message_heat = int.Parse(dt.Rows[i][10].ToString());
-                    infos[i].message_transpond_message_id = int.Parse(dt.Rows[i][11].ToString());
-                    infos[i].message_image_count = int.Parse(dt.Rows[i][12].ToString());
+                    receivedTwitters[i] = new MessageForShow();
+                    receivedTwitters[i].message_id = int.Parse(dt.Rows[i][0].ToString());
+                    receivedTwitters[i].message_content = dt.Rows[i][1].ToString();
+                    receivedTwitters[i].message_create_time = dt.Rows[i][2].ToString();
+                    receivedTwitters[i].message_like_num = int.Parse(dt.Rows[i][3].ToString());
+                    receivedTwitters[i].message_transpond_num = int.Parse(dt.Rows[i][4].ToString());
+                    receivedTwitters[i].message_comment_num = int.Parse(dt.Rows[i][5].ToString());
+                    receivedTwitters[i].message_view_num = int.Parse(dt.Rows[i][6].ToString());
+                    receivedTwitters[i].message_has_image = int.Parse(dt.Rows[i][7].ToString());
+                    receivedTwitters[i].message_sender_user_id = int.Parse(dt.Rows[i][8].ToString());
+                    receivedTwitters[i].message_heat = int.Parse(dt.Rows[i][9].ToString());
+                    receivedTwitters[i].message_image_count = int.Parse(dt.Rows[i][10].ToString() == "" ? "0" : dt.Rows[i][10].ToString());
+                    receivedTwitters[i].message_transpond_message_id = int.Parse(dt.Rows[i][11].ToString() == "" ? "0" : dt.Rows[i][11].ToString());
                 }
                 for(int i=0;i<dt.Rows.Count;i++)
                 {
-                    if (infos[i].message_has_image == 1)
+                    if (receivedTwitters[i].message_has_image == 1)
                     {
-                        string path = @"wwwroot\Messages\" + infos[i].message_id.ToString();
+                        string path = @"wwwroot\Messages\" + receivedTwitters[i].message_id.ToString();
                         for (int j = 0; ; j++)
                         {
                             if (System.IO.File.Exists(path + @"\" + j.ToString()))
                             {
-                                infos[i].message_image_urls.Append<string>("/Messages/" + infos[i].message_id.ToString() + "/" + j.ToString());
+                                receivedTwitters[i].message_image_urls.Append<string>("/Messages/" + receivedTwitters[i].message_id.ToString() + "/" + j.ToString());
                             }
                             else break;
                         }
@@ -325,7 +275,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 RestfulResult.RestfulArray<MessageForShow> rr = new RestfulResult.RestfulArray<MessageForShow>();
                 rr.Code = 200;
                 rr.Message = "success";
-                rr.Data = infos;
+                rr.Data = receivedTwitters;
                 return new JsonResult(rr);
             });
             
@@ -421,7 +371,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     p6.Direction = ParameterDirection.Output;
 
                     cmd.ExecuteReader();
-                    if (int.Parse(p1.Value.ToString()) != 1)
+                    if (int.Parse(p1.Value.ToString()) == 0)
                     {
                         throw new Exception("failed");
                     }
@@ -454,7 +404,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                         cmd2.ExecuteReader();
                         
-                        if (int.Parse(p7.Value.ToString()) != 1)
+                        if (int.Parse(p7.Value.ToString()) == 0)
                         {
                             throw new Exception("failed");
                         }
@@ -493,7 +443,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         p13.Value = userId;
 
                         cmd3.ExecuteReader();
-                        if (int.Parse(p10.Value.ToString()) != 1)
+                        if (int.Parse(p10.Value.ToString()) == 0)
                         {
                             throw new Exception("failed");
                         }
@@ -614,7 +564,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p6.Direction = ParameterDirection.Output;
 
                 cmd.ExecuteReader();
-                if (int.Parse(p1.Value.ToString()) != 1)
+                if (int.Parse(p1.Value.ToString()) == 0)
                 {
                     throw new Exception("failed");
                 }
@@ -647,7 +597,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                     cmd2.ExecuteReader();
 
-                    if (int.Parse(p7.Value.ToString()) != 1)
+                    if (int.Parse(p7.Value.ToString()) == 0)
                     {
                         throw new Exception("failed");
                     }
@@ -686,7 +636,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     p13.Value = userId;
 
                     cmd3.ExecuteReader();
-                    if (int.Parse(p10.Value.ToString()) != 1)
+                    if (int.Parse(p10.Value.ToString()) == 0)
                     {
                         throw new Exception("failed");
                     }
@@ -747,7 +697,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p3.Direction = ParameterDirection.Output;
 
                 cmd.ExecuteReader();
-                if (int.Parse(p1.Value.ToString()) != 1)
+                if (int.Parse(p1.Value.ToString()) == 0)
                 {
                     throw new Exception("failed");
                 }                
