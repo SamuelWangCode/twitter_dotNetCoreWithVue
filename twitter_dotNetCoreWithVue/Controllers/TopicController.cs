@@ -24,7 +24,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>返回包含message_id列表的Json对象</returns>
         /// <param name="topic_id">Topic identifier.</param>
         /// <param name="range">Range.</param>
-        [HttpGet("queryMessageIdsContains/{topic_id}")]
+        [HttpPost("queryMessageIdsContains/{topic_id}")]
         public IActionResult QueryMessageIdsContains([Required]int topic_id, [Required][FromBody]Range range)
         {
             //TODO 无需登录态验证
@@ -96,7 +96,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// </summary>
         /// <returns>Json 包含Topics</returns>
         /// <param name="range">Range.</param>
-        [HttpGet("queryTopicsBaseOnHeat")]
+        [HttpPost("queryTopicsBaseOnHeat")]
         public IActionResult QueryTopicsBaseOnHeat([Required][FromBody]Range range)
         {
             //TODO 无需登录态验证
