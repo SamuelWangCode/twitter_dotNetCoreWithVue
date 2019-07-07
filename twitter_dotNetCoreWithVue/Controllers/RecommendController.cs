@@ -28,7 +28,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// 获得推荐的前五个用户，用于推荐栏
         /// </summary>
         /// <returns>The get.</returns>
-        [HttpGet]
+        [HttpGet("getRecommendUsers")]
         public IActionResult getRecommendedUsers()
         {
             //FUNC_RECOMMEND_USER(search_result out sys_refcursor)

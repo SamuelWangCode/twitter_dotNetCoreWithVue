@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using twitter_dotNetCoreWithVue.Controllers.Utils;
 using System.Data;
 using System.IO;
+using Microsoft.AspNetCore.Cors;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -23,6 +24,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
     /// User controller.
     /// 此控制器定义注册，登录，个人信息的增删改查等操作api接口
     /// </summary>
+    [EnableCors("Admin")]
     [Route("api/[controller]")]
     public class UserController : Controller
     {
@@ -573,7 +575,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// </summary>
         /// <returns>User_Public_Info的实例</returns>
         /// <param name="user_id">User identifier.</param>
-        [HttpGet("query/{user_id}")]
+        
+        [HttpGet("getUserPublicInfo/{user_id}")]
         public IActionResult QueryUser([Required]int user_id)
         {
             //TODO 查询可公开信息

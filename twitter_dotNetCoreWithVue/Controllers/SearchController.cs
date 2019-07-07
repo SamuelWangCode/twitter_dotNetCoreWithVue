@@ -46,7 +46,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// </summary>
         /// <returns>搜索的内容，分三个部分，推特/用户/话题</returns>
         /// <param name="searchKey">Identifier.</param>
-        [HttpPost("{searchKey}")]
+        [HttpGet("{searchKey}")]
         public IActionResult getSearchResult(string searchKey, [FromBody]Range range)
         {
             return Wrapper.wrap((OracleConnection conn) =>

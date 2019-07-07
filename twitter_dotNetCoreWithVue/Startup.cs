@@ -30,7 +30,12 @@ namespace twitter_dotNetCoreWithVue
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            
+            services.AddCors(options =>
+            options
+            .AddPolicy("Admin", p => p.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials()));
             #region Swagger
             services.AddSwaggerGen(c =>
             {
@@ -71,10 +76,7 @@ namespace twitter_dotNetCoreWithVue
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "ApiHelp V1");
             });
             #endregion
-            app.UseCors(options => options.AllowAnyHeader()
-                                    .AllowAnyMethod()
-                                    .AllowAnyOrigin()
-                                    .AllowCredentials());
+            app.UseCors("Admin");
             app.UseAuthentication();//配置授权
             app.UseStaticFiles();
             app.UseMvc();
