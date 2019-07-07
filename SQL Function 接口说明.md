@@ -679,7 +679,8 @@ SQL脚本文件统一放置在根目录下的SQLs文件夹中。
   - limitation: INTEGER类型，查找结果的长度
 - 输出参数：
 	- result: table属性为(topic_id, topic_heat, topic_content)
-- 已完成：否
+- 已完成：是
+- 完成者：顾安琪于2019-07-06
 
 
 ### 34. FUNC_RECOMMEND_USER(search_result out sys_refcursor)
