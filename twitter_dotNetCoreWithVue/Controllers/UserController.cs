@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using twitter_dotNetCoreWithVue.Controllers.Utils;
 using System.Data;
+using System.IO;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -66,6 +67,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             public int followers_num { get; set; }
             public int follows_num { get; set; }
             public string avatar_url { get; set; }
+            public int messages_num { get; set; }
         }
 
         bool CheckUserEamil(string email, OracleConnection conn)
@@ -541,6 +543,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         rr.Data.register_time = reader["USER_REGISTER_TIME"].ToString();
                         rr.Data.followers_num = int.Parse(reader["USER_FOLLOWERS_NUM"].ToString());
                         rr.Data.follows_num = int.Parse(reader["USER_FOLLOWS_NUM"].ToString());
+                        rr.Data.messages_num = getUserMessageNum(rr.Data.user_id);
                         rr.Data.avatar_url = getAvatarUrl(user_id);
                         return rr.Data;
                     }
@@ -587,16 +590,151 @@ namespace twitter_dotNetCoreWithVue.Controllers
         }
 
 
+        public static int getUserMessageNum(int user_id)
+        {
+            return Wrapper.wrap((OracleConnection conn) =>
+            {
+            //FUNC_GET_MESSAGE_NUMS(user_id in INTEGER, info out sys_refcursor)
+            //return INGETER
+            string procedureName = "FUNC_GET_MESSAGE_NUMS";
+            OracleCommand cmd = new OracleCommand(procedureName, conn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            OracleParameter p1 = new OracleParameter();
+            p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+            p1.Direction = ParameterDirection.ReturnValue;
+
+            OracleParameter p2 = new OracleParameter();
+            p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
+            p2.Direction = ParameterDirection.Input;
+            p2.Value = user_id;
+
+            OracleParameter p3 = new OracleParameter();
+            p3 = cmd.Parameters.Add("search_result", OracleDbType.RefCursor);
+            p3.Direction = ParameterDirection.Output;
+
+            var reader = cmd.ExecuteReader();
+            if (int.Parse(p1.Value.ToString()) == 0)
+            {
+                throw new Exception("failed");
+            }
+            else
+            {
+                if (reader.Read())
+                {
+                    RestfulResult.RestfulData<UserPublicInfo> rr = new RestfulResult.RestfulData<UserPublicInfo>();
+                    string[] temp = new string[reader.FieldCount];
+                    for (int i = 0; i < reader.FieldCount; ++i)
+                    {
+                        temp[i] = reader.GetValue(i).ToString();
+                    }
+                    return int.Parse(reader["message_num"].ToString());
+                    }
+                    else
+                    {
+                        throw new Exception("failed");
+                    }
+                }
+
+            });
+        }
+
+
         /// <summary>
         /// 上传头像图片的api, 目前不知道前端如何上传，待议
         /// </summary>
         /// <returns>返回是否成功</returns>
         [HttpPost("uploadAvatar")]
-        public IActionResult UploadAvatar()
+        public async Task<IActionResult> UploadAvatar([Required][FromForm]int user_id)
         {
-            //TODO 需要验证登录态
-            //返回成功与否
-            return new JsonResult(new { });
+            ////TODO 需要验证登录态
+            ////返回成功与否
+            //int userId = -1;
+            //if (HttpContext.User.Identity.IsAuthenticated)
+            //{
+            //    //这里通过 HttpContext.User.Claims 可以将我们在Login这个Action中存储到cookie中的所有
+            //    //claims键值对都读出来，比如我们刚才定义的UserName的值Wangdacui就在这里读取出来了
+            //    userId = int.Parse(HttpContext.User.Claims.ElementAt(0).Value);
+            //}
+            //else
+            //{
+            //    //TODO
+            //    //进入到这部分意味着用户登录态已经失效，需要返回给客户端信息，即需要登录。
+            //    RestfulResult.RestfulData rr = new RestfulResult.RestfulData();
+            //    rr.Code = 200;
+            //    rr.Message = "Need Authentication";
+            //    return new JsonResult(rr);
+            //}
+
+            using (OracleConnection conn = new OracleConnection(ConnStr.getConnStr()))
+            {
+                try
+                {
+                    conn.ConnectionString = ConnStr.getConnStr();
+                    conn.Open();
+                    RestfulResult.RestfulData rr = new RestfulResult.RestfulData();
+                    rr.Code = 200;
+                    rr.Message = "success";
+
+                    var images = Request.Form.Files;
+                    int img_num = 0;
+                    int avatar_id = addAvatarAndGetAvatarID(user_id);
+                    //Directory.CreateDirectory(@"wwwroot\avatars\" + userId.ToString());
+                    //foreach (var imgfile in images)
+                    //{
+                    //    if (imgfile.Length > 0)
+                    //    {
+                    //        var img_path = @"wwwroot\avatars\" + userId.ToString() + @"\" + img_num.ToString();
+                    //        using (var stream = new FileStream(img_path, FileMode.Create))
+                    //        {
+                    //            await imgfile.CopyToAsync(stream);
+                    //        }
+                    //        img_num++;
+                    //    }
+                    //}
+
+                    return new JsonResult(rr);
+                }
+                catch (Exception e)
+                {
+                    return null;
+                }
+            }
+        }
+
+
+        public static int addAvatarAndGetAvatarID(int user_id)
+        {
+            return Wrapper.wrap((OracleConnection conn) =>
+            {
+                //ADD_AVATAR(user_id in INTEGER, avatar_id out INTEGER)
+                //return INGETER
+                string procedureName = "ADD_AVATAR";
+                OracleCommand cmd = new OracleCommand(procedureName, conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                OracleParameter p1 = new OracleParameter();
+                p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                p1.Direction = ParameterDirection.ReturnValue;
+
+                OracleParameter p2 = new OracleParameter();
+                p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
+                p2.Direction = ParameterDirection.Input;
+                p2.Value = user_id;
+
+                OracleParameter p3 = new OracleParameter();
+                p3 = cmd.Parameters.Add("avatar_id", OracleDbType.Int32);
+                p3.Direction = ParameterDirection.Output;
+
+                var reader = cmd.ExecuteReader();
+                if (int.Parse(p1.Value.ToString()) == 0)
+                {
+                    throw new Exception("failed");
+                }
+                else
+                {
+                    return int.Parse(p3.Value.ToString());
+                }
+
+            });
         }
 
     }

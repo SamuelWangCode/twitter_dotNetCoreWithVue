@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Oracle.ManagedDataAccess.Client;
 using twitter_dotNetCoreWithVue.Controllers.Utils;
+using twitter_dotNetCoreWithVue.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -24,8 +25,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>返回包含message_id列表的Json对象</returns>
         /// <param name="topic_id">Topic identifier.</param>
         /// <param name="range">Range.</param>
-        [HttpPost("queryMessageIdsContains/{topic_id}")]
-        public IActionResult QueryMessageIdsContains([Required]int topic_id, [Required][FromBody]Range range)
+        [HttpPost("queryMessagesContains/{topic_id}")]
+        public IActionResult QueryMessagesContains([Required]int topic_id, [Required][FromBody]Range range)
         {
             //TODO 无需登录态验证
             //根据range来查找时间最近的几条message_id组成的列表
@@ -65,24 +66,21 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
                 DataTable dt = new DataTable();
                 DataAdapter.Fill(dt);
-
-                if (int.Parse(p1.Value.ToString()) == 0)
-                {
-                    throw new Exception("failed");
-                }
+                
 
                 //dt: message_id
-                int[] message_ids = new int[dt.Rows.Count];
+                MessageController.MessageForShow[] messages = new MessageController.MessageForShow[dt.Rows.Count];
+
                 for (int i = 0; i < dt.Rows.Count; ++i)
                 {
-                    message_ids[i] = int.Parse(dt.Rows[i][0].ToString());
-
+                    int message_id = int.Parse(dt.Rows[i][0].ToString());
+                    messages[i] = MessageController.InnerQuery(message_id);
                 }
 
-                RestfulResult.RestfulArray<int> rr = new RestfulResult.RestfulArray<int>();
+                RestfulResult.RestfulArray<MessageController.MessageForShow> rr = new RestfulResult.RestfulArray<MessageController.MessageForShow>();
                 rr.Code = 200;
                 rr.Message = "success";
-                rr.Data = message_ids;
+                rr.Data = messages;
 
                 return new JsonResult(rr);
             });
@@ -103,9 +101,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
             //可以直接使用Topic模型
             return Wrapper.wrap((OracleConnection conn) =>
             {
-                //FUNC_QUERY_TOPIC_IDS_ORDER_BY_HEAT(startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+                //FUNC_QUERY_TOPICS_BY_HEAT(startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
-                string procudureName = "FUNC_QUERY_TOPIC_IDS_ORDER_BY_HEAT";
+                string procudureName = "FUNC_QUERY_TOPICS_BY_HEAT";
                 OracleCommand cmd = new OracleCommand(procudureName, conn);
                 cmd.CommandType = CommandType.StoredProcedure;
 
@@ -133,23 +131,21 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 DataTable dt = new DataTable();
                 DataAdapter.Fill(dt);
 
-                if (int.Parse(p1.Value.ToString()) == 0)
-                {
-                    throw new Exception("failed");
-                }
-
+                
                 //dt: topic_id
-                int[] topic_ids = new int[dt.Rows.Count];
+                Topic[] topics = new Topic[dt.Rows.Count];
                 for (int i = 0; i < dt.Rows.Count; ++i)
                 {
-                    topic_ids[i] = int.Parse(dt.Rows[i][0].ToString());
-
+                    topics[i] = new Topic();
+                    topics[i].topic_id = int.Parse(dt.Rows[i][0].ToString());
+                    topics[i].topic_heat = int.Parse(dt.Rows[i][1].ToString());
+                    topics[i].topic_content = dt.Rows[i][2].ToString();
                 }
 
-                RestfulResult.RestfulArray<int> rr = new RestfulResult.RestfulArray<int>();
+                RestfulResult.RestfulArray<Topic> rr = new RestfulResult.RestfulArray<Topic>();
                 rr.Code = 200;
                 rr.Message = "success";
-                rr.Data = topic_ids;
+                rr.Data = topics;
 
                 return new JsonResult(rr);
             });

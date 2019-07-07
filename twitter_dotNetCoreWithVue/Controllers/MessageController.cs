@@ -400,8 +400,6 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 return new JsonResult(rr);
             }
 
-           
-           
             using (OracleConnection conn = new OracleConnection(ConnStr.getConnStr()))
             { 
                     try

@@ -319,4 +319,19 @@ return state;
 end;
 /
 
+---------------FUNC_GET_MESSAGE_NUMS
+create or replace function FUNC_GET_MESSAGE_NUMS
+(user_id In INTEGER, search_result OUT Sys_refcursor)
+return INTEGER
+is
+state integer:=1;
 
+begin
+open search_result for
+	select count(*) as message_num from USER_PUBLIC_INFO join MESSAGE on USER_PUBLIC_INFO.user_id = Message.message_sender_user_id
+  where USER_PUBLIC_INFO.user_id = user_id;
+
+
+return state;
+end;
+/

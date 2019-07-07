@@ -49,6 +49,23 @@ namespace twitter_dotNetCoreWithVue.Controllers.Utils
             }
         }
 
+        static public int wrap(Func<OracleConnection, int> func)
+        {
+            using (OracleConnection conn = new OracleConnection(ConnStr.getConnStr()))
+            {
+                try
+                {
+                    conn.ConnectionString = ConnStr.getConnStr();
+                    conn.Open();
+                    return func(conn);
+                }
+                catch (Exception e)
+                {
+                    return -1;
+                }
+            }
+        }
+
         static public bool wrap(Func<OracleConnection, bool> func)
         {
             using (OracleConnection conn = new OracleConnection(ConnStr.getConnStr()))
@@ -65,6 +82,7 @@ namespace twitter_dotNetCoreWithVue.Controllers.Utils
                 }
             }
         }
+
         static public MessageController.MessageForShow wrap(Func<OracleConnection, MessageController.MessageForShow> func)
         {
             using (OracleConnection conn = new OracleConnection(ConnStr.getConnStr()))
