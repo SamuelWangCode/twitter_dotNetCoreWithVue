@@ -1,4 +1,4 @@
-----------------FUNC_ADD_COLLECTION----------------------
+﻿----------------FUNC_ADD_COLLECTION----------------------
 ---------------添加收藏---------------------------------
 create or replace function
 FUNC_ADD_COLLECTION(user_id in INTEGER, be_collected_id in INTEGER)
@@ -28,8 +28,7 @@ end;
 
 ---------------FUNC_DELETE_COLLECTION----------------------
 -----------------------删除收藏----------------------------------
-create or replace 
-function 
+create or replace function 
 FUNC_DELETE_COLLECTION(user_id_input in INTEGER, message_id_input in INTEGER)
 return INTEGER
 is 
@@ -43,14 +42,17 @@ where message_id = message_id_input;
 
 if state != 0 then 
 state:=1;
+
 delete from message_collection
 where message_id = message_id_input and user_id=user_id_input;
+
 update MESSAGE 
 set message_heat=message_heat-1
 where message_id =message_id_input;
+
 update TOPIC 
 set TOPIC_HEAT=TOPIC_HEAT-1
-where topic_id=( select TOPIC_ID 
+where topic_id in ( select TOPIC_ID 
 from message_owns_topic
 where message_id = message_id_input);
 end if;
