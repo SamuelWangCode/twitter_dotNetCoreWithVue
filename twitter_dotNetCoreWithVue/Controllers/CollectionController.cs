@@ -78,13 +78,74 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
         }
 
+
+        /// <summary>
+        /// 添加收藏
+        /// </summary>
+        /// <returns>是否成功</returns>
+        /// <param name="message_id">Message identifier.</param>
+        [HttpPost("delete")]
+        public IActionResult Delete([Required]int message_id)
+        {
+            //TODO 需要验证登录态 添加收藏 EZ
+            //返回是否成功
+            int my_user_id = -1;
+            if (HttpContext.User.Identity.IsAuthenticated)
+            {
+                my_user_id = int.Parse(HttpContext.User.Claims.ElementAt(0).Value);
+            }
+            else
+            {
+                //进入到这部分意味着用户登录态已经失效，需要返回给客户端信息，即需要登录。
+                RestfulResult.RestfulData rr = new RestfulResult.RestfulData();
+                rr.Code = 200;
+                rr.Message = "Need Authentication";
+                return new JsonResult(rr);
+            }
+            return Wrapper.wrap((OracleConnection conn) =>
+            {
+                //FUNC_DELETE_COLLECTION(user_id in INTEGER, message_id in INTEGER)
+                //return INTEGER
+                string procudureName = "FUNC_DELETE_COLLECTION";
+                OracleCommand cmd = new OracleCommand(procudureName, conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                //Add return value
+                OracleParameter p1 = new OracleParameter();
+                p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                p1.Direction = ParameterDirection.ReturnValue;
+                //Add first parameter follower_id
+                OracleParameter p2 = new OracleParameter();
+                p2 = cmd.Parameters.Add("user_id_input", OracleDbType.Int32);
+                p2.Direction = ParameterDirection.Input;
+                p2.Value = my_user_id;
+                OracleParameter p3 = new OracleParameter();
+                //Add second parameter be_followed_id
+                p3 = cmd.Parameters.Add("message_id_input", OracleDbType.Int32);
+                p3.Value = message_id;
+                p3.Direction = ParameterDirection.Input;
+
+                cmd.ExecuteReader();
+                Console.WriteLine(p1.Value);
+
+                if (int.Parse(p1.Value.ToString()) == 0)
+                {
+                    throw new Exception("failed");
+                }
+
+                RestfulResult.RestfulData rr = new RestfulResult.RestfulData(200, "success");
+                return new JsonResult(rr);
+            });
+
+        }
+
         /// <summary>
         /// 查询收藏的列表
         /// 需要Range作为参数限制
         /// </summary>
         /// <returns>包含所有收藏的推特id的Json数据</returns>
         /// <param name="range">Range.</param>
-        [HttpGet("query")]
+        [HttpPost("query")]
         public IActionResult Query([Required][FromBody]Range range)
         {
             //TODO 需要验证登录态
@@ -108,7 +169,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             {
                 //FUNC_QUERY_COLLECTIONS_OF_MINE(user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
-                string procudureName = "FUNC_QUERY_MESSAGE_IDS_THAT_AT_USER";
+                string procudureName = "FUNC_QUERY_COLLECTIONS_OF_MINE";
                 OracleCommand cmd = new OracleCommand(procudureName, conn);
                 cmd.CommandType = CommandType.StoredProcedure;
 
@@ -140,11 +201,6 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 DataTable dt = new DataTable();
                 DataAdapter.Fill(dt);
 
-                if (int.Parse(p1.Value.ToString()) == 0)
-                {
-                    throw new Exception("failed");
-                }
-
                 //dt: message_id
                 int[] message_ids = new int[dt.Rows.Count];
                 for (int i = 0; i < dt.Rows.Count; ++i)
@@ -158,6 +214,82 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 rr.Data = message_ids;
 
                 return new JsonResult(rr);
+            });
+        }
+
+
+        public class User_Collect_Message
+        {
+            [Display(Name = "用户id")]
+            public int user_id { get; set; }
+
+            [Display(Name = "推特id")]
+            public int message_id { get; set; }
+        }
+
+        public class UserCollects
+        {
+            public bool favor { get; set; }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userLikeMessage"></param>
+        /// <returns></returns>
+        [HttpPost("checkUserLikesMessage")]
+        public IActionResult checkUserCollectMessge([Required]User_Collect_Message userCollectMessage)
+        {
+            return Wrapper.wrap((OracleConnection conn) =>
+            {
+                RestfulResult.RestfulData<UserCollects> rr = new RestfulResult.RestfulData<UserCollects>();
+                rr.Code = 200;
+                UserCollects l = new UserCollects();
+                l.favor = checkUserCollectMessageBool(userCollectMessage.user_id, userCollectMessage.message_id);
+                rr.Data = l;
+                rr.Message = "success";
+                return new JsonResult(rr);
+            });
+
+        }
+
+        public static bool checkUserCollectMessageBool(int user_id, int message_id)
+        {
+            return Wrapper.wrap((OracleConnection conn) =>
+            {
+                //FUNC_QUERY_IF_USER_COLLECTS(user_id in INTEGER, message_id in INTEGER)
+                //return INTEGER
+                string procudureName = "FUNC_QUERY_IF_USER_COLLECTS";
+                OracleCommand cmd = new OracleCommand(procudureName, conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                //Add return value
+                OracleParameter p1 = new OracleParameter();
+                p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                p1.Direction = ParameterDirection.ReturnValue;
+                //Add input parameter user_id
+                OracleParameter p2 = new OracleParameter();
+                p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
+                p2.Direction = ParameterDirection.Input;
+                p2.Value = user_id;
+                OracleParameter p3 = new OracleParameter();
+                //Add input parameter message_id
+                p3 = cmd.Parameters.Add("message_id", OracleDbType.Int32);
+                p3.Value = message_id;
+                p3.Direction = ParameterDirection.Input;
+
+                cmd.ExecuteReader();
+                Console.WriteLine(p1.Value);
+
+                if (int.Parse(p1.Value.ToString()) == 0)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+
             });
         }
     }
