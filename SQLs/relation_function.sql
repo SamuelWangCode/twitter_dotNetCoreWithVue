@@ -52,7 +52,7 @@ end;
 -------------------------查找关注列表---------------------------------
 create or replace 
 function 
-FUNC_QUERY_FOLLOWING_LIST(user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+FUNC_QUERY_FOLLOWING_LIST(my_user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
 return INTEGER
 is 
 id_temp NUMBER(38,0);
@@ -60,52 +60,43 @@ state INTEGER:=0;
 create_time VARCHAR2(30);
 begin
 
-select RELATION_CREATE_TIME 
-into create_time
-from RELATION;
+
 
 select count(*) into state
 from RELATION 
-where RELATION_USER_FOLLOWER_ID = user_id;
+where RELATION_USER_FOLLOWER_ID = my_user_id;
 
-if state=0 then 
-return state;
-else
+if state!=0 then 
 state:=1;
+end if;
 
 open search_result for
 select* from(
-select USER_PUBLIC_INFO.user_id, USER_PUBLIC_INFO.user_nickname,AVATAR_IMAGE.AVATAR_IMAGE_ID
-from USER_PUBLIC_INFO,AVATAR_IMAGE
-where AVATAR_IMAGE.USER_ID=USER_PUBLIC_INFO.USER_ID and AVATAR_IMAGE.AVATAR_IMAGE_IN_USE=1
-and id_temp in(
-select RELATION.RELATION_USER_BE_FOLLOWED_ID 
-from RELATION
-where id_temp=RELATION.RELATION_USER_FOLLOWER_ID)
-order by create_time desc)
+select user_id, user_nickname
+from USER_PUBLIC_INFO,RELATION 
+where user_id=RELATION.RELATION_USER_BE_FOLLOWED_ID and
+my_user_id=RELATION.RELATION_USER_FOLLOWER_ID
+order by RELATION_CREATE_TIME desc)
 where ROWNUM <startFrom+limitation
 minus
 select* from(
-select USER_PUBLIC_INFO.user_id, USER_PUBLIC_INFO.user_nickname,AVATAR_IMAGE.AVATAR_IMAGE_ID
-from USER_PUBLIC_INFO,AVATAR_IMAGE
-where AVATAR_IMAGE.USER_ID=USER_PUBLIC_INFO.USER_ID and AVATAR_IMAGE.AVATAR_IMAGE_IN_USE=1
-and id_temp in(
-select RELATION.RELATION_USER_BE_FOLLOWED_ID 
-from RELATION
-where id_temp=RELATION.RELATION_USER_FOLLOWER_ID)
-order by create_time desc)
+select user_id, user_nickname
+from USER_PUBLIC_INFO,RELATION 
+where user_id=RELATION.RELATION_USER_BE_FOLLOWED_ID and
+my_user_id=RELATION.RELATION_USER_FOLLOWER_ID
+order by RELATION_CREATE_TIME desc)
 where ROWNUM <startFrom;
 
-end if;
+
 return state;
 end;
 /
 
----------------FUNC_QUERY_FOLLOWING_LIST----------------------
+---------------FUNC_QUERY_FOLLOWERS_LIST----------------------
 -------------------------查找粉丝列表---------------------------------
 create or replace 
 function 
-FUNC_QUERY_FOLLOWERS_LIST(user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+FUNC_QUERY_FOLLOWERS_LIST(my_user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
 return INTEGER
 is 
 id_temp NUMBER(38,0);
@@ -113,43 +104,32 @@ state INTEGER:=0;
 create_time VARCHAR2(30);
 begin
 
-select RELATION_CREATE_TIME 
-into create_time
-from RELATION;
 
 select count(*) into state
 from RELATION 
-where RELATION_USER_FOLLOWER_ID = user_id;
+where relation_user_be_followed_id = my_user_id;
 
-if state=0 then 
-return state;
-else
+if state!=0 then 
 state:=1;
-
+end if;
 open search_result for
 select* from(
-select USER_PUBLIC_INFO.user_id, USER_PUBLIC_INFO.user_nickname,AVATAR_IMAGE.AVATAR_IMAGE_ID
-from USER_PUBLIC_INFO,AVATAR_IMAGE
-where AVATAR_IMAGE.USER_ID=USER_PUBLIC_INFO.USER_ID and AVATAR_IMAGE.AVATAR_IMAGE_IN_USE=1
-and id_temp in(
-select RELATION.RELATION_USER_FOLLOWER_ID
-from RELATION
-where id_temp=RELATION.RELATION_USER_BE_FOLLOWED_ID)
-order by create_time desc)
-where  ROWNUM <startFrom+limitation
+select user_id, user_nickname
+from USER_PUBLIC_INFO,RELATION 
+where my_user_id=RELATION.RELATION_USER_BE_FOLLOWED_ID and
+user_id=RELATION.RELATION_USER_FOLLOWER_ID
+order by RELATION_CREATE_TIME desc)
+where ROWNUM <startFrom+limitation
 minus
 select* from(
-select USER_PUBLIC_INFO.user_id, USER_PUBLIC_INFO.user_nickname,AVATAR_IMAGE.AVATAR_IMAGE_ID
-from USER_PUBLIC_INFO,AVATAR_IMAGE
-where AVATAR_IMAGE.USER_ID=USER_PUBLIC_INFO.USER_ID and AVATAR_IMAGE.AVATAR_IMAGE_IN_USE=1
-and id_temp in(
-select RELATION.RELATION_USER_FOLLOWER_ID
-from RELATION
-where id_temp=RELATION.RELATION_USER_BE_FOLLOWED_ID)
-order by create_time desc)
-where  ROWNUM <startFrom;
+select user_id, user_nickname
+from USER_PUBLIC_INFO,RELATION 
+where my_user_id=RELATION.RELATION_USER_BE_FOLLOWED_ID and
+user_id=RELATION.RELATION_USER_FOLLOWER_ID
+order by RELATION_CREATE_TIME desc)
+where ROWNUM <startFrom;
 
-end if;
+
 return state;
 end;
 /

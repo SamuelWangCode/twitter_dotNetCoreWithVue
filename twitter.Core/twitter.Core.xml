@@ -190,12 +190,13 @@
             <param name="user_id">User identifier.</param>
             <param name="range">Range</param>
         </member>
-        <member name="M:twitter_dotNetCoreWithVue.Controllers.RelationController.QueryFollowersForMe(twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.RelationController.QueryFollowersFor(System.Int32,twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
             <summary>
             查询关注自己的用户列表
             需要range作为参数
             </summary>
             <returns>Json</returns>
+            <param name="user_id"></param>
             <param name="range">Range</param>
         </member>
         <member name="M:twitter_dotNetCoreWithVue.Controllers.RelationController.CancelFollowingTo(System.Int32)">
