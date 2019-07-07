@@ -23,7 +23,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// </summary>
         /// <returns>包含 message_id组成的列表 的Json对象</returns>
         /// <param name="range">Range.</param>
-        [HttpGet("query")]
+        [HttpPost("query")]
         public IActionResult Query([Required][FromBody]Range range)
         {
             //TODO 需要身份验证
