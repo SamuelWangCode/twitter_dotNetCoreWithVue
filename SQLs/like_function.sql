@@ -136,3 +136,20 @@ RETURN state;
 
 END;
 /
+
+--------------------------------------------------
+--------------FUNC_QUERY_USER_LIKES_MESSAGE--------------------------------//
+create or replace FUNCTION FUNC_QUERY_USER_LIKES_MESSAGE
+(user_id IN INTEGER, message_id IN INTEGER)
+RETURN INTEGER
+AS
+state INTEGER:=1;
+
+BEGIN
+select count(*) into state
+from LIKES where LIKES_USER_ID = user_id and LIKES_MESSAGE_ID = message_id;
+state:=1;
+RETURN state;
+
+END;
+/

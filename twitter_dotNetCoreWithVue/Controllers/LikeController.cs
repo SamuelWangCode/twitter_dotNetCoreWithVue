@@ -139,7 +139,13 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 return new JsonResult(rr);
             });
         }
-
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="user_id"></param>
+        /// <param name="range"></param>
+        /// <returns></returns>
         [HttpGet("query/{user_id}")]
         public IActionResult QueryUserLikes([Required]int user_id, [Required]Range range)
         {
@@ -211,6 +217,81 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 rr.Data = message_ids;
 
                 return new JsonResult(rr);
+            });
+        }
+
+        public class User_Like_Message
+        {
+            [Display(Name = "用户id")]
+            public int user_id { get; set; }
+
+            [Display(Name = "推特id")]
+            public int message_id { get; set; }
+        }
+
+        public class UserLikes
+        {
+            public bool like { get; set; }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userLikeMessage"></param>
+        /// <returns></returns>
+        [HttpPost("checkUserLikesMessage")]
+        public IActionResult checkUserLikesMessge([Required]User_Like_Message userLikeMessage)
+        {
+            return Wrapper.wrap((OracleConnection conn) =>
+            {
+                RestfulResult.RestfulData<UserLikes> rr = new RestfulResult.RestfulData<UserLikes>();
+                rr.Code = 200;
+                UserLikes l = new UserLikes();
+                l.like = checkUserLikesMessageBool(userLikeMessage.user_id, userLikeMessage.message_id);
+                rr.Data = l;
+                rr.Message = "success";
+                return new JsonResult(rr);
+            });
+
+        }
+
+        public static bool checkUserLikesMessageBool(int user_id, int message_id)
+        {
+            return Wrapper.wrap((OracleConnection conn) =>
+            {
+                //FUNC_QUERY_USER_LIKES_MESSAGE(user_id in INTEGER, message_id in INTEGER)
+                //return INTEGER
+                string procudureName = "FUNC_QUERY_USER_LIKES_MESSAGE";
+                OracleCommand cmd = new OracleCommand(procudureName, conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                //Add return value
+                OracleParameter p1 = new OracleParameter();
+                p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                p1.Direction = ParameterDirection.ReturnValue;
+                //Add input parameter user_id
+                OracleParameter p2 = new OracleParameter();
+                p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
+                p2.Direction = ParameterDirection.Input;
+                p2.Value = user_id;
+                OracleParameter p3 = new OracleParameter();
+                //Add input parameter message_id
+                p3 = cmd.Parameters.Add("message_id", OracleDbType.Int32);
+                p3.Value = message_id;
+                p3.Direction = ParameterDirection.Input;
+
+                cmd.ExecuteReader();
+                Console.WriteLine(p1.Value);
+
+                if (int.Parse(p1.Value.ToString()) == 0)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+                
             });
         }
     }
