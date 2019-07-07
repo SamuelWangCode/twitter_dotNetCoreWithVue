@@ -51,7 +51,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 DataTable dt = new DataTable();
                 DataAdapter.Fill(dt);
 
-                if (int.Parse(p1.ToString()) != 1)
+                if (int.Parse(p1.Value.ToString()) == 0)
                 {
                     throw new Exception("failed");
                 }
@@ -60,6 +60,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 UserResult[] receivedUsers = new UserResult[dt.Rows.Count];
                 for (int i = 0; i < dt.Rows.Count; ++i)
                 {
+                    receivedUsers[i] = new UserResult();
                     receivedUsers[i].user_id = int.Parse(dt.Rows[i][0].ToString());
                     receivedUsers[i].user_nickname = dt.Rows[i][1].ToString();
                     receivedUsers[i].followers_num = int.Parse(dt.Rows[i][2].ToString());
