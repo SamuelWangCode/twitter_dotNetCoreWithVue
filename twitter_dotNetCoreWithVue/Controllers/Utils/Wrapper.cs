@@ -15,7 +15,9 @@ namespace twitter_dotNetCoreWithVue.Controllers.Utils
                 {
                     conn.ConnectionString = ConnStr.getConnStr();
                     conn.Open();
-                    return func(conn);
+                    var re= func(conn);
+                    conn.Close();
+                    return re;
                 }
                 catch (Exception e)
                 {
@@ -37,6 +39,7 @@ namespace twitter_dotNetCoreWithVue.Controllers.Utils
                     conn.Open();
                     IActionResult t;
                     t = await func(conn);
+                    conn.Close();
                     return t;
                 }
                 catch (Exception e)
@@ -57,7 +60,10 @@ namespace twitter_dotNetCoreWithVue.Controllers.Utils
                 {
                     conn.ConnectionString = ConnStr.getConnStr();
                     conn.Open();
-                    return func(conn);
+                    conn.Open();
+                    var re = func(conn);
+                    conn.Close();
+                    return re;
                 }
                 catch (Exception e)
                 {
@@ -74,7 +80,10 @@ namespace twitter_dotNetCoreWithVue.Controllers.Utils
                 {
                     conn.ConnectionString = ConnStr.getConnStr();
                     conn.Open();
-                    return func(conn);
+                    conn.Open();
+                    var re = func(conn);
+                    conn.Close();
+                    return re;
                 }
                 catch (Exception e)
                 {
@@ -91,7 +100,10 @@ namespace twitter_dotNetCoreWithVue.Controllers.Utils
                 {
                     conn.ConnectionString = ConnStr.getConnStr();
                     conn.Open();
-                    return func(conn);
+                    conn.Open();
+                    var re = func(conn);
+                    conn.Close();
+                    return re;
                 }
                 catch (Exception e)
                 {
@@ -107,7 +119,10 @@ namespace twitter_dotNetCoreWithVue.Controllers.Utils
                 {
                     conn.ConnectionString = ConnStr.getConnStr();
                     conn.Open();
-                    return func(conn);
+                    conn.Open();
+                    var re = func(conn);
+                    conn.Close();
+                    return re;
                 }
                 catch (Exception e)
                 {
