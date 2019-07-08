@@ -188,6 +188,21 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 infos.message_topics = TopicController.SearchTopicsInTwitter(infos.message_content);
                 infos.message_ats = AtController.SearchAtsInTwitter(infos.message_content);
 
+                if (infos.message_has_image == 1)
+                {
+                    string path = @"wwwroot\Messages\" + infos.message_id.ToString() + @"\";
+                    infos.message_image_urls = new string[infos.message_image_count];
+                    for (int j = 0; j < infos.message_image_count; j++)
+                    {
+                        if (System.IO.File.Exists(path + j.ToString() + ".jpg"))
+                        {
+                            infos.message_image_urls[j] = "/Messages/" + infos.message_id.ToString() + "/" + j.ToString() + ".jpg";
+                        }
+                        else break;
+                    }
+
+                }
+
                 RestfulResult.RestfulData<MessageForShow> rr = new RestfulResult.RestfulData<MessageForShow>();
                 rr.Code = 200;
                 rr.Message = "success";
@@ -337,12 +352,13 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 {
                     if (receivedTwitters[i].message_has_image == 1)
                     {
-                        string path = @"wwwroot\Messages\" + receivedTwitters[i].message_id.ToString();
-                        for (int j = 0; ; j++)
+                        string path = @"wwwroot\Messages\" + receivedTwitters[i].message_id.ToString() + @"\";
+                        receivedTwitters[i].message_image_urls = new string[receivedTwitters[i].message_image_count];
+                        for (int j = 0; j<receivedTwitters[i].message_image_count; j++)
                         {
-                            if (System.IO.File.Exists(path + @"\" + j.ToString()))
+                            if (System.IO.File.Exists(path + j.ToString() + ".jpg"))
                             {
-                                receivedTwitters[i].message_image_urls.Append<string>("/Messages/" + receivedTwitters[i].message_id.ToString() + "/" + j.ToString());
+                                receivedTwitters[i].message_image_urls[j] = "/Messages/" + receivedTwitters[i].message_id.ToString() + "/" + j.ToString() + ".jpg";
                             }
                             else break;
                         }
@@ -465,7 +481,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         {
                             if (imgfile.Length > 0)
                             {
-                                var img_path = @"wwwroot\Messages\" + p6.Value.ToString() + @"\" + img_num.ToString();
+                                var img_path = @"wwwroot\Messages\" + p6.Value.ToString() + @"\" + img_num.ToString() + ".jpg";
                                 using (var stream = new FileStream(img_path, FileMode.Create))
                                 {
                                     await imgfile.CopyToAsync(stream);
@@ -630,7 +646,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 //根据返回内容，表示推特是否有图片。如果推特有图片，则把这条推特ID所对应的图片下的文件夹删掉
                 if (int.Parse(p3.Value.ToString()) == 1)
                 {
-                    string path = @"wwwroot\Messages\" + message_id.ToString();
+                    string path = @"wwwroot\Messages\" + message_id.ToString() + ".jpg";
                     if(Directory.Exists(path))
                     {
                         Directory.Delete(path, true);
