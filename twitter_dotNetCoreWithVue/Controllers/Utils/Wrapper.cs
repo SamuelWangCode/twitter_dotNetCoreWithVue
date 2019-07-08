@@ -60,7 +60,6 @@ namespace twitter_dotNetCoreWithVue.Controllers.Utils
                 {
                     conn.ConnectionString = ConnStr.getConnStr();
                     conn.Open();
-                    conn.Open();
                     var re = func(conn);
                     conn.Close();
                     return re;
@@ -79,7 +78,6 @@ namespace twitter_dotNetCoreWithVue.Controllers.Utils
                 try
                 {
                     conn.ConnectionString = ConnStr.getConnStr();
-                    conn.Open();
                     conn.Open();
                     var re = func(conn);
                     conn.Close();
@@ -100,7 +98,6 @@ namespace twitter_dotNetCoreWithVue.Controllers.Utils
                 {
                     conn.ConnectionString = ConnStr.getConnStr();
                     conn.Open();
-                    conn.Open();
                     var re = func(conn);
                     conn.Close();
                     return re;
@@ -118,7 +115,6 @@ namespace twitter_dotNetCoreWithVue.Controllers.Utils
                 try
                 {
                     conn.ConnectionString = ConnStr.getConnStr();
-                    conn.Open();
                     conn.Open();
                     var re = func(conn);
                     conn.Close();
