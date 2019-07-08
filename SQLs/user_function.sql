@@ -272,4 +272,18 @@ return state;
 end;
 /
 
+---------FUNC_GET_USER_PRIVATE_INFO-----
+create or replace function FUNC_GET_USER_PRIVATE_INFO(m_user_id in INTEGER, info OUT Sys_refcursor)
+return INTEGER
+is state integer:=1;
+
+begin
+open info for
+  select * from USER_PRIVATE_INFO
+  where user_id = m_user_id;
+
+return state;
+end;
+/
+
 

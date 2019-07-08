@@ -93,14 +93,14 @@ state:=1;
   open search_result for
     select * from(
      (select * from
-       (select topic_id
+       (select *
        from topic
        where topic_content like'%'||searchkey||'%'
        order by topic_heat desc)
       where rownum < startfrom+limitation)
      minus
      (select * from
-       (select topic_id
+       (select *
        from topic
        where topic_content like'%'||searchkey||'%'
        order by topic_heat desc)
