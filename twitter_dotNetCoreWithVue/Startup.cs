@@ -33,7 +33,7 @@ namespace twitter_dotNetCoreWithVue
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddCors(options =>
             options
-            .AddPolicy("Admin", p => p.AllowAnyOrigin()
+            .AddPolicy("Admin", p => p.WithOrigins("http://localhost:8080")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials()));
