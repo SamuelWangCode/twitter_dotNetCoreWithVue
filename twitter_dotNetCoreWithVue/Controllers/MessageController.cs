@@ -468,7 +468,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         throw new Exception("failed");
                     }
 
-                    TopicController.TopicInfos[] aaa = TopicController.AddTopicsInTwitter(message.message_content, int.Parse(p6.Value.ToString()));
+                    TopicController.AddTopicsInTwitter(message.message_content, int.Parse(p6.Value.ToString()));
                     AtController.AddAtsInTwitter(message.message_content, int.Parse(p6.Value.ToString()), userId);
 
                     //若推特含图，从POST体内获得图的内容并保存到服务器
@@ -582,6 +582,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 }
 
                 TopicController.AddTopicsInTwitter(message.message_content, int.Parse(p6.Value.ToString()));
+                AtController.AddAtsInTwitter(message.message_content, int.Parse(p6.Value.ToString()), userId);
 
                 RestfulResult.RestfulData rr = new RestfulResult.RestfulData(200, "success");
                 return new JsonResult(rr);
