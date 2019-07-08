@@ -347,8 +347,12 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     receivedTwitters[i].message_heat = int.Parse(dt.Rows[i][9].ToString());
                     receivedTwitters[i].message_image_count = int.Parse(dt.Rows[i][10].ToString() == "" ? "0" : dt.Rows[i][10].ToString());
                     receivedTwitters[i].message_transpond_message_id = int.Parse(dt.Rows[i][11].ToString() == "" ? "0" : dt.Rows[i][11].ToString());
+
+                    receivedTwitters[i].message_topics = TopicController.SearchTopicsInTwitter(receivedTwitters[i].message_content);
+                    receivedTwitters[i].message_ats = AtController.SearchAtsInTwitter(receivedTwitters[i].message_content);
+
                 }
-                for(int i=0;i<dt.Rows.Count;i++)
+                for (int i=0;i<dt.Rows.Count;i++)
                 {
                     if (receivedTwitters[i].message_has_image == 1)
                     {
