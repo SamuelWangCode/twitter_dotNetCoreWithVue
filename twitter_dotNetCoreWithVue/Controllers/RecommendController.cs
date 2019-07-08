@@ -65,7 +65,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     receivedUsers[i].user_nickname = dt.Rows[i][1].ToString();
                     receivedUsers[i].followers_num = int.Parse(dt.Rows[i][2].ToString());
                     string avatarUrl = UserController.getAvatarUrl(receivedUsers[i].user_id);
-                    receivedUsers[i].avatar_url = "/avatars/" + avatarUrl;
+                    receivedUsers[i].avatar_url = avatarUrl;
                 }
                 RestfulResult.RestfulArray<UserResult> rr = new RestfulResult.RestfulArray<UserResult>();
                 rr.Code = 200;

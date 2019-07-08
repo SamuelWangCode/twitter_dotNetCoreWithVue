@@ -353,8 +353,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <param name="be_followed_id"></param>
         /// <returns>用户是否关注be_followed</returns>
         /// 
-        [HttpPost("if_following_by_me")]
-        public IActionResult IfFollowing(int be_followed_id)
+        [HttpGet("if_following_by_me/{be_followed_id}")]
+        public IActionResult IfFollowing([Required]int be_followed_id)
         {
             int my_user_id = -1;
             if (HttpContext.User.Identity.IsAuthenticated)

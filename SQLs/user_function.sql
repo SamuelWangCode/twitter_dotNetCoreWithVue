@@ -216,22 +216,16 @@ AS
 state INTEGER:=1;
 BEGIN
 
-	SELECT count(*) into state 
-  from USER_PUBLIC_INFO
-  WHERE USER_FOLLOWERS_NUM>0;
 
-  IF state=0
-  THEN
-    return state;
-  ELSE
-    open search_result for 
-    SELECT* FROM 
-         (SELECT USER_ID, USER_NICKNAME, USER_FOLLOWERS_NUM
-          FROM USER_PUBLIC_INFO
-          ORDER BY USER_FOLLOWERS_NUM DESC)
-    WHERE ROWNUM<=5 and ROWNUM<=state;
-    state:=1;
-  END IF;
+
+open search_result for 
+  SELECT* FROM 
+        (SELECT USER_ID, USER_NICKNAME, USER_FOLLOWERS_NUM
+        FROM USER_PUBLIC_INFO
+        ORDER BY USER_FOLLOWERS_NUM DESC)
+  WHERE ROWNUM<=5;
+  state:=1;
+
 
 	RETURN state;
 END;
