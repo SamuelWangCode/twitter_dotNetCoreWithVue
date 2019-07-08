@@ -268,7 +268,30 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 });
             }
         }
-
+        [HttpGet("check_login")]
+        public IActionResult CheckLogin()
+        {
+            if (HttpContext.User.Identity.IsAuthenticated)
+            {
+                //这里通过 HttpContext.User.Claims 可以将我们在Login这个Action中存储到cookie中的所有
+                //claims键值对都读出来，比如我们刚才定义的UserName的值Wangdacui就在这里读取出来了
+                RestfulResult.RestfulData<UserId> rr = new RestfulResult.RestfulData<UserId>();
+                rr.Code = 200;
+                rr.Data = new UserId();
+                rr.Data.user_id= int.Parse(HttpContext.User.Claims.ElementAt(0).Value);
+                rr.Message = "Aready login";
+                return new JsonResult(rr);
+            }
+            else
+            {
+                //TODO
+                //进入到这部分意味着用户登录态已经失效，需要返回给客户端信息，即需要登录。
+                RestfulResult.RestfulData rr = new RestfulResult.RestfulData();
+                rr.Code = 200;
+                rr.Message = "Need Authentication";
+                return new JsonResult(rr);
+            }
+        }
         /// <summary>
         /// 此接口用于编辑个人信息界面
         /// </summary>
