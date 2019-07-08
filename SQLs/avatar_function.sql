@@ -2,7 +2,7 @@
 --------------FUNC_GET_USER_AVATAR--------------------------------//
 CREATE OR REPLACE 
 function 
-FUNC_GET_USER_AVATAR(user_id in INTEGER, avatar_id out INTEGER)
+FUNC_GET_USER_AVATAR(in_user_id in INTEGER, avatar_id out INTEGER)
 return INTEGER
 is 
 state INTEGER;
@@ -10,7 +10,7 @@ begin
 
   select count(*) into state 
   from Avatar_Image
-  where user_id=Avatar_Image.user_id and avatar_image_in_use=1;
+  where in_user_id=Avatar_Image.user_id and avatar_image_in_use=1;
 
 if state>0
   then 
@@ -18,7 +18,7 @@ if state>0
   select 
   avatar_image_id into avatar_id 
   from Avatar_Image
-  where user_id=Avatar_Image.user_id and avatar_image_in_use=1;
+  where in_user_id=Avatar_Image.user_id and avatar_image_in_use=1;
   return state;
 end if;
 return state;
@@ -58,15 +58,15 @@ return state;
 end;
 /
 ---------------ADD_AVATAR
-create or replace function ADD_AVATAR(user_id in INTEGER, avatar_id out INTEGER)
+create or replace function ADD_AVATAR(userid in INTEGER, avatarid out INTEGER)
 return INTEGER
 is
 PRAGMA AUTONOMOUS_TRANSACTION;
 state INTEGER:=1;
-m_user_id INTEGER:=user_id;
+m_user_id INTEGER:=userid;
 begin
 
-insert into AVATAR_IMAGE(USER_ID, AVATAR_IMAGE_IN_USE) VALUES (m_user_id, 0) returning AVATAR_IMAGE_ID into avatar_id;
+insert into AVATAR_IMAGE(USER_ID, AVATAR_IMAGE_IN_USE) VALUES (m_user_id, 0) returning AVATAR_IMAGE_ID into avatarid;
 commit;
 return state;
 end;
