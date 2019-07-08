@@ -37,8 +37,11 @@ namespace twitter_dotNetCoreWithVue.Controllers
             public int private_letter_id { get; set; }
 
             [Required]
-            [Display(Name = "发送者id")]
             public int sender_user_id { get; set; }
+
+            [Required]
+            [Display(Name = "发送者信息")]
+            public UserController.UserPublicInfo sender_info { get; set; }
 
             [Required]
             public string timeStamp { get; set; }
@@ -111,11 +114,6 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 DataTable dt = new DataTable();
                 DataAdapter.Fill(dt);
 
-                if (int.Parse(p1.Value.ToString()) == 0)
-                {
-                    throw new Exception("failed");
-                }
-
                 //dt: sender_user_id, private_letter_id, content, timestamp
                 ReceivedPrivateLetter[] receiveds = new ReceivedPrivateLetter[dt.Rows.Count];
                 for (int i = 0; i < dt.Rows.Count; ++i)
@@ -125,6 +123,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     receiveds[i].private_letter_id = int.Parse(dt.Rows[i][1].ToString());
                     receiveds[i].private_letter_content = dt.Rows[i][2].ToString();
                     receiveds[i].timeStamp = dt.Rows[i][3].ToString();
+                    receiveds[i].sender_info = UserController.getUserPublicInfo(receiveds[i].sender_user_id);
                 }
 
                 RestfulResult.RestfulArray<ReceivedPrivateLetter> rr = new RestfulResult.RestfulArray<ReceivedPrivateLetter>();

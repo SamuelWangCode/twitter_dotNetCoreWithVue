@@ -52,14 +52,7 @@ state integer:=1;
 
 BEGIN
 
-  SELECT count(*) into state 
-  from PRIVATE_LETTER
-  where PRIVATE_LETTER.PRIVATE_LETTER_RECEIVER_ID=user_id;
 
-  IF state=0
-  THEN 
-    return state;
-  ELSE  
     open search_result for 
     SELECT* FROM 
          (SELECT PRIVATE_LETTER_SENDER_ID,PRIVATE_LETTER_ID,PRIVATE_LETTER_CONTENT,PRIVATE_LETTER_CREATE_TIME
@@ -74,9 +67,7 @@ BEGIN
          WHERE PRIVATE_LETTER.PRIVATE_LETTER_RECEIVER_ID=user_id 
          ORDER BY PRIVATE_LETTER.PRIVATE_LETTER_CREATE_TIME DESC)
     WHERE ROWNUM<startFrom;
-
     state:=1;
-  END IF;
 	RETURN state;
 END;
 
