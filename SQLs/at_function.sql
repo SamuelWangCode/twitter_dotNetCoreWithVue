@@ -21,16 +21,31 @@ select MESSAGE_ID
 from AT_USER
 where AT_USER_ID= in_user_id
 order by AT_TIME desc)
-where ROWNUM >= startFrom and ROWNUM < startFrom + limitation;
+where ROWNUM < startFrom + limitation
+MINUS
+select * from(
+select MESSAGE_ID
+from AT_USER
+where AT_USER_ID= in_user_id
+order by AT_TIME desc)
+where ROWNUM < startFrom;
+
 update AT_USER
 set AT_IS_READ = 1
 where MESSAGE_ID in (
-    select * from(
-    select MESSAGE_ID
-    from AT_USER
-    where AT_USER_ID= in_user_id
-    order by AT_TIME desc)
-    where ROWNUM >= startFrom and ROWNUM < startFrom + limitation
+      select * from(
+      select MESSAGE_ID
+      from AT_USER
+      where AT_USER_ID= in_user_id
+      order by AT_TIME desc)
+      where ROWNUM < startFrom + limitation
+      MINUS
+      select * from(
+      select MESSAGE_ID
+      from AT_USER
+      where AT_USER_ID= in_user_id
+      order by AT_TIME desc)
+      where ROWNUM < startFrom
   ) and AT_USER_ID = in_user_id;
 
 end if;
