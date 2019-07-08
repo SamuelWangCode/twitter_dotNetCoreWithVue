@@ -497,9 +497,10 @@ namespace twitter_dotNetCoreWithVue.Controllers
             cmd.ExecuteReader();
             if (int.Parse(p1.Value.ToString()) == 0)
             {
-                return "/avatars/0.jpg";
+                return //"http://localhost:12293/avatars/0.jpg";
+                "/avatars/0.jpg";
             }
-            return "/avatars/" + int.Parse(p3.Value.ToString()).ToString() + ".jpg";
+            return "http://localhost:12293/avatars/" + int.Parse(p3.Value.ToString()).ToString() + ".jpg";
         }
 
 
