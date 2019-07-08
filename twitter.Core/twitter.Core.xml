@@ -59,7 +59,7 @@
             <param name="userLikeMessage"></param>
             <returns></returns>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:twitter_dotNetCoreWithVue.Controllers.CollectionController.CollectionCount(System.Int32)" -->
+        <!-- 对于成员“M:twitter_dotNetCoreWithVue.Controllers.CollectionController.CollectionCount(System.Int32)”忽略有格式错误的 XML 注释 -->
         <member name="T:twitter_dotNetCoreWithVue.Controllers.CommentController">
             <summary>
             有关评论推特的api
@@ -230,8 +230,8 @@
             <returns>是否成功</returns>
             <param name="user_id">User identifier.</param>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:twitter_dotNetCoreWithVue.Controllers.RelationController.IfFollowing(System.Int32,System.Int32)" -->
-        <!-- Badly formed XML comment ignored for member "M:twitter_dotNetCoreWithVue.Controllers.RelationController.IfFollowing(System.Int32)" -->
+        <!-- 对于成员“M:twitter_dotNetCoreWithVue.Controllers.RelationController.IfFollowing(System.Int32,System.Int32)”忽略有格式错误的 XML 注释 -->
+        <!-- 对于成员“M:twitter_dotNetCoreWithVue.Controllers.RelationController.IfFollowing(System.Int32)”忽略有格式错误的 XML 注释 -->
         <member name="M:twitter_dotNetCoreWithVue.Controllers.SearchController.getSearchResult(System.String,twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
             <summary>
             搜索接口
