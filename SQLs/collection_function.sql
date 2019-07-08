@@ -87,7 +87,7 @@ select * from(
 select MESSAGE_COLLECTION.MESSAGE_ID
 from MESSAGE_COLLECTION
 where MESSAGE_COLLECTION.USER_ID= user_id)
-where ROWNUM >= startFrom and ROWNUM <= limitation;
+where ROWNUM >= startFrom and ROWNUM < startFrom + limitation;
 
 end if;
 return state;
