@@ -70,9 +70,89 @@ namespace twitter_dotNetCoreWithVue.Controllers
             public int follows_num { get; set; }
             public string avatar_url { get; set; }
             public int messages_num { get; set; }
-
             public int collection_num { get; set; }
         }
+
+
+        public class UserAllInfo
+        {
+            public UserPublicInfo userPublicInfo { get; set; }
+            public User_Private_Info user_Private_Info { get; set; }
+        }
+
+        [HttpGet("getAllUserInfo")]
+        public IActionResult getAllUserInfo()
+        {
+            int userId = -1;
+            if (HttpContext.User.Identity.IsAuthenticated)
+            {
+                //这里通过 HttpContext.User.Claims 可以将我们在Login这个Action中存储到cookie中的所有
+                //claims键值对都读出来，比如我们刚才定义的UserName的值Wangdacui就在这里读取出来了
+                userId = int.Parse(HttpContext.User.Claims.ElementAt(0).Value);
+            }
+            else
+            {
+                //TODO
+                //进入到这部分意味着用户登录态已经失效，需要返回给客户端信息，即需要登录。
+                RestfulResult.RestfulData rr = new RestfulResult.RestfulData();
+                rr.Code = 200;
+                rr.Message = "Need Authentication";
+                return new JsonResult(rr);
+            }
+
+            return Wrapper.wrap((OracleConnection conn) =>
+            {
+                //FUNC_GET_USER_PRIVATE_INFO(user_id in INTEGER, info out sys_refcursor)
+                //return INGETER
+                string procedureName = "FUNC_GET_USER_PRIVATE_INFO";
+                OracleCommand cmd = new OracleCommand(procedureName, conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                OracleParameter p1 = new OracleParameter();
+                p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                p1.Direction = ParameterDirection.ReturnValue;
+
+                OracleParameter p2 = new OracleParameter();
+                p2 = cmd.Parameters.Add("m_user_id", OracleDbType.Int32);
+                p2.Direction = ParameterDirection.Input;
+                p2.Value = userId;
+
+                OracleParameter p3 = new OracleParameter();
+                p3 = cmd.Parameters.Add("info", OracleDbType.RefCursor);
+                p3.Direction = ParameterDirection.Output;
+
+                var reader = cmd.ExecuteReader();
+                if (int.Parse(p1.Value.ToString()) == 0)
+                {
+                    throw new Exception("failed");
+                }
+                else
+                {
+                    if (reader.Read())
+                    {
+                        RestfulResult.RestfulData<UserAllInfo> rr = new RestfulResult.RestfulData<UserAllInfo>();
+                        string[] temp = new string[reader.FieldCount];
+                        for (int i = 0; i < reader.FieldCount; ++i)
+                        {
+                            temp[i] = reader.GetValue(i).ToString();
+                        }
+                        rr.Data = new UserAllInfo();
+                        rr.Data.user_Private_Info = new User_Private_Info();
+                        rr.Data.user_Private_Info.user_id = int.Parse(reader["USER_ID"].ToString());
+                        rr.Data.user_Private_Info.user_email = reader["user_email"].ToString();
+                        rr.Data.user_Private_Info.user_gender = reader["user_gender"].ToString();
+                        rr.Data.user_Private_Info.user_password = reader["user_password"].ToString();
+                        rr.Data.user_Private_Info.user_realname = reader["user_real_name"].ToString();
+                        rr.Data.userPublicInfo = getUserPublicInfo(userId);
+                        return new JsonResult(rr);
+                    }
+                    else
+                    {
+                        throw new Exception("failed");
+                    }
+                }
+            });
+        }
+
 
         bool CheckUserEamil(string email, OracleConnection conn)
         {
@@ -108,6 +188,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 {
                     return new JsonResult(new RestfulResult.RestfulData(200, "The email don't be used"));
                 }
+
             });
         }
 
@@ -716,7 +797,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                             await imgfile.CopyToAsync(stream);
                         }
                     }
-                    
+                    ChangeAvatar(avatar_id);
 
                     return new JsonResult(rr);
                 }

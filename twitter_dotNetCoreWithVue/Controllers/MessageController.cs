@@ -105,10 +105,6 @@ namespace twitter_dotNetCoreWithVue.Controllers
             [StringLength(280)]
             public string message_content { get; set; }
 
-            [Display(Name = "来源推特是否亦为转发")]
-            [Required]
-            public bool message_source_is_transpond { get; set; }
-
             [Display(Name = "转发来源推特ID")]
             public int message_transpond_message_id { get; set; }
 
@@ -347,8 +343,12 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     receivedTwitters[i].message_heat = int.Parse(dt.Rows[i][9].ToString());
                     receivedTwitters[i].message_image_count = int.Parse(dt.Rows[i][10].ToString() == "" ? "0" : dt.Rows[i][10].ToString());
                     receivedTwitters[i].message_transpond_message_id = int.Parse(dt.Rows[i][11].ToString() == "" ? "0" : dt.Rows[i][11].ToString());
+
+                    receivedTwitters[i].message_topics = TopicController.SearchTopicsInTwitter(receivedTwitters[i].message_content);
+                    receivedTwitters[i].message_ats = AtController.SearchAtsInTwitter(receivedTwitters[i].message_content);
+
                 }
-                for(int i=0;i<dt.Rows.Count;i++)
+                for (int i=0;i<dt.Rows.Count;i++)
                 {
                     if (receivedTwitters[i].message_has_image == 1)
                     {
@@ -535,7 +535,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
             return Wrapper.wrap((OracleConnection conn) =>
             {
-                //FUNC_TRANSPOND_MESSAGE(message_content in VARCHAR2, message_source_is_transpond in INTEGER, message_sender_user_id in INTEGER, message_transpond_message_id in INTEGER, message_id out INTEGER)
+                //FUNC_TRANSPOND_MESSAGE(userID in INTEGER, content in VARCHAR2, transpondID in INTEGER, messageID out INTEGER)
                 //return INTEGER
                 string procedureName = "FUNC_TRANSPOND_MESSAGE";
                 OracleCommand cmd = new OracleCommand(procedureName, conn);
@@ -546,34 +546,28 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
                 p1.Direction = ParameterDirection.ReturnValue;
 
-                //Add first parameter message_content
+                //Add first parameter userID
                 OracleParameter p2 = new OracleParameter();
-                p2 = cmd.Parameters.Add("message_content", OracleDbType.Varchar2);
+                p2 = cmd.Parameters.Add("userID", OracleDbType.Int32);
                 p2.Direction = ParameterDirection.Input;
-                p2.Value = message.message_content;
+                p2.Value = userId;
 
                 //Add second parameter message_is_transpond
                 OracleParameter p3 = new OracleParameter();
-                p3 = cmd.Parameters.Add("message_is_transpond", OracleDbType.Int32);
+                p3 = cmd.Parameters.Add("content", OracleDbType.Varchar2);
                 p3.Direction = ParameterDirection.Input;
-                p3.Value = message.message_source_is_transpond;
+                p3.Value = message.message_content;
 
                 //Add third parameter message_sender_user_id
                 OracleParameter p4 = new OracleParameter();
-                p4 = cmd.Parameters.Add("message_sender_user_id", OracleDbType.Int32);
+                p4 = cmd.Parameters.Add("transpondID", OracleDbType.Int32);
                 p4.Direction = ParameterDirection.Input;
-                p4.Value = userId;
+                p4.Value = message.message_transpond_message_id;
 
-                //Add fourth parameter message_transpond_message_id
+                //Add fourth parameter message_id
                 OracleParameter p5 = new OracleParameter();
-                p5 = cmd.Parameters.Add("message_transpond_message_id", OracleDbType.Int32);
-                p5.Direction = ParameterDirection.Input;
-                p5.Value = message.message_transpond_message_id;
-
-                //Add fifth parameter message_id
-                OracleParameter p6 = new OracleParameter();
-                p6 = cmd.Parameters.Add("message_id", OracleDbType.Int32);
-                p6.Direction = ParameterDirection.Output;
+                p5 = cmd.Parameters.Add("messageID", OracleDbType.Int32);
+                p5.Direction = ParameterDirection.Output;
 
                 cmd.ExecuteReader();
                 if (int.Parse(p1.Value.ToString()) == 0)
@@ -581,8 +575,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     throw new Exception("failed");
                 }
 
-                TopicController.AddTopicsInTwitter(message.message_content, int.Parse(p6.Value.ToString()));
-                AtController.AddAtsInTwitter(message.message_content, int.Parse(p6.Value.ToString()), userId);
+                TopicController.AddTopicsInTwitter(message.message_content, int.Parse(p5.Value.ToString()));
+                AtController.AddAtsInTwitter(message.message_content, int.Parse(p5.Value.ToString()), userId);
 
                 RestfulResult.RestfulData rr = new RestfulResult.RestfulData(200, "success");
                 return new JsonResult(rr);
