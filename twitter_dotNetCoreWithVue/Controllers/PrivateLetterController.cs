@@ -79,7 +79,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
             return Wrapper.wrap((OracleConnection conn) =>
             {
-                //FUNC_QUERY_PRIVATE_LETTERS(user_id in INTEGER ,startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+                //FUNC_QUERY_PRIVATE_LETTERS(userid in INTEGER ,startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
                 string procudureName = "FUNC_QUERY_PRIVATE_LETTERS";
                 OracleCommand cmd = new OracleCommand(procudureName, conn);
@@ -91,7 +91,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p1.Direction = ParameterDirection.ReturnValue;
                 //Add input parameter user_id
                 OracleParameter p2 = new OracleParameter();
-                p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
+                p2 = cmd.Parameters.Add("userid", OracleDbType.Int32);
                 p2.Value = my_user_id;
                 p2.Direction = ParameterDirection.Input;
                 //Add input parameter follower_id

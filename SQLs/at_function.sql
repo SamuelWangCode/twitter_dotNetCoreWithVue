@@ -4,16 +4,12 @@ create or replace function
 FUNC_QUERY_MESSAGE_AT_USER(in_user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
 return INTEGER
 is 
-state INTEGER:=0;
+state INTEGER:=1;
 
 begin
-select count(*) into state
-from AT_USER
-where AT_USER_ID = in_user_id;
 
-if state=0 then 
-return state;
-else
+
+
 state:=1;
 open search_result for 
 select * from(
@@ -21,19 +17,33 @@ select MESSAGE_ID
 from AT_USER
 where AT_USER_ID= in_user_id
 order by AT_TIME desc)
-where ROWNUM >= startFrom and ROWNUM < startFrom + limitation;
+where ROWNUM < startFrom + limitation
+MINUS
+select * from(
+select MESSAGE_ID
+from AT_USER
+where AT_USER_ID= in_user_id
+order by AT_TIME desc)
+where ROWNUM < startFrom;
+
 update AT_USER
 set AT_IS_READ = 1
 where MESSAGE_ID in (
-    select * from(
-    select MESSAGE_ID
-    from AT_USER
-    where AT_USER_ID= in_user_id
-    order by AT_TIME desc)
-    where ROWNUM >= startFrom and ROWNUM < startFrom + limitation
+      select * from(
+      select MESSAGE_ID
+      from AT_USER
+      where AT_USER_ID= in_user_id
+      order by AT_TIME desc)
+      where ROWNUM < startFrom + limitation
+      MINUS
+      select * from(
+      select MESSAGE_ID
+      from AT_USER
+      where AT_USER_ID= in_user_id
+      order by AT_TIME desc)
+      where ROWNUM < startFrom
   ) and AT_USER_ID = in_user_id;
 
-end if;
 return state;
 end;
 /
