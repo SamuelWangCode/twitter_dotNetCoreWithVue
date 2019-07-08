@@ -160,7 +160,7 @@ CREATE TABLE Transpond(
 ------------------Message_Image---------------
 
 CREATE TABLE Message_Image(
-  message_id INTEGER GENERATED ALWAYS AS IDENTITY,
+  message_id INTEGER NOT NULL,
   message_image_count INTEGER NOT NULL,
   CONSTRAINT pk_message_image
 	PRIMARY KEY (message_id),

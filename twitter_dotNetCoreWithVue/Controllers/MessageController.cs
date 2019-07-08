@@ -262,6 +262,15 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                 infos.message_topics = TopicController.SearchTopicsInTwitter(infos.message_content);
                 infos.message_ats = AtController.SearchAtsInTwitter(infos.message_content);
+                infos.message_image_urls = new string[infos.message_image_count];
+                for(int i = 0; i < infos.message_image_count; i++)
+                {
+                    infos.message_image_urls[i] = "http://localhost:12293/Messages/"
+                                                    + infos.message_id.ToString()
+                                                    + "/"
+                                                    + i.ToString()
+                                                    + ".jpg";
+                }
 
                 return infos;
 
@@ -358,7 +367,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         {
                             if (System.IO.File.Exists(path + j.ToString() + ".jpg"))
                             {
-                                receivedTwitters[i].message_image_urls[j] = "/Messages/" + receivedTwitters[i].message_id.ToString() + "/" + j.ToString() + ".jpg";
+                                receivedTwitters[i].message_image_urls[j] = "http://localhost:12293/Messages/" + receivedTwitters[i].message_id.ToString() + "/" + j.ToString() + ".jpg";
                             }
                             else break;
                         }
@@ -382,7 +391,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>The message.</returns>
         /// <param name="message">Message.</param>
         [HttpPost("send")]
-        public async Task<IActionResult> Send([Required][FromBody]MessageForSender message)
+        public async Task<IActionResult> Send([Required][FromForm]MessageForSender message)
         {
             //TODO 需要验证身份
             //有很多参数都是有初始化的

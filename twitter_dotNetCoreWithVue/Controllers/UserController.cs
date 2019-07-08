@@ -326,6 +326,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         rr.Data = new UserId();
                         rr.Data.user_id = userId;
                         rr.Message = "Sign in success";
+                        //HttpContext.Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:8080");
+                        //HttpContext.Response.Headers.Add("Access-Control-Allow-Credentials", "true");
                     }
 
                     var claims = new[] {
