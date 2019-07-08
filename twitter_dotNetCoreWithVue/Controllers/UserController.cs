@@ -473,7 +473,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
         public static string getAvatarUrl(int user_id)
         {
-            //FUNC_GET_USER_AVATAR(user_id in INTEGER, avatar_id out INTEGER)
+            //FUNC_GET_USER_AVATAR(in_user_id in INTEGER, avatar_id out INTEGER)
             //return INTEGER
             OracleConnection conn = new OracleConnection(ConnStr.getConnStr());
             conn.ConnectionString = ConnStr.getConnStr();
@@ -486,7 +486,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             p1.Direction = ParameterDirection.ReturnValue;
 
             OracleParameter p2 = new OracleParameter();
-            p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
+            p2 = cmd.Parameters.Add("in_user_id", OracleDbType.Int32);
             p2.Direction = ParameterDirection.Input;
             p2.Value = user_id;
 
@@ -497,8 +497,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             cmd.ExecuteReader();
             if (int.Parse(p1.Value.ToString()) == 0)
             {
-                return //"http://localhost:12293/avatars/0.jpg";
-                "/avatars/0.jpg";
+                return "http://localhost:12293/avatars/0.jpg";
             }
             return "http://localhost:12293/avatars/" + int.Parse(p3.Value.ToString()).ToString() + ".jpg";
         }
@@ -710,7 +709,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         {
             return Wrapper.wrap((OracleConnection conn) =>
             {
-                //ADD_AVATAR(user_id in INTEGER, avatar_id out INTEGER)
+                //ADD_AVATAR(userid in INTEGER, avatarid out INTEGER)
                 //return INGETER
                 string procedureName = "ADD_AVATAR";
                 OracleCommand cmd = new OracleCommand(procedureName, conn);
@@ -720,12 +719,12 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p1.Direction = ParameterDirection.ReturnValue;
 
                 OracleParameter p2 = new OracleParameter();
-                p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
+                p2 = cmd.Parameters.Add("userid", OracleDbType.Int32);
                 p2.Direction = ParameterDirection.Input;
                 p2.Value = user_id;
 
                 OracleParameter p3 = new OracleParameter();
-                p3 = cmd.Parameters.Add("avatar_id", OracleDbType.Int32);
+                p3 = cmd.Parameters.Add("avatarid", OracleDbType.Int32);
                 p3.Direction = ParameterDirection.Output;
 
                 var reader = cmd.ExecuteReader();
