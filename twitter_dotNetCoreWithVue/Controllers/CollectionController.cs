@@ -24,7 +24,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>是否成功</returns>
         /// <param name="message_id">Message identifier.</param>
         [HttpPost("add")]
-        public IActionResult Add([Required]int message_id)
+        public async Task<IActionResult> Add([Required]int message_id)
         {
             //TODO 需要验证登录态 添加收藏 EZ
             //返回是否成功
@@ -41,7 +41,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 rr.Message = "Need Authentication";
                 return new JsonResult(rr);
             }
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //FUNC_ADD_COLLECTION(user_id in INTEGER, message_id in INTEGER)
                 //return INTEGER
@@ -64,7 +64,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p3.Value = message_id;
                 p3.Direction = ParameterDirection.Input;
 
-                cmd.ExecuteReader();
+                await cmd.ExecuteReaderAsync();
                 Console.WriteLine(p1.Value);
 
                 if (int.Parse(p1.Value.ToString()) == 0)
@@ -85,7 +85,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>是否成功</returns>
         /// <param name="message_id">Message identifier.</param>
         [HttpPost("delete")]
-        public IActionResult Delete([Required]int message_id)
+        public async Task<IActionResult> Delete([Required]int message_id)
         {
             //TODO 需要验证登录态 添加收藏 EZ
             //返回是否成功
@@ -102,7 +102,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 rr.Message = "Need Authentication";
                 return new JsonResult(rr);
             }
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //FUNC_DELETE_COLLECTION(user_id in INTEGER, message_id in INTEGER)
                 //return INTEGER
@@ -125,7 +125,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p3.Value = message_id;
                 p3.Direction = ParameterDirection.Input;
 
-                cmd.ExecuteReader();
+                await cmd.ExecuteReaderAsync();
                 Console.WriteLine(p1.Value);
 
                 if (int.Parse(p1.Value.ToString()) == 0)
@@ -146,7 +146,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>包含所有收藏的推特id的Json数据</returns>
         /// <param name="range">Range.</param>
         [HttpPost("query")]
-        public IActionResult Query([Required][FromBody]Range range)
+        public async Task<IActionResult> Query([Required][FromBody]Range range)
         {
             //TODO 需要验证登录态
             //需要range作为参数
@@ -165,7 +165,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 return new JsonResult(rr);
             }
 
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //FUNC_QUERY_COLLECTIONS_OF_MINE(user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
@@ -199,7 +199,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                 OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
                 DataTable dt = new DataTable();
-                DataAdapter.Fill(dt);
+                await Task.FromResult(DataAdapter.Fill(dt));
 
                 //dt: message_id
                 int[] message_ids = new int[dt.Rows.Count];
@@ -211,7 +211,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 MessageController.MessageForShow[] messages = new MessageController.MessageForShow[dt.Rows.Count];
                 for(int i = 0; i < dt.Rows.Count; ++i)
                 {
-                    messages[i] = MessageController.InnerQuery(message_ids[i]);
+                    messages[i] = await MessageController.InnerQuery(message_ids[i]);
                 }
 
                 //RestfulResult.RestfulArray<int> rr = new RestfulResult.RestfulArray<int>();
@@ -246,14 +246,14 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <param name="userLikeMessage"></param>
         /// <returns></returns>
         [HttpPost("checkUserCollectMessage")]
-        public IActionResult checkUserCollectMessge([Required]User_Collect_Message userCollectMessage)
+        public async Task<IActionResult> checkUserCollectMessge([Required]User_Collect_Message userCollectMessage)
         {
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 RestfulResult.RestfulData<UserCollects> rr = new RestfulResult.RestfulData<UserCollects>();
                 rr.Code = 200;
                 UserCollects l = new UserCollects();
-                l.favor = checkUserCollectMessageBool(userCollectMessage.user_id, userCollectMessage.message_id);
+                l.favor = await checkUserCollectMessageBool(userCollectMessage.user_id, userCollectMessage.message_id);
                 rr.Data = l;
                 rr.Message = "success";
                 return new JsonResult(rr);
@@ -263,9 +263,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
         
 
-        public static bool checkUserCollectMessageBool(int user_id, int message_id)
+        public static async Task<Boolean> checkUserCollectMessageBool(int user_id, int message_id)
         {
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //FUNC_QUERY_IF_USER_COLLECTS(user_id in INTEGER, message_id in INTEGER)
                 //return INTEGER
@@ -288,7 +288,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p3.Value = message_id;
                 p3.Direction = ParameterDirection.Input;
 
-                cmd.ExecuteReader();
+                await cmd.ExecuteReaderAsync();
                 Console.WriteLine(p1.Value);
 
                 if (int.Parse(p1.Value.ToString()) == 0)
@@ -308,7 +308,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             public int collection_num;
         }
 
-        static public int GetCollectionCount(int user_id,OracleConnection conn)
+        static public async Task<int> GetCollectionCount(int user_id,OracleConnection conn)
         {
             string procudureName = "FUNC_GET_COLLECTION_NUM";
             OracleCommand cmd = new OracleCommand(procudureName, conn);
@@ -328,7 +328,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             p3 = cmd.Parameters.Add("message_id", OracleDbType.Int32);
             p3.Direction = ParameterDirection.Output;
 
-            cmd.ExecuteReader();
+            await cmd.ExecuteReaderAsync();
             return int.Parse(p3.Value.ToString());
         }
 
@@ -338,16 +338,16 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns></returns>
         /// 
         [HttpPost("getCollectionNum")]
-        public IActionResult CollectionCount([Required]int user_id)
+        public async Task<IActionResult> CollectionCount([Required]int user_id)
         {
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                
                 RestfulResult.RestfulData<CollectionNum> rr = new RestfulResult.RestfulData<CollectionNum>();
                 rr.Code = 200;
                 rr.Message = "success";
                 rr.Data = new CollectionNum();
-                rr.Data.collection_num = GetCollectionCount(user_id,conn);
+                rr.Data.collection_num = await GetCollectionCount(user_id, conn);
                 return new JsonResult(rr);
 
 

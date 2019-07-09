@@ -30,7 +30,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>是否成功</returns>
         /// <param name="message_id">Message identifier.</param>
         [HttpGet("{message_id}")]
-        public IActionResult Like([Required]int message_id)
+        public async Task<IActionResult> Like([Required]int message_id)
         {
             //TODO 给某个推特点赞
             // 需要身份验证
@@ -49,7 +49,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 return new JsonResult(rr);
             }
 
-            return Wrapper.wrap((OracleConnection conn) => {
+            return await Wrapper.wrap(async (OracleConnection conn) => {
                 //FUNC_ADD_LIKE(user_id in INTEGER, like_message_id in INTEGER)
                 //return INTEGER
                 string procudureName = "FUNC_ADD_LIKE";
@@ -71,7 +71,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p3.Value = message_id;
                 p3.Direction = ParameterDirection.Input;
 
-                cmd.ExecuteReader();
+                await cmd.ExecuteReaderAsync();
                 Console.WriteLine(p1.Value);
 
                 if (int.Parse(p1.Value.ToString()) == 0)
@@ -91,7 +91,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>是否成功</returns>
         /// <param name="message_id">Message identifier.</param>
         [HttpGet("cancel/{message_id}")]
-        public IActionResult CancelLike([Required]int message_id)
+        public async Task<IActionResult> CancelLike([Required]int message_id)
         {
             //TODO 给某个推特取消点赞
             // 需要身份验证
@@ -110,7 +110,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 return new JsonResult(rr);
             }
 
-            return Wrapper.wrap((OracleConnection conn) => {
+            return await Wrapper.wrap(async (OracleConnection conn) => {
                 //FUNC_DELETE_LIKE(user_id in INTEGER, like_message_id in INTEGER)
                 //return INTEGER
                 string procudureName = "FUNC_DELETE_LIKE";
@@ -132,7 +132,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p3.Value = message_id;
                 p3.Direction = ParameterDirection.Input;
 
-                cmd.ExecuteReader();
+                await cmd.ExecuteReaderAsync();
                 Console.WriteLine(p1.Value);
 
                 if (int.Parse(p1.Value.ToString()) == 0)
@@ -152,10 +152,10 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <param name="range"></param>
         /// <returns></returns>
         [HttpGet("query/{user_id}")]
-        public IActionResult QueryUserLikes([Required]int user_id, [Required]Range range)
+        public async Task<IActionResult> QueryUserLikes([Required]int user_id, [Required]Range range)
         { 
 
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //FUNC_QUERY_MESSAGE_IDS_LIKES(user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
@@ -189,7 +189,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                 OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
                 DataTable dt = new DataTable();
-                DataAdapter.Fill(dt);
+                await Task.FromResult(DataAdapter.Fill(dt));
 
                 
                 //dt: message_id
@@ -229,14 +229,14 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <param name="userLikeMessage"></param>
         /// <returns></returns>
         [HttpPost("checkUserLikesMessage")]
-        public IActionResult checkUserLikesMessge([Required]User_Like_Message userLikeMessage)
+        public async Task<IActionResult> checkUserLikesMessge([Required]User_Like_Message userLikeMessage)
         {
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 RestfulResult.RestfulData<UserLikes> rr = new RestfulResult.RestfulData<UserLikes>();
                 rr.Code = 200;
                 UserLikes l = new UserLikes();
-                l.like = checkUserLikesMessageBool(userLikeMessage.user_id, userLikeMessage.message_id);
+                l.like = await checkUserLikesMessageBool(userLikeMessage.user_id, userLikeMessage.message_id);
                 rr.Data = l;
                 rr.Message = "success";
                 return new JsonResult(rr);
@@ -244,9 +244,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
         }
 
-        public static bool checkUserLikesMessageBool(int user_id, int message_id)
+        public static async Task<bool> checkUserLikesMessageBool(int user_id, int message_id)
         {
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //FUNC_QUERY_USER_LIKES_MESSAGE(user_id in INTEGER, message_id in INTEGER)
                 //return INTEGER
@@ -269,7 +269,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p3.Value = message_id;
                 p3.Direction = ParameterDirection.Input;
 
-                cmd.ExecuteReader();
+                await cmd.ExecuteReaderAsync();
                 Console.WriteLine(p1.Value);
 
                 if (int.Parse(p1.Value.ToString()) == 0)

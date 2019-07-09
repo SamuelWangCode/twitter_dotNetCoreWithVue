@@ -81,7 +81,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         }
 
         [HttpGet("getAllUserInfo")]
-        public IActionResult getAllUserInfo()
+        public async Task<IActionResult> getAllUserInfo()
         {
             int userId = -1;
             if (HttpContext.User.Identity.IsAuthenticated)
@@ -100,7 +100,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 return new JsonResult(rr);
             }
 
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //FUNC_GET_USER_PRIVATE_INFO(user_id in INTEGER, info out sys_refcursor)
                 //return INGETER
@@ -120,7 +120,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p3 = cmd.Parameters.Add("info", OracleDbType.RefCursor);
                 p3.Direction = ParameterDirection.Output;
 
-                var reader = cmd.ExecuteReader();
+                var reader = await cmd.ExecuteReaderAsync();
                 if (int.Parse(p1.Value.ToString()) == 0)
                 {
                     throw new Exception("failed");
@@ -142,7 +142,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         rr.Data.user_Private_Info.user_gender = reader["user_gender"].ToString();
                         rr.Data.user_Private_Info.user_password = reader["user_password"].ToString();
                         rr.Data.user_Private_Info.user_realname = reader["user_real_name"].ToString();
-                        rr.Data.userPublicInfo = getUserPublicInfo(userId);
+                        rr.Data.userPublicInfo = await getUserPublicInfo(userId);
                         return new JsonResult(rr);
                     }
                     else
@@ -154,7 +154,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         }
 
 
-        bool CheckUserEamil(string email, OracleConnection conn)
+        private async Task<bool> CheckUserEamil(string email, OracleConnection conn)
         {
             string procedureName = "FUNC_CHECK_USER_EMAIL_EXIST";
             OracleCommand cmd = new OracleCommand(procedureName, conn);
@@ -168,19 +168,19 @@ namespace twitter_dotNetCoreWithVue.Controllers
             p2.Direction = ParameterDirection.Input;
             p2.Value = email;
 
-            cmd.ExecuteReader();
+            await cmd.ExecuteReaderAsync();
             return int.Parse(p1.Value.ToString()) == 1;
         }
 
         [HttpPost("checkEmail")]
-        public IActionResult CheckEmail([Required]string email)
+        public async Task<IActionResult> CheckEmail([Required]string email)
         {
             //FUNC_CHECK_USER_EMAIL_EXIST(email in VARCHAR)
             //return INGETER
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
 
-                if (CheckUserEamil(email, conn))
+                if (await CheckUserEamil(email, conn))
                 {
                     return new JsonResult(new RestfulResult.RestfulData(200, "The email is used"));
                 }
@@ -199,20 +199,20 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>是否成功</returns>
         /// <param name="userInfoForSignUp">注册时需要的信息</param>
         [HttpPost("signUp")]
-        public IActionResult SignUp([FromBody]UserInfoForSignUp userInfoForSignUp)
+        public async Task<IActionResult> SignUp([FromBody]UserInfoForSignUp userInfoForSignUp)
         {
             //TODO 注册啦
             //返回是否注册成功
 
 
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 if (!(ParameterChecker.CheckPara(userInfoForSignUp.email, ParameterChecker.ParaTpye.Email)
                 && ParameterChecker.CheckPara(userInfoForSignUp.password, ParameterChecker.ParaTpye.Password)))
                 {
                     return new JsonResult(new RestfulResult.RestfulData(200, "Invalid Email or Password"));
                 }
-                if (CheckUserEamil(userInfoForSignUp.email, conn))
+                if (await CheckUserEamil(userInfoForSignUp.email, conn))
                 {
                     return new JsonResult(new RestfulResult.RestfulData(200, "The email is used"));
                 }
@@ -240,7 +240,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p4.Direction = ParameterDirection.Input;
                 p4.Value = userInfoForSignUp.password;
 
-                cmd.ExecuteReader();
+                await cmd.ExecuteReaderAsync();
 
                 if (int.Parse(p1.Value.ToString()) == 0)
                 {
@@ -261,7 +261,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>返回用户的user_id</returns>
         /// <param name="userInfoForSignIn">登录时需要的信息</param>
         [HttpPost("signIn")]
-        public IActionResult SignIn([FromBody]UserInfoForSignIn userInfoForSignIn)
+        public async Task<IActionResult> SignIn([FromBody]UserInfoForSignIn userInfoForSignIn)
         {
             //下面的变量claims是Claim类型的数组，Claim是string类型的键值对，所以claims数组中可以存储任意个和用户有关的信息，
             //不过要注意这些信息都是加密后存储在客户端浏览器cookie中的，所以最好不要存储太多特别敏感的信息
@@ -285,7 +285,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
             else
             {
-                return Wrapper.wrap((OracleConnection conn) =>
+                return await Wrapper.wrap(async (OracleConnection conn) =>
                 {
                     //FUNC_USER_SIGN_IN_BY_EMAIL(email in VARCHAR, password in VARCHAR, user_id out INTEGER)
                     //return INTEGER
@@ -310,7 +310,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     p4 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
                     p4.Direction = ParameterDirection.Output;
 
-                    cmd.ExecuteReader();
+                    await cmd.ExecuteReaderAsync();
 
                     RestfulResult.RestfulData<UserId> rr = new RestfulResult.RestfulData<UserId>();
                     rr.Code = 200;
@@ -382,7 +382,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>success or not</returns>
         /// <param name="userInfoEdit">用户可以被直接修改的信息</param>
         [HttpPost("editInfo")]
-        public IActionResult EditInfo([FromBody]UserInfoEdit userInfoEdit)
+        public async Task<IActionResult> EditInfo([FromBody]UserInfoEdit userInfoEdit)
         {
             //如果HttpContext.User.Identity.IsAuthenticated为true，
             //或者HttpContext.User.Claims.Count()大于0表示用户已经登录
@@ -404,7 +404,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 return new JsonResult(rr);
             }
 
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 if (!(ParameterChecker.CheckPara(userInfoEdit.password, ParameterChecker.ParaTpye.Password)
                 || userInfoEdit.password == ""))
@@ -489,7 +489,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p8.Direction = ParameterDirection.Input;
                 p8.Value = mode;
 
-                cmd.ExecuteReader();
+                await cmd.ExecuteReaderAsync();
 
                 if (int.Parse(p1.Value.ToString()) == 0)
                 {
@@ -507,7 +507,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>success or not</returns>
         /// <param name="avatar_id">用户的头像图片id</param>
         [HttpGet("setAvatar")]
-        public IActionResult ChangeAvatar([Required]int avatar_id)
+        public async Task<IActionResult> ChangeAvatar([Required]int avatar_id)
         {
             string userId;
             if (HttpContext.User.Identity.IsAuthenticated)
@@ -523,7 +523,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 rr.Message = "Need Authentication";
                 return new JsonResult(rr);
             }
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //FUNC_SET_MAIN_AVATAR(user_id in INTEGER, avatar_id in INTEGER)
                 //return INGETER
@@ -545,7 +545,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p3.Direction = ParameterDirection.Input;
                 p3.Value = avatar_id;
 
-                cmd.ExecuteReader();
+                await cmd.ExecuteReaderAsync();
                 if (int.Parse(p1.Value.ToString()) == 0)
                 {
                     throw new Exception("failed");
@@ -561,14 +561,14 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>用户的头像url</returns>
         /// </summary>
         [HttpGet("getAvatarImageSrc/{user_id}")]
-        public IActionResult GetAvatar([Required]int user_id)
+        public async Task<IActionResult> GetAvatar([Required]int user_id)
         {
             //TODO 无需验证身份
             //从数据库获得此人的正在使用头像
             //返回头像的url
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
-                string avatarUrl = getAvatarUrl(user_id);
+                string avatarUrl = await getAvatarUrl(user_id);
                 RestfulResult.RestfulData<string> rr = new RestfulResult.RestfulData<string>();
                 rr.Code = 200;
                 rr.Message = "success";
@@ -578,7 +578,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         }
 
 
-        public static string getAvatarUrl(int user_id)
+        public static async Task<string> getAvatarUrl(int user_id)
         {
             //FUNC_GET_USER_AVATAR(in_user_id in INTEGER, avatar_id out INTEGER)
             //return INTEGER
@@ -601,7 +601,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             p3 = cmd.Parameters.Add("avatar_id", OracleDbType.Int32);
             p3.Direction = ParameterDirection.Output;
 
-            cmd.ExecuteReader();
+            await cmd.ExecuteReaderAsync();
             if (int.Parse(p1.Value.ToString()) == 0)
             {
                 conn.Close();
@@ -612,9 +612,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
         }
 
 
-        public static UserPublicInfo getUserPublicInfo(int user_id)
+        public static async Task<UserPublicInfo> getUserPublicInfo(int user_id)
         {
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //FUNC_GET_USER_PUBLIC_INFO(user_id in INTEGER, info out sys_refcursor)
                 //return INGETER
@@ -634,7 +634,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p3 = cmd.Parameters.Add("info", OracleDbType.RefCursor);
                 p3.Direction = ParameterDirection.Output;
 
-                var reader = cmd.ExecuteReader();
+                var reader = await cmd.ExecuteReaderAsync();
                 if (int.Parse(p1.Value.ToString()) == 0)
                 {
                     throw new Exception("failed");
@@ -656,9 +656,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         rr.Data.register_time = reader["USER_REGISTER_TIME"].ToString();
                         rr.Data.followers_num = int.Parse(reader["USER_FOLLOWERS_NUM"].ToString());
                         rr.Data.follows_num = int.Parse(reader["USER_FOLLOWS_NUM"].ToString());
-                        rr.Data.messages_num = getUserMessageNum(rr.Data.user_id);
-                        rr.Data.avatar_url = getAvatarUrl(user_id);
-                        rr.Data.collection_num = CollectionController.GetCollectionCount(user_id,conn);
+                        rr.Data.messages_num = await getUserMessageNum(rr.Data.user_id);
+                        rr.Data.avatar_url = await getAvatarUrl(user_id);
+                        rr.Data.collection_num = await CollectionController.GetCollectionCount(user_id,conn);
                         return rr.Data;
                     }
                     else
@@ -689,25 +689,25 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <param name="user_id">User identifier.</param>
         
         [HttpGet("getUserPublicInfo/{user_id}")]
-        public IActionResult QueryUser([Required]int user_id)
+        public async Task<IActionResult> QueryUser([Required]int user_id)
         {
             //TODO 查询可公开信息
             //返回含有列表的Json对象
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 RestfulResult.RestfulData<UserPublicInfo> rr = new RestfulResult.RestfulData<UserPublicInfo>();
                 rr.Code = 200;
                 rr.Message = "success";
-                rr.Data = getUserPublicInfo(user_id);
+                rr.Data = await getUserPublicInfo(user_id);
                 return new JsonResult(rr);
             });
 
         }
 
 
-        public static int getUserMessageNum(int user_id)
+        public static async Task<int> getUserMessageNum(int user_id)
         {
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
             //FUNC_GET_MESSAGE_NUMS(user_id in INTEGER, info out sys_refcursor)
             //return INGETER
@@ -727,7 +727,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             p3 = cmd.Parameters.Add("search_result", OracleDbType.RefCursor);
             p3.Direction = ParameterDirection.Output;
 
-            var reader = cmd.ExecuteReader();
+            var reader = await cmd.ExecuteReaderAsync();
             if (int.Parse(p1.Value.ToString()) == 0)
             {
                 throw new Exception("failed");
@@ -791,7 +791,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     rr.Message = "success";
 
                     var imgfile = Request.Form.Files[0];
-                    int avatar_id = addAvatarAndGetAvatarID(user_id);
+                    int avatar_id = await addAvatarAndGetAvatarID(user_id);
                     Directory.CreateDirectory(@"wwwroot\avatars\" + user_id.ToString());
                     
                     if (imgfile.Length > 0)
@@ -802,7 +802,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                             await imgfile.CopyToAsync(stream);
                         }
                     }
-                    ChangeAvatar(avatar_id);
+                    await ChangeAvatar(avatar_id);
 
                     return new JsonResult(rr);
                 }
@@ -814,9 +814,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
         }
 
 
-        public static int addAvatarAndGetAvatarID(int user_id)
+        public static async Task<int> addAvatarAndGetAvatarID(int user_id)
         {
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //ADD_AVATAR(userid in INTEGER, avatarid out INTEGER)
                 //return INGETER
@@ -836,7 +836,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p3 = cmd.Parameters.Add("avatarid", OracleDbType.Int32);
                 p3.Direction = ParameterDirection.Output;
 
-                var reader = cmd.ExecuteReader();
+                var reader = await cmd.ExecuteReaderAsync();
                 if (int.Parse(p1.Value.ToString()) == 0)
                 {
                     throw new Exception("failed");

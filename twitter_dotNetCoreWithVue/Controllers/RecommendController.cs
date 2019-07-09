@@ -29,11 +29,11 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// </summary>
         /// <returns>The get.</returns>
         [HttpGet("getRecommendUsers")]
-        public IActionResult getRecommendedUsers()
+        public async Task<IActionResult> getRecommendedUsers()
         {
             //FUNC_RECOMMEND_USER(search_result out sys_refcursor)
             //return INTEGER
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 string procudureName = "FUNC_RECOMMEND_USER";
                 OracleCommand cmd = new OracleCommand(procudureName, conn);
@@ -49,7 +49,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                 OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
                 DataTable dt = new DataTable();
-                DataAdapter.Fill(dt);
+                await Task.FromResult(DataAdapter.Fill(dt));
 
                 if (int.Parse(p1.Value.ToString()) == 0)
                 {
@@ -64,7 +64,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     receivedUsers[i].user_id = int.Parse(dt.Rows[i][0].ToString());
                     receivedUsers[i].user_nickname = dt.Rows[i][1].ToString();
                     receivedUsers[i].followers_num = int.Parse(dt.Rows[i][2].ToString());
-                    string avatarUrl = UserController.getAvatarUrl(receivedUsers[i].user_id);
+                    string avatarUrl = await UserController.getAvatarUrl(receivedUsers[i].user_id);
                     receivedUsers[i].avatar_url = avatarUrl;
                 }
                 RestfulResult.RestfulArray<UserResult> rr = new RestfulResult.RestfulArray<UserResult>();

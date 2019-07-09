@@ -24,7 +24,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>包含 message_id组成的列表 的Json对象</returns>
         /// <param name="range">Range.</param>
         [HttpPost("query")]
-        public IActionResult Query([Required][FromBody]Range range)
+        public async Task<IActionResult> Query([Required][FromBody]Range range)
         {
             //TODO 需要身份验证
             //查找At自己的在range范围内的message_id
@@ -44,7 +44,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 return new JsonResult(rr);
             }
 
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //FUNC_QUERY_MESSAGE_AT_USER(in_user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
@@ -78,7 +78,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                 OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
                 DataTable dt = new DataTable();
-                DataAdapter.Fill(dt);
+                await Task.FromResult(DataAdapter.Fill(dt));
 
                 //dt: message_id
                 MessageController.MessageForShow[] messages = new MessageController.MessageForShow[dt.Rows.Count];
@@ -111,7 +111,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <param name="content">Twitter Content.</param>
         /// <param name="messageID">Twitter ID.</param>
         /// <param name="source_user_id">Source User ID.</param>
-        static public AtInfos[] AddAtsInTwitter(string content, int messageID, int source_user_id)
+        static public async Task<AtInfos[]> AddAtsInTwitter(string content, int messageID, int source_user_id)
         {
             System.Text.RegularExpressions.Regex atRegex = new System.Text.RegularExpressions.Regex(@"@\w+");
             System.Text.RegularExpressions.MatchCollection atCollection = atRegex.Matches(content);
@@ -164,7 +164,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         p4.Direction = ParameterDirection.Input;
                         p4.Value = source_user_id;
 
-                        cmd.ExecuteReader();
+                        await cmd.ExecuteReaderAsync();
                         if (int.Parse(p1.Value.ToString()) == 0)
                         {
                             throw new Exception("failed");
@@ -192,13 +192,14 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         p7 = cmd2.Parameters.Add("Search_Result", OracleDbType.Int32);
                         p7.Direction = ParameterDirection.Output;
 
-                        cmd2.ExecuteReader();
+                        await cmd2.ExecuteReaderAsync();
                         if (int.Parse(p5.Value.ToString()) == 0)
                         {
                             throw new Exception("failed");
                         }
                         temp_at.atIds = int.Parse(p7.Value.ToString());
                     }
+                    
                 }
                 catch (Exception e)
                 {
@@ -214,7 +215,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             return atInfos;
         }
 
-        static public AtInfos[] SearchAtsInTwitter(string content)
+        static public async Task<AtInfos[]> SearchAtsInTwitter(string content)
         {
             System.Text.RegularExpressions.Regex atRegex = new System.Text.RegularExpressions.Regex(@"@\w+");
             System.Text.RegularExpressions.MatchCollection atCollection = atRegex.Matches(content);
@@ -261,7 +262,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         p7 = cmd2.Parameters.Add("Search_Result", OracleDbType.Int32);
                         p7.Direction = ParameterDirection.Output;
 
-                        cmd2.ExecuteReader();
+                        await cmd2.ExecuteReaderAsync();
                         if (int.Parse(p5.Value.ToString()) == 0)
                         {
                             throw new Exception("failed");

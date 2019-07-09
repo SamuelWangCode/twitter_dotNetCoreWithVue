@@ -54,7 +54,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// </summary>
         /// <returns>私信列表</returns>
         [HttpPost("queryForMe")]
-        public IActionResult QueryForMe([Required]Range range)
+        public async Task<IActionResult> QueryForMe([Required]Range range)
         {
             //TODO 需要验证登录态
             //使用range限制获得信息的长度
@@ -77,7 +77,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 return new JsonResult(rr);
             }
 
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //FUNC_QUERY_PRIVATE_LETTERS(userid in INTEGER ,startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
@@ -112,7 +112,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                 OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
                 DataTable dt = new DataTable();
-                DataAdapter.Fill(dt);
+                await Task.FromResult(DataAdapter.Fill(dt));
 
                 //dt: sender_user_id, private_letter_id, content, timestamp
                 ReceivedPrivateLetter[] receiveds = new ReceivedPrivateLetter[dt.Rows.Count];
@@ -123,7 +123,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     receiveds[i].private_letter_id = int.Parse(dt.Rows[i][1].ToString());
                     receiveds[i].private_letter_content = dt.Rows[i][2].ToString();
                     receiveds[i].timeStamp = dt.Rows[i][3].ToString();
-                    receiveds[i].sender_info = UserController.getUserPublicInfo(receiveds[i].sender_user_id);
+                    receiveds[i].sender_info = await UserController.getUserPublicInfo(receiveds[i].sender_user_id);
                 }
 
                 RestfulResult.RestfulArray<ReceivedPrivateLetter> rr = new RestfulResult.RestfulArray<ReceivedPrivateLetter>();
@@ -201,7 +201,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         }
 
         [HttpGet("delete/{private_letter_id}")]
-        public IActionResult Delete([Required]int private_letter_id)
+        public async Task<IActionResult> Delete([Required]int private_letter_id)
         {
             //TODO 需要验证登录态
             //返回成功与否
@@ -219,7 +219,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 return new JsonResult(rr);
             }
 
-            return Wrapper.wrap((OracleConnection conn) => {
+            return await Wrapper.wrap(async (OracleConnection conn) => {
                 //FUNC_DELETE_PRIVATE_LETTER(private_letter_id in INTEGER)
                 //return INTEGER
                 string procudureName = "FUNC_DELETE_PRIVATE_LETTER";
@@ -236,7 +236,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p2.Direction = ParameterDirection.Input;
                 p2.Value = private_letter_id;
 
-                cmd.ExecuteReader();
+                await cmd.ExecuteReaderAsync();
                 Console.WriteLine(p1.Value);
 
                 if (int.Parse(p1.Value.ToString()) == 0)
