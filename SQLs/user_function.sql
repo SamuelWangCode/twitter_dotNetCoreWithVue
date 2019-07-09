@@ -96,7 +96,7 @@ PRAGMA AUTONOMOUS_TRANSACTION;
 t_nickname VARCHAR(20);
 t_password VARCHAR(20); 
 t_realname VARCHAR(20);
-t_gender VARCHAR(4);
+t_gender VARCHAR(6);
 t_self_introduction VARCHAR(255);
 state INTEGER;
 begin
