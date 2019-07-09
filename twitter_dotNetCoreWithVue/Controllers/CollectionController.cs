@@ -43,7 +43,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             }
             return await Wrapper.wrap(async (OracleConnection conn) =>
             {
-                //FUNC_ADD_COLLECTION(user_id in INTEGER, message_id in INTEGER)
+                //FUNC_ADD_COLLECTION(userid in INTEGER, message_id in INTEGER)
                 //return INTEGER
                 string procudureName = "FUNC_ADD_COLLECTION";
                 OracleCommand cmd = new OracleCommand(procudureName, conn);
@@ -55,7 +55,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p1.Direction = ParameterDirection.ReturnValue;
                 //Add first parameter follower_id
                 OracleParameter p2 = new OracleParameter();
-                p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
+                p2 = cmd.Parameters.Add("userid", OracleDbType.Int32);
                 p2.Direction = ParameterDirection.Input;
                 p2.Value = my_user_id;
                 OracleParameter p3 = new OracleParameter();

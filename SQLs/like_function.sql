@@ -1,24 +1,29 @@
 ---------------------------------------------------
 --------------FUNC_ADD_LIKE--------------------------------//
-CREATE OR REPLACE 
-FUNCTION FUNC_ADD_LIKE 
+create or replace FUNCTION FUNC_ADD_LIKE 
 (user_id IN INTEGER, like_message_id IN INTEGER)
 RETURN INTEGER
 AS
 temp_date VARCHAR2(30);
 temp_topic_state INTEGER:=0;
 state INTEGER:=1;
+isrepeat INTEGER:=0;
 BEGIN
 
   SELECT count(*) into state 
   FROM MESSAGE
   WHERE MESSAGE.MESSAGE_ID=like_message_id;
+  
+  select count(*) into isrepeat
+  from likes
+  where LIKES_MESSAGE_ID=like_message_id and LIKES_USER_ID=user_id;
 
   if state=0
   THEN
     return state;
   END IF;
 
+if isrepeat=0 then
   SELECT count(*) into temp_topic_state 
   FROM MESSAGE_OWNS_TOPIC
   WHERE MESSAGE_OWNS_TOPIC.MESSAGE_ID=like_message_id;
@@ -46,8 +51,9 @@ BEGIN
   insert into LIKES
       (LIKES_USER_ID, LIKES_MESSAGE_ID,LIKES_TIME)
   values(user_id, like_message_id, temp_date);
+end if;
+  
   state:=1;
-
 	RETURN state;
 END;
 
@@ -57,20 +63,23 @@ END;
 --------------FUNC_DELETE_LIKE--------------------------------//
 
 
-CREATE OR REPLACE 
-FUNCTION FUNC_DELETE_LIKE
+create or replace FUNCTION FUNC_DELETE_LIKE
 (user_id IN INTEGER, like_message_id IN INTEGER)
 RETURN INTEGER
 AS
 state INTEGER:=1;
 topic_state INTEGER:=1;
+isexist INTEGER:=1;
 BEGIN
 
 	SELECT count(*) into state 
   FROM MESSAGE
   WHERE MESSAGE.MESSAGE_ID=like_message_id;
+  select count(*) into isexist
+  from likes
+  where LIKES_USER_ID=user_id and LIKES_MESSAGE_ID=like_message_id;
 
-  if state=0
+  if state=0 or isexist=0
   THEN
     return state;
   END IF;
