@@ -97,6 +97,64 @@ namespace twitter_dotNetCoreWithVue.Controllers
             });
         }
 
+        /// <summary>
+        /// 返回对自己的未读艾特数
+        /// </summary>
+        /// <returns>未读艾特数，int值</returns>
+        /// <param name="range">Range.</param>
+        [HttpPost("queryUnreadAt")]
+        public async Task<IActionResult> QueryUnreadAt()
+        {
+            //TODO 需要身份验证
+            //查找At自己的在range范围内的message_id
+            //按照时间排序
+            //返回包含这些id的Json对象
+            int my_user_id = -1;
+            if (HttpContext.User.Identity.IsAuthenticated)
+            {
+                my_user_id = int.Parse(HttpContext.User.Claims.ElementAt(0).Value);
+            }
+            else
+            {
+                //进入到这部分意味着用户登录态已经失效，需要返回给客户端信息，即需要登录。
+                RestfulResult.RestfulData rr = new RestfulResult.RestfulData();
+                rr.Code = 200;
+                rr.Message = "Need Authentication";
+                return new JsonResult(rr);
+            }
+
+            return await Wrapper.wrap(async (OracleConnection conn) =>
+            {
+                //FUNC_QUERY_UNREAD_AT(userid in INTEGER, unread_count out INTEGER)
+                //return INTEGER
+                string procudureName = "FUNC_QUERY_UNREAD_AT";
+                OracleCommand cmd = new OracleCommand(procudureName, conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                //Add return value
+                OracleParameter p1 = new OracleParameter();
+                p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                p1.Direction = ParameterDirection.ReturnValue;
+                //Add input parameter follower_id
+                OracleParameter p2 = new OracleParameter();
+                p2 = cmd.Parameters.Add("userid", OracleDbType.Int32);
+                p2.Direction = ParameterDirection.Input;
+                p2.Value = my_user_id;
+                OracleParameter p3 = new OracleParameter();
+                //Add input parameter be_followed_id
+                p3 = cmd.Parameters.Add("unread_count", OracleDbType.Int32);
+                p3.Direction = ParameterDirection.Output;
+
+                await cmd.ExecuteReaderAsync();
+                
+                RestfulResult.RestfulData<int> rr = new RestfulResult.RestfulData<int>();
+                rr.Code = 200;
+                rr.Message = "success";
+                rr.Data = int.Parse(p3.Value.ToString());
+                return new JsonResult(rr);
+            });
+        }
+
         //推特中包含的艾特信息的类
         public class AtInfos
         {
