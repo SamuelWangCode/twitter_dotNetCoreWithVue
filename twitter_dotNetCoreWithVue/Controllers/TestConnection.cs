@@ -45,6 +45,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                 var reader = cmd.ExecuteReader();
                 
+
+
                 return new JsonResult(p1.Value.ToString());
             }
         }

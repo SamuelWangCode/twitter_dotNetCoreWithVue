@@ -187,20 +187,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 if (infos.message_has_image == 1)
                 {
                     string path = @"wwwroot\Messages\" + infos.message_id.ToString() + @"\";
-                    infos.message_image_urls = new string[infos.message_image_count];
-                    for (int j = 0; j < infos.message_image_count; j++)
-                    {
-                        if (System.IO.File.Exists(path + j.ToString() + ".jpg"))
-                        {
-                            infos.message_image_urls[j] = "http://localhost:12293/Messages/"
-                            + infos.message_id.ToString()
-                            + "/"
-                            + j.ToString()
-                            + ".jpg";
-                        }
-                        else break;
-                    }
-
+                    infos.message_image_urls = getMessageImageUrls(infos.message_id, infos.message_image_count);
                 }
 
                 RestfulResult.RestfulData<MessageForShow> rr = new RestfulResult.RestfulData<MessageForShow>();
@@ -269,11 +256,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 infos.message_image_urls = new string[infos.message_image_count];
                 for(int i = 0; i < infos.message_image_count; i++)
                 {
-                    infos.message_image_urls[i] = "http://localhost:12293/Messages/"
-                                                    + infos.message_id.ToString()
-                                                    + "/"
-                                                    + i.ToString()
-                                                    + ".jpg";
+                    infos.message_image_urls = getMessageImageUrls(infos.message_id, infos.message_image_count);
                 }
 
                 return infos;
@@ -366,19 +349,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     if (receivedTwitters[i].message_has_image == 1)
                     {
                         string path = @"wwwroot\Messages\" + receivedTwitters[i].message_id.ToString() + @"\";
-                        receivedTwitters[i].message_image_urls = new string[receivedTwitters[i].message_image_count];
-                        for (int j = 0; j < receivedTwitters[i].message_image_count; j++)
-                        {
-                            if (System.IO.File.Exists(path + j.ToString() + ".jpg"))
-                            {
-                                receivedTwitters[i].message_image_urls[j] = "http://localhost:12293/Messages/"
-                                + receivedTwitters[i].message_id.ToString()
-                                + "/"
-                                + j.ToString()
-                                + ".jpg";
-                            }
-                            else break;
-                        }
+                        receivedTwitters[i].message_image_urls =
+                        getMessageImageUrls(receivedTwitters[i].message_id, receivedTwitters[i].message_image_count);
 
                     }
                 }
@@ -468,15 +440,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     if (receivedTwitters[i].message_has_image == 1)
                     {
                         string path = @"wwwroot\Messages\" + receivedTwitters[i].message_id.ToString() + @"\";
-                        receivedTwitters[i].message_image_urls = new string[receivedTwitters[i].message_image_count];
-                        for (int j = 0; j < receivedTwitters[i].message_image_count; j++)
-                        {
-                            if (System.IO.File.Exists(path + j.ToString() + ".jpg"))
-                            {
-                                receivedTwitters[i].message_image_urls[j] = "http://localhost:12293/Messages/" + receivedTwitters[i].message_id.ToString() + "/" + j.ToString() + ".jpg";
-                            }
-                            else break;
-                        }
+                        receivedTwitters[i].message_image_urls = 
+                        getMessageImageUrls(receivedTwitters[i].message_id, receivedTwitters[i].message_image_count);
 
                     }
                 }
@@ -596,7 +561,15 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         {
                             if (imgfile.Length > 0)
                             {
-                                var img_path = @"wwwroot\Messages\" + p6.Value.ToString() + @"\" + img_num.ToString() + ".jpg";
+                                string img_path;
+                                if (imgfile.ContentType.Substring(0, 5) == "image")
+                                {
+                                    img_path = @"wwwroot\Messages\" + p6.Value.ToString() + @"\" + img_num.ToString() + ".jpg";
+                                }
+                                else {
+                                    string videoFormat = imgfile.ContentType.Split("/")[1];
+                                    img_path = @"wwwroot\Messages\" + p6.Value.ToString() + @"\" + img_num.ToString() + "." + videoFormat;
+                                }
                                 using (var stream = new FileStream(img_path, FileMode.Create))
                                 {
                                     await imgfile.CopyToAsync(stream);
@@ -771,5 +744,20 @@ namespace twitter_dotNetCoreWithVue.Controllers
             });
         }
 
+
+
+        public static string[] getMessageImageUrls(int message_id, int message_image_count)
+        {
+            string[] messageImageUrls = new string[message_image_count];
+            string path = @"wwwroot\Messages\" + message_id.ToString() + @"\";
+            DirectoryInfo folder = new DirectoryInfo(path);
+            FileInfo[] fileInfos = folder.GetFiles("*.*");
+            for (int i = 0; i < fileInfos.Length; i++)
+            {
+                Console.WriteLine(fileInfos[i].Name);
+                messageImageUrls[i] = "http://localhost:12293/Messages/" + message_id.ToString() + "/" + fileInfos[i].Name;
+            }
+            return messageImageUrls;
+        }
     }
 }
