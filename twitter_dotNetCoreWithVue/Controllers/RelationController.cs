@@ -43,7 +43,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>success or not</returns>
         /// <param name="user_id">User identifier.</param>
         [HttpGet("follow/{user_id}")]
-        public IActionResult FollowUser([Required]int user_id)
+        public async Task<IActionResult> FollowUser([Required]int user_id)
         {
             //TODO getAuthentication and do the CURD
             //Authentication
@@ -60,7 +60,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 rr.Message = "Need Authentication";
                 return new JsonResult(rr);
             }
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //FUNC_Add_Relation(follower_id in INTEGER, be_followed_id in INTEGER)
                 //return INTEGER
@@ -83,7 +83,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p3.Value = user_id;
                 p3.Direction = ParameterDirection.Input;
 
-                cmd.ExecuteReader();
+                await cmd.ExecuteReaderAsync();
                 Console.WriteLine(p1.Value);
 
                 if (int.Parse(p1.Value.ToString()) != 1)
@@ -105,13 +105,13 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <param name="user_id">User identifier.</param>
         /// <param name="range">Range</param>
         [HttpPost("queryFollowingFor/{user_id}")]
-        public IActionResult QueryFollowingFor([Required]int user_id, [Required][FromBody]Range range)
+        public async Task<IActionResult> QueryFollowingFor([Required]int user_id, [Required][FromBody]Range range)
         {
             //TODO do the CURD
             //注意需要按时间排序
             //使用range作为限制参数
             //返回Json对象
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //FUNC_QUERY_FOLLOWING_LIST(user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
@@ -144,7 +144,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p5.Direction = ParameterDirection.Output;
                 OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
                 DataTable dt = new DataTable();
-                DataAdapter.Fill(dt);
+                await Task.FromResult(DataAdapter.Fill(dt));
 
                 //dt: user_id, nickName, avatarId
                 Simple_User_Info[] a = new Simple_User_Info[dt.Rows.Count];
@@ -153,7 +153,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     Simple_User_Info info = new Simple_User_Info();
                     info.user_id = int.Parse(dt.Rows[i][0].ToString());
                     info.nickName = dt.Rows[i][1].ToString();
-                    info.avatarUrl = UserController.getAvatarUrl(info.user_id);
+                    info.avatarUrl = await UserController.getAvatarUrl(info.user_id);
                     info.create_time = dt.Rows[i][2].ToString();
                     a[i] = info;
                 }
@@ -176,7 +176,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <param name="user_id"></param>
         /// <param name="range">Range</param>
         [HttpPost("queryFollowersFor/{user_id}")]
-        public IActionResult QueryFollowersFor([Required]int user_id, [Required][FromBody]Range range)
+        public async Task<IActionResult> QueryFollowersFor([Required]int user_id, [Required][FromBody]Range range)
         {
             //TODO 查找关注我的人的列表
             //该函数逻辑和上面的相同，只是查找的对象不同
@@ -185,7 +185,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             //使用range作为限制参数
             //返回Json对象
 
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //FUNC_QUERY_FOLLOWERS_LIST(user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
@@ -219,7 +219,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                 OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
                 DataTable dt = new DataTable();
-                DataAdapter.Fill(dt);
+                await Task.FromResult(DataAdapter.Fill(dt));
 
                 //dt: user_id, nickName, avatarId
                 Simple_User_Info[] a = new Simple_User_Info[dt.Rows.Count];
@@ -228,7 +228,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     Simple_User_Info info = new Simple_User_Info();
                     info.user_id = int.Parse(dt.Rows[i][0].ToString());
                     info.nickName = dt.Rows[i][1].ToString();
-                    info.avatarUrl = UserController.getAvatarUrl(info.user_id);
+                    info.avatarUrl = await UserController.getAvatarUrl(info.user_id);
                     info.create_time = dt.Rows[i][2].ToString();
                     a[i] = info;
                 }
@@ -248,7 +248,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>是否成功</returns>
         /// <param name="user_id">User identifier.</param>
         [HttpGet("cancelFollowingTo/{user_id}")]
-        public IActionResult CancelFollowingTo([Required]int user_id)
+        public async Task<IActionResult> CancelFollowingTo([Required]int user_id)
         {
             //TODO 取关
             //需要验证登录态
@@ -265,7 +265,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 rr.Message = "Need Authentication";
                 return new JsonResult(rr);
             }
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //FUNC_REMOVE_RELATION(follower_id in INTEGER, be_followed_id in INTEGER)
                 //return INTEGER
@@ -288,7 +288,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p3.Value = user_id;
                 p3.Direction = ParameterDirection.Input;
 
-                cmd.ExecuteReader();
+                await cmd.ExecuteReaderAsync();
                 Console.WriteLine(p1.Value);
 
                 if (int.Parse(p1.Value.ToString()) != 1)
@@ -306,9 +306,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>flowwer是否关注be_followed</returns>
         /// 
         [HttpPost("if_following")]
-        public IActionResult IfFollowing(int follower_id, int be_followed_id)
+        public async Task<IActionResult> IfFollowing(int follower_id, int be_followed_id)
         {
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //FUNC_REMOVE_RELATION(follower_id in INTEGER, be_followed_id in INTEGER)
                 //return INTEGER
@@ -330,7 +330,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p3 = cmd.Parameters.Add("be_followed_id", OracleDbType.Int32);
                 p3.Value = be_followed_id;
                 p3.Direction = ParameterDirection.Input;
-                cmd.ExecuteReader();
+                await cmd.ExecuteReaderAsync();
 
 
                 RestfulResult.RestfulData<FollowStatus> rr = new RestfulResult.RestfulData<FollowStatus>();
@@ -354,7 +354,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>用户是否关注be_followed</returns>
         /// 
         [HttpGet("if_following_by_me/{be_followed_id}")]
-        public IActionResult IfFollowing([Required]int be_followed_id)
+        public async Task<IActionResult> IfFollowing([Required]int be_followed_id)
         {
             int my_user_id = -1;
             if (HttpContext.User.Identity.IsAuthenticated)
@@ -369,7 +369,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 rr.Message = "Need Authentication";
                 return new JsonResult(rr);
             }
-            return IfFollowing(my_user_id, be_followed_id);
+            return await IfFollowing(my_user_id, be_followed_id);
         }
 
     }
