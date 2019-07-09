@@ -334,6 +334,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 new Claim("user_id", userId.ToString()),
                 new Claim("email", userInfoForSignIn.email),
                 new Claim("password", userInfoForSignIn.password)
+                
             };
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                     ClaimsPrincipal user = new ClaimsPrincipal(claimsIdentity);
@@ -345,7 +346,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     //即便用户关闭了浏览器，60分钟内再次访问站点仍然是处于登录状态，除非调用Logout方法注销登录。
                     HttpContext.SignInAsync(
                     CookieAuthenticationDefaults.AuthenticationScheme,
-                    user, new AuthenticationProperties() { IsPersistent = true, ExpiresUtc = DateTimeOffset.Now.AddMinutes(60) }).Wait();
+                    user, new AuthenticationProperties() { IsPersistent = true, ExpiresUtc = DateTimeOffset.Now.AddMinutes(2400) }).Wait();
                     //TODO 我们需要做的将用户的id返回给客户端
                     return new JsonResult(rr);
                 });
@@ -604,10 +605,10 @@ namespace twitter_dotNetCoreWithVue.Controllers
             if (int.Parse(p1.Value.ToString()) == 0)
             {
                 conn.Close();
-                return "/avatars/0.jpg";
+                return "http://localhost:12293/avatars/0.jpg";
             }
             conn.Close();
-            return "/avatars/" + int.Parse(p3.Value.ToString()).ToString() + ".jpg";
+            return "http://localhost:12293/avatars/" + user_id.ToString() + "/" + int.Parse(p3.Value.ToString()).ToString() + ".jpg";
         }
 
 
