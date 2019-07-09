@@ -80,23 +80,19 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 DataTable dt = new DataTable();
                 DataAdapter.Fill(dt);
 
-                if (int.Parse(p1.Value.ToString()) == 0)
-                {
-                    throw new Exception("failed");
-                }
-
                 //dt: message_id
-                int[] message_ids = new int[dt.Rows.Count];
+                MessageController.MessageForShow[] messages = new MessageController.MessageForShow[dt.Rows.Count];
                 for (int i = 0; i < dt.Rows.Count; ++i)
                 {
-                    message_ids[i] = int.Parse(dt.Rows[i][0].ToString());
+                    int message_id = int.Parse(dt.Rows[i][0].ToString());
+                    messages[i] = MessageController.InnerQuery(message_id);
                 }
 
-                RestfulResult.RestfulArray<int> rr = new RestfulResult.RestfulArray<int>();
+
+                RestfulResult.RestfulArray<MessageController.MessageForShow> rr = new RestfulResult.RestfulArray<MessageController.MessageForShow>();
                 rr.Code = 200;
                 rr.Message = "success";
-                rr.Data = message_ids;
-
+                rr.Data = messages;
                 return new JsonResult(rr);
             });
         }
