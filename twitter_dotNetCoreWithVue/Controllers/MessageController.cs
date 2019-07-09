@@ -128,13 +128,13 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>The message.</returns>
         /// <param name="message_id">Message identifier.</param>
         [HttpPost("query")]
-        public IActionResult Query([Required]int message_id)
+        public async Task<IActionResult> Query([Required]int message_id)
         {
             //获得推特的详细信息
             //无需验证登录态
             //除了基本的推特信息以外，我们需要根据这条推特是否含有图，来把MessageForShow的图片url列表填好
 
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //function FUNC_SHOW_MESSAGE_BY_ID(message_id in INTEGER, result out sys_refcursor)
                 //return INTEGER
@@ -161,7 +161,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 //Get the result table
                 OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
                 DataTable dt = new DataTable();
-                DataAdapter.Fill(dt);
+                await Task.FromResult(DataAdapter.Fill(dt));
 
                 if (int.Parse(p1.Value.ToString()) == 0)
                 {
@@ -288,9 +288,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <param name="range">Range.</param>
         /// <param name="user_id">user_id</param>
         [HttpPost("queryMessage/{user_id}")]
-        public IActionResult QueryMessages([Required]int user_id, [Required][FromBody]Range range)
+        public async Task<IActionResult> QueryMessages([Required]int user_id, [Required][FromBody]Range range)
         {
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //function FUNC_SHOW_HOME_MESSAGE_BY_RANGE(user_id in INTEGER, rangeStart in INTEGER, rangeLimitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
@@ -329,7 +329,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 //Get the result table
                 OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
                 DataTable dt = new DataTable();
-                DataAdapter.Fill(dt);
+                await Task.FromResult(DataAdapter.Fill(dt));
 
                 if (int.Parse(p1.Value.ToString()) == 0)
                 {
@@ -471,7 +471,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     p6 = cmd.Parameters.Add("message_id", OracleDbType.Int32);
                     p6.Direction = ParameterDirection.Output;
 
-                    cmd.ExecuteReader();
+                    await cmd.ExecuteReaderAsync();
                     if (int.Parse(p1.Value.ToString()) == 0)
                     {
                         throw new Exception("failed");
@@ -523,7 +523,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <param name="message_id">Message identifier.</param>
         /// <param name="message">Message.</param>
         [HttpPost("transpond")]
-        public IActionResult Transpond([Required][FromBody]MessageForTransponder message)
+        public async Task<IActionResult> Transpond([Required][FromBody]MessageForTransponder message)
         {
             //需要验证身份
             //返回是否转发成功
@@ -542,9 +542,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 return new JsonResult(rr);
             }
 
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
-                //FUNC_TRANSPOND_MESSAGE(userID in INTEGER, content in VARCHAR2, transpondID in INTEGER, messageID out INTEGER)
+                //FUNC_TRANSPOND_MESSAGE(userID in INTEGER, message_content in VARCHAR2, transpondID in INTEGER, messageID out INTEGER)
                 //return INTEGER
                 string procedureName = "FUNC_TRANSPOND_MESSAGE";
                 OracleCommand cmd = new OracleCommand(procedureName, conn);
@@ -561,9 +561,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p2.Direction = ParameterDirection.Input;
                 p2.Value = userId;
 
-                //Add second parameter message_is_transpond
+                //Add second parameter message_content
                 OracleParameter p3 = new OracleParameter();
-                p3 = cmd.Parameters.Add("content", OracleDbType.Varchar2);
+                p3 = cmd.Parameters.Add("message_content", OracleDbType.Varchar2);
                 p3.Direction = ParameterDirection.Input;
                 p3.Value = message.message_content;
 
@@ -578,7 +578,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p5 = cmd.Parameters.Add("messageID", OracleDbType.Int32);
                 p5.Direction = ParameterDirection.Output;
 
-                cmd.ExecuteReader();
+                await cmd.ExecuteReaderAsync();
                 if (int.Parse(p1.Value.ToString()) == 0)
                 {
                     throw new Exception("failed");
