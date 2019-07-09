@@ -54,7 +54,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// </summary>
         /// <returns>私信列表</returns>
         [HttpPost("queryForMe")]
-        public async Task<IActionResult> QueryForMe([Required]Range range)
+        public async Task<IActionResult> QueryForMe([Required][FromBody]Range range)
         {
             //TODO 需要验证登录态
             //使用range限制获得信息的长度

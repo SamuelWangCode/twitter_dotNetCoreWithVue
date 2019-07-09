@@ -192,7 +192,11 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     {
                         if (System.IO.File.Exists(path + j.ToString() + ".jpg"))
                         {
-                            infos.message_image_urls[j] = "/Messages/" + infos.message_id.ToString() + "/" + j.ToString() + ".jpg";
+                            infos.message_image_urls[j] = "http://localhost:12293/Messages/"
+                            + infos.message_id.ToString()
+                            + "/"
+                            + j.ToString()
+                            + ".jpg";
                         }
                         else break;
                     }
@@ -367,7 +371,11 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         {
                             if (System.IO.File.Exists(path + j.ToString() + ".jpg"))
                             {
-                                receivedTwitters[i].message_image_urls[j] = "http://localhost:12293/Messages/" + receivedTwitters[i].message_id.ToString() + "/" + j.ToString() + ".jpg";
+                                receivedTwitters[i].message_image_urls[j] = "http://localhost:12293/Messages/"
+                                + receivedTwitters[i].message_id.ToString()
+                                + "/"
+                                + j.ToString()
+                                + ".jpg";
                             }
                             else break;
                         }

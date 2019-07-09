@@ -145,25 +145,14 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// </summary>
         /// <returns>包含所有收藏的推特id的Json数据</returns>
         /// <param name="range">Range.</param>
-        [HttpPost("query")]
-        public async Task<IActionResult> Query([Required][FromBody]Range range)
+        [HttpPost("query/{user_id}")]
+        public async Task<IActionResult> Query([Required]int user_id, [Required][FromBody]Range range)
         {
             //TODO 需要验证登录态
             //需要range作为参数
             //从数据库取出message_id们 加油
-            int my_user_id = -1;
-            if (HttpContext.User.Identity.IsAuthenticated)
-            {
-                my_user_id = int.Parse(HttpContext.User.Claims.ElementAt(0).Value);
-            }
-            else
-            {
-                //进入到这部分意味着用户登录态已经失效，需要返回给客户端信息，即需要登录。
-                RestfulResult.RestfulData rr = new RestfulResult.RestfulData();
-                rr.Code = 200;
-                rr.Message = "Need Authentication";
-                return new JsonResult(rr);
-            }
+            int my_user_id = user_id;
+            
 
             return await Wrapper.wrap(async (OracleConnection conn) =>
             {

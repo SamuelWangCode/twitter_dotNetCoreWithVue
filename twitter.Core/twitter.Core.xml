@@ -51,7 +51,7 @@
             <returns>是否成功</returns>
             <param name="message_id">Message identifier.</param>
         </member>
-        <member name="M:twitter_dotNetCoreWithVue.Controllers.CollectionController.Query(twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.CollectionController.Query(System.Int32,twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
             <summary>
             查询收藏的列表
             需要Range作为参数限制
