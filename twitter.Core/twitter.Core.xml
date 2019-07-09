@@ -160,6 +160,15 @@
             <returns>The messages for index.</returns>
             <param name="range">Range.</param>
         </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.MessageController.QueryFollowMessage(twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
+            <summary>
+            根据range来返回前几条用户自身和用户关注的人的消息
+            返回的是最新的range条消息
+            按照时间排序
+            </summary>
+            <returns>The messages for index.</returns>
+            <param name="range">Range.</param>
+        </member>
         <member name="M:twitter_dotNetCoreWithVue.Controllers.MessageController.Send(twitter_dotNetCoreWithVue.Controllers.MessageController.MessageForSender)">
             <summary>
             调用api发送推特

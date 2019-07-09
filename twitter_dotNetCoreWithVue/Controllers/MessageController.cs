@@ -429,8 +429,124 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                 //Add third parameter search_result
                 OracleParameter p4 = new OracleParameter();
-                p4 = cmd.Parameters.Add("result", OracleDbType.RefCursor);
+                p4 = cmd.Parameters.Add("search_result", OracleDbType.RefCursor);
                 p4.Direction = ParameterDirection.Output;
+
+                //Get the result table
+                OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                await Task.FromResult(DataAdapter.Fill(dt));
+
+                if (int.Parse(p1.Value.ToString()) == 0)
+                {
+                    throw new Exception("failed");
+                }
+                MessageForShow[] receivedTwitters = new MessageForShow[dt.Rows.Count];
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    receivedTwitters[i] = new MessageForShow();
+                    receivedTwitters[i].message_id = int.Parse(dt.Rows[i][0].ToString());
+                    receivedTwitters[i].message_content = dt.Rows[i][1].ToString();
+                    receivedTwitters[i].message_create_time = dt.Rows[i][2].ToString();
+                    receivedTwitters[i].message_like_num = int.Parse(dt.Rows[i][3].ToString());
+                    receivedTwitters[i].message_transpond_num = int.Parse(dt.Rows[i][4].ToString());
+                    receivedTwitters[i].message_comment_num = int.Parse(dt.Rows[i][5].ToString());
+                    receivedTwitters[i].message_view_num = int.Parse(dt.Rows[i][6].ToString());
+                    receivedTwitters[i].message_has_image = int.Parse(dt.Rows[i][7].ToString());
+                    receivedTwitters[i].message_sender_user_id = int.Parse(dt.Rows[i][8].ToString());
+                    receivedTwitters[i].message_heat = int.Parse(dt.Rows[i][9].ToString());
+                    receivedTwitters[i].message_image_count = int.Parse(dt.Rows[i][10].ToString() == "" ? "0" : dt.Rows[i][10].ToString());
+                    receivedTwitters[i].message_transpond_message_id = int.Parse(dt.Rows[i][11].ToString() == "" ? "0" : dt.Rows[i][11].ToString());
+
+                    receivedTwitters[i].message_topics = await TopicController.SearchTopicsInTwitter(receivedTwitters[i].message_content);
+                    receivedTwitters[i].message_ats = await AtController.SearchAtsInTwitter(receivedTwitters[i].message_content);
+
+                }
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (receivedTwitters[i].message_has_image == 1)
+                    {
+                        string path = @"wwwroot\Messages\" + receivedTwitters[i].message_id.ToString() + @"\";
+                        receivedTwitters[i].message_image_urls = new string[receivedTwitters[i].message_image_count];
+                        for (int j = 0; j < receivedTwitters[i].message_image_count; j++)
+                        {
+                            if (System.IO.File.Exists(path + j.ToString() + ".jpg"))
+                            {
+                                receivedTwitters[i].message_image_urls[j] = "http://localhost:12293/Messages/" + receivedTwitters[i].message_id.ToString() + "/" + j.ToString() + ".jpg";
+                            }
+                            else break;
+                        }
+
+                    }
+                }
+
+                RestfulResult.RestfulArray<MessageForShow> rr = new RestfulResult.RestfulArray<MessageForShow>();
+                rr.Code = 200;
+                rr.Message = "success";
+                rr.Data = receivedTwitters;
+                return new JsonResult(rr);
+            });
+
+        }
+
+        /// <summary>
+        /// 根据range来返回前几条用户自身和用户关注的人的消息
+        /// 返回的是最新的range条消息
+        /// 按照时间排序
+        /// </summary>
+        /// <returns>The messages for index.</returns>
+        /// <param name="range">Range.</param>
+        [HttpPost("queryFollowMessage")]
+        public async Task<IActionResult> QueryFollowMessage([Required][FromBody]Range range)
+        {
+            int userId;
+            if (HttpContext.User.Identity.IsAuthenticated)
+            {
+                userId = int.Parse(HttpContext.User.Claims.First().Value);
+            }
+            else
+            {
+                RestfulResult.RestfulData rr = new RestfulResult.RestfulData();
+                rr.Code = 200;
+                rr.Message = "Need Authentication";
+                return new JsonResult(rr);
+            }
+
+            return await Wrapper.wrap(async (OracleConnection conn) =>
+            {
+                //function FUNC_SHOW_FOLLOW_MESSAGE(startFrom in INTEGER, limitation in INTEGER, userid in INTEGER, search_result out sys_refcursor)
+                //return INTEGER
+                string procedurename = "FUNC_SHOW_FOLLOW_MESSAGE";
+                OracleCommand cmd = new OracleCommand(procedurename, conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                //Add return value
+                OracleParameter p1 = new OracleParameter();
+                p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                p1.Direction = ParameterDirection.ReturnValue;
+
+                //Add first parameter startFrom
+                OracleParameter p2 = new OracleParameter();
+                p2 = cmd.Parameters.Add("startFrom", OracleDbType.Int32);
+                p2.Direction = ParameterDirection.Input;
+                p2.Value = range.startFrom;
+
+                //Add second parameter limitation
+                OracleParameter p3 = new OracleParameter();
+                p3 = cmd.Parameters.Add("limitation", OracleDbType.Int32);
+                p3.Direction = ParameterDirection.Input;
+                p3.Value = range.limitation;
+
+                OracleParameter p4 = new OracleParameter();
+                p4 = cmd.Parameters.Add("userid", OracleDbType.Int32);
+                p4.Direction = ParameterDirection.Input;
+                p4.Value = userId;
+
+                //Add third parameter search_result
+                OracleParameter p5 = new OracleParameter();
+                p5 = cmd.Parameters.Add("search_result", OracleDbType.RefCursor);
+                p5.Direction = ParameterDirection.Output;
 
                 //Get the result table
                 OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
