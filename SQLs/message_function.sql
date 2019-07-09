@@ -95,7 +95,7 @@ end;
 
 
 -------------------FUNC_TRANSPOND_MESSAGE--------------------
--------------------转发1条推特（Message和Transpond添加�??
+-------------------转坑1条推特（Message和Transpond添加�??
 CREATE OR REPLACE 
 function
 FUNC_TRANSPOND_MESSAGE(userID in INTEGER,message_content in VARCHAR2,transpondID in INTEGER,messageID out INTEGER)
@@ -175,7 +175,7 @@ end;
 /
 
 ------------FUNC_QUERY_MESSAGE_BY_TOPIC---------------
-----------------根据id查找message----------------------
+----------------根杮id查找message----------------------
 CREATE OR REPLACE 
 FUNCTION FUNC_QUERY_MESSAGE_IDS_LIKES
 (user_id IN INTEGER, startFrom IN INTEGER, limitation IN INTEGER, search_result OUT Sys_refcursor)
@@ -218,7 +218,7 @@ END;
 /
 
 ----------------FUNC_SEARCH_MESSAGE-------------------
---------通过搜索键，在Message相关表中搜索相关的推�?------
+--------通过杜索键，在Message相关表中杜索相关的推�?------
 ----返回的属性依次为message_id, message_content, message_create_time, message_agree_num, ---
 ----message_transponded_num, message_comment_num, message_view_num, message_has_image�?-----
 ----message_sender_user_id, message_heat,message_image_count,transponded_message_id---------
@@ -245,17 +245,45 @@ BEGIN
           FROM (MESSAGE NATURAL left outer join MESSAGE_IMAGE) NATURAL left outer join TRANSPOND
           WHERE MESSAGE_CONTENT like'%'||searchKey||'%'
           ORDER BY MESSAGE_CREATE_TIME DESC)
-    WHERE ROWNUM<=startFrom+limitation
+    WHERE ROWNUM<startFrom+limitation
     MINUS
     SELECT* FROM
          (SELECT *
-          FROM (MESSAGE NATURAL join MESSAGE_IMAGE) NATURAL join TRANSPOND
+          FROM (MESSAGE NATURAL left outer join MESSAGE_IMAGE) NATURAL left outer join TRANSPOND
           WHERE MESSAGE_CONTENT like '%'||searchKey||'%'
           ORDER BY MESSAGE_CREATE_TIME DESC)
-    WHERE ROWNUM<=startFrom-1;
+    WHERE ROWNUM<startFrom;
     state:=1;
   END IF;
 
 	RETURN state;
 END;
 /
+
+------------FUNC_SHOW_MESSAGE_BY_TIME---------------
+----------------Show all twitters by send time----------------------
+create or replace function 
+FUNC_SHOW_MESSAGE_BY_TIME(startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+return INTEGER
+is 
+state INTEGER:=0;
+
+begin
+
+open search_result for 
+  select * from 
+    (select * 
+     from (message natural left join message_image) natural left join transpond
+     order by message_create_time desc)
+  where rownum <limitation+startFrom
+  MINUS
+  select * from 
+    (select * 
+     from (message natural left join message_image) natural left join transpond
+     order by message_create_time desc)
+  where rownum <startFrom;
+  
+
+state:=1;
+return state;
+end;

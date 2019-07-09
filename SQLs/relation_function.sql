@@ -6,16 +6,21 @@ return INTEGER
 is 
 PRAGMA AUTONOMOUS_TRANSACTION;
 state INTEGER:=1;
+isrepeat INTEGER:=0;
 create_time VARCHAR2(30);
 
 begin 
 select to_char(sysdate,'yyyy-mm-dd HH24:MI:SS')into create_time from dual;
+select count(*) into isrepeat from Relation
+where RELATION_USER_BE_FOLLOWED_ID=be_followed_id and RELATION_USER_FOLLOWER_ID=follower_id;
 
+if isrepeat=0 then
 insert into Relation(relation_create_time, relation_user_follower_id, relation_user_be_followed_id)
 values(create_time, follower_id, be_followed_id);
 
 update User_Public_Info set user_follows_num = user_follows_num + 1 where user_id = follower_id;
 update User_Public_Info set user_followers_num = user_followers_num + 1 where user_id = be_followed_id;
+end if;
 
 commit;
 return state;
