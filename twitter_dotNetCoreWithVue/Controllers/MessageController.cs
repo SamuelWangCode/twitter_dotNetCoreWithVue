@@ -385,6 +385,104 @@ namespace twitter_dotNetCoreWithVue.Controllers
         }
 
         /// <summary>
+        /// 根据range来返回前几条推荐的信息
+        /// 返回的是最新的range条消息
+        /// 按照时间排序
+        /// </summary>
+        /// <returns>The messages for index.</returns>
+        /// <param name="range">Range.</param>
+        [HttpPost("queryNewestMessage")]
+        public async Task<IActionResult> QueryNewest([Required][FromBody]Range range)
+        {
+            return await Wrapper.wrap(async (OracleConnection conn) =>
+            {
+                //function FUNC_SHOW_MESSAGE_BY_TIME(startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+                //return INTEGER
+                string procedurename = "FUNC_SHOW_MESSAGE_BY_TIME";
+                OracleCommand cmd = new OracleCommand(procedurename, conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                //Add return value
+                OracleParameter p1 = new OracleParameter();
+                p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                p1.Direction = ParameterDirection.ReturnValue;
+
+                //Add first parameter startFrom
+                OracleParameter p2 = new OracleParameter();
+                p2 = cmd.Parameters.Add("startFrom", OracleDbType.Int32);
+                p2.Direction = ParameterDirection.Input;
+                p2.Value = range.startFrom;
+
+                //Add second parameter limitation
+                OracleParameter p3 = new OracleParameter();
+                p3 = cmd.Parameters.Add("limitation", OracleDbType.Int32);
+                p3.Direction = ParameterDirection.Input;
+                p3.Value = range.limitation;
+
+                //Add third parameter search_result
+                OracleParameter p4 = new OracleParameter();
+                p4 = cmd.Parameters.Add("result", OracleDbType.RefCursor);
+                p4.Direction = ParameterDirection.Output;
+
+                //Get the result table
+                OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                await Task.FromResult(DataAdapter.Fill(dt));
+
+                if (int.Parse(p1.Value.ToString()) == 0)
+                {
+                    throw new Exception("failed");
+                }
+                MessageForShow[] receivedTwitters = new MessageForShow[dt.Rows.Count];
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    receivedTwitters[i] = new MessageForShow();
+                    receivedTwitters[i].message_id = int.Parse(dt.Rows[i][0].ToString());
+                    receivedTwitters[i].message_content = dt.Rows[i][1].ToString();
+                    receivedTwitters[i].message_create_time = dt.Rows[i][2].ToString();
+                    receivedTwitters[i].message_like_num = int.Parse(dt.Rows[i][3].ToString());
+                    receivedTwitters[i].message_transpond_num = int.Parse(dt.Rows[i][4].ToString());
+                    receivedTwitters[i].message_comment_num = int.Parse(dt.Rows[i][5].ToString());
+                    receivedTwitters[i].message_view_num = int.Parse(dt.Rows[i][6].ToString());
+                    receivedTwitters[i].message_has_image = int.Parse(dt.Rows[i][7].ToString());
+                    receivedTwitters[i].message_sender_user_id = int.Parse(dt.Rows[i][8].ToString());
+                    receivedTwitters[i].message_heat = int.Parse(dt.Rows[i][9].ToString());
+                    receivedTwitters[i].message_image_count = int.Parse(dt.Rows[i][10].ToString() == "" ? "0" : dt.Rows[i][10].ToString());
+                    receivedTwitters[i].message_transpond_message_id = int.Parse(dt.Rows[i][11].ToString() == "" ? "0" : dt.Rows[i][11].ToString());
+
+                    receivedTwitters[i].message_topics = await TopicController.SearchTopicsInTwitter(receivedTwitters[i].message_content);
+                    receivedTwitters[i].message_ats = await AtController.SearchAtsInTwitter(receivedTwitters[i].message_content);
+
+                }
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (receivedTwitters[i].message_has_image == 1)
+                    {
+                        string path = @"wwwroot\Messages\" + receivedTwitters[i].message_id.ToString() + @"\";
+                        receivedTwitters[i].message_image_urls = new string[receivedTwitters[i].message_image_count];
+                        for (int j = 0; j < receivedTwitters[i].message_image_count; j++)
+                        {
+                            if (System.IO.File.Exists(path + j.ToString() + ".jpg"))
+                            {
+                                receivedTwitters[i].message_image_urls[j] = "http://localhost:12293/Messages/" + receivedTwitters[i].message_id.ToString() + "/" + j.ToString() + ".jpg";
+                            }
+                            else break;
+                        }
+
+                    }
+                }
+
+                RestfulResult.RestfulArray<MessageForShow> rr = new RestfulResult.RestfulArray<MessageForShow>();
+                rr.Code = 200;
+                rr.Message = "success";
+                rr.Data = receivedTwitters;
+                return new JsonResult(rr);
+            });
+
+        }
+
+        /// <summary>
         /// 调用api发送推特
         /// 若推特还含有图片，还需要另外调用图片上传的接口
         /// </summary>
