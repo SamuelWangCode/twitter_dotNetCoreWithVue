@@ -85,7 +85,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 for (int i = 0; i < dt.Rows.Count; ++i)
                 {
                     int message_id = int.Parse(dt.Rows[i][0].ToString());
-                    messages[i] = MessageController.InnerQuery(message_id);
+                    messages[i] = await MessageController.InnerQuery(message_id);
                 }
 
 
