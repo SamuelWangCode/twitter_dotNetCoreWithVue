@@ -16,6 +16,13 @@
             <returns>包含 message_id组成的列表 的Json对象</returns>
             <param name="range">Range.</param>
         </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.AtController.QueryUnreadAt">
+            <summary>
+            返回对自己的未读艾特数
+            </summary>
+            <returns>未读艾特数，int值</returns>
+            <param name="range">Range.</param>
+        </member>
         <member name="M:twitter_dotNetCoreWithVue.Controllers.AtController.AddAtsInTwitter(System.String,System.Int32,System.Int32)">
             <summary>
             根据传入的内容，将内容中的At全都ADD
@@ -147,6 +154,15 @@
         <member name="M:twitter_dotNetCoreWithVue.Controllers.MessageController.QueryNewest(twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
             <summary>
             根据range来返回前几条推荐的信息
+            返回的是最新的range条消息
+            按照时间排序
+            </summary>
+            <returns>The messages for index.</returns>
+            <param name="range">Range.</param>
+        </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.MessageController.QueryFollowMessage(twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
+            <summary>
+            根据range来返回前几条用户自身和用户关注的人的消息
             返回的是最新的range条消息
             按照时间排序
             </summary>

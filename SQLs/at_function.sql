@@ -93,3 +93,22 @@ state:=1;
 return state;
 end;
 /
+
+
+-------------FUNC_QUERY_UNREAD_AT-----------------------------------
+-------------Query amounts of ats which are not read so far------------------------------------
+create or replace function 
+FUNC_QUERY_UNREAD_AT(userid in INTEGER, unread_count out INTEGER)
+return INTEGER
+is 
+state INTEGER:=0;
+
+begin
+
+select count(*) into unread_count
+from AT_USER
+where AT_USER_ID=userid and AT_IS_READ=0;
+state:=1;
+return state;
+end;
+/
