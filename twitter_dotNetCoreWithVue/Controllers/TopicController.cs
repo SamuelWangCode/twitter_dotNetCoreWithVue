@@ -26,12 +26,12 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <param name="topic_id">Topic identifier.</param>
         /// <param name="range">Range.</param>
         [HttpPost("queryMessagesContains/{topic_id}")]
-        public IActionResult QueryMessagesContains([Required]int topic_id, [Required][FromBody]Range range)
+        public async Task<IActionResult> QueryMessagesContains([Required]int topic_id, [Required][FromBody]Range range)
         {
             //TODO 无需登录态验证
             //根据range来查找时间最近的几条message_id组成的列表
             //返回Json对象
-            return Wrapper.wrap((OracleConnection conn) => 
+            return await Wrapper.wrap(async (OracleConnection conn) => 
             {
                 //FUNC_QUERY_MESSAGE_BY_TOPIC(topic_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
@@ -65,7 +65,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                 OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
                 DataTable dt = new DataTable();
-                DataAdapter.Fill(dt);
+                await Task.FromResult(DataAdapter.Fill(dt));
                 
 
                 //dt: message_id
@@ -74,7 +74,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 for (int i = 0; i < dt.Rows.Count; ++i)
                 {
                     int message_id = int.Parse(dt.Rows[i][0].ToString());
-                    messages[i] = MessageController.InnerQuery(message_id);
+                    messages[i] = await MessageController.InnerQuery(message_id);
                 }
 
                 RestfulResult.RestfulArray<MessageController.MessageForShow> rr = new RestfulResult.RestfulArray<MessageController.MessageForShow>();
@@ -95,11 +95,11 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>Json 包含Topics</returns>
         /// <param name="range">Range.</param>
         [HttpPost("queryTopicsBaseOnHeat")]
-        public IActionResult QueryTopicsBaseOnHeat([Required][FromBody]Range range)
+        public async Task<IActionResult> QueryTopicsBaseOnHeat([Required][FromBody]Range range)
         {
             //TODO 无需登录态验证
             //可以直接使用Topic模型
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //FUNC_QUERY_TOPICS_BY_HEAT(startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
@@ -129,7 +129,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                 OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
                 DataTable dt = new DataTable();
-                DataAdapter.Fill(dt);
+                await Task.FromResult(DataAdapter.Fill(dt));
 
                 
                 //dt: topic_id
@@ -166,7 +166,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>TopicInfos Class.</returns>
         /// <param name="content">Twitter Content.</param>
         /// <param name="messageID">Twitter ID.</param>
-        static public TopicInfos[] AddTopicsInTwitter(string content,int messageID)
+        static public async Task<TopicInfos[]> AddTopicsInTwitter(string content,int messageID)
         {
             System.Text.RegularExpressions.Regex topicRegex = new System.Text.RegularExpressions.Regex(@"#\w+#");
             System.Text.RegularExpressions.MatchCollection topicCollection = topicRegex.Matches(content);
@@ -213,7 +213,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         p3.Direction = ParameterDirection.Input;
                         p3.Value = messageID;
 
-                        cmd.ExecuteReader();
+                        await cmd.ExecuteReaderAsync();
 
                         if (int.Parse(p1.Value.ToString()) == 0)
                         {
@@ -242,7 +242,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         p6 = cmd2.Parameters.Add("Search_Result", OracleDbType.Int32);
                         p6.Direction = ParameterDirection.Output;
 
-                        cmd2.ExecuteReader();
+                        await cmd2.ExecuteReaderAsync();
                         if (int.Parse(p4.Value.ToString()) == 0)
                         {
                             throw new Exception("failed");
@@ -262,7 +262,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             return topicInfos;
         }
 
-        static public TopicInfos[] SearchTopicsInTwitter(string content)
+        static public async Task<TopicInfos[]> SearchTopicsInTwitter(string content)
         {
             System.Text.RegularExpressions.Regex topicRegex = new System.Text.RegularExpressions.Regex(@"#\w+#");
             System.Text.RegularExpressions.MatchCollection topicCollection = topicRegex.Matches(content);
@@ -308,7 +308,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         p6 = cmd2.Parameters.Add("Search_Result", OracleDbType.Int32);
                         p6.Direction = ParameterDirection.Output;
 
-                        cmd2.ExecuteReader();
+                        await cmd2.ExecuteReaderAsync();
                         if (int.Parse(p4.Value.ToString()) == 0)
                         {
                             throw new Exception("failed");

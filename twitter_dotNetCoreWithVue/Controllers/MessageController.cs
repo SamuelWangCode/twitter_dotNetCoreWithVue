@@ -181,8 +181,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 infos.message_image_count = int.Parse(dt.Rows[0][10].ToString() == "" ? "0" : dt.Rows[0][10].ToString());
                 infos.message_transpond_message_id = int.Parse(dt.Rows[0][11].ToString() == "" ? "0" : dt.Rows[0][11].ToString());
 
-                infos.message_topics = TopicController.SearchTopicsInTwitter(infos.message_content);
-                infos.message_ats = AtController.SearchAtsInTwitter(infos.message_content);
+                infos.message_topics = await TopicController.SearchTopicsInTwitter(infos.message_content);
+                infos.message_ats = await AtController.SearchAtsInTwitter(infos.message_content);
 
                 if (infos.message_has_image == 1)
                 {
@@ -211,9 +211,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
         }
 
         //内部调用的，根据ID查询返回MessageForShow类型的函数
-        static public MessageForShow InnerQuery(int message_id)
+        static public async Task<MessageForShow> InnerQuery(int message_id)
         {
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //function FUNC_SHOW_MESSAGE_BY_ID(message_id in INTEGER, result out sys_refcursor)
                 //return INTEGER
@@ -240,7 +240,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 //Get the result table
                 OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
                 DataTable dt = new DataTable();
-                DataAdapter.Fill(dt);
+                await Task.FromResult(DataAdapter.Fill(dt));
 
                 if (int.Parse(p1.Value.ToString()) == 0)
                 {
@@ -260,8 +260,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 infos.message_image_count = int.Parse(dt.Rows[0][10].ToString() == "" ? "0" : dt.Rows[0][10].ToString());
                 infos.message_transpond_message_id = int.Parse(dt.Rows[0][11].ToString() == "" ? "0" : dt.Rows[0][11].ToString());
 
-                infos.message_topics = TopicController.SearchTopicsInTwitter(infos.message_content);
-                infos.message_ats = AtController.SearchAtsInTwitter(infos.message_content);
+                infos.message_topics = await TopicController.SearchTopicsInTwitter(infos.message_content);
+                infos.message_ats = await AtController.SearchAtsInTwitter(infos.message_content);
                 infos.message_image_urls = new string[infos.message_image_count];
                 for(int i = 0; i < infos.message_image_count; i++)
                 {
@@ -353,8 +353,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     receivedTwitters[i].message_image_count = int.Parse(dt.Rows[i][10].ToString() == "" ? "0" : dt.Rows[i][10].ToString());
                     receivedTwitters[i].message_transpond_message_id = int.Parse(dt.Rows[i][11].ToString() == "" ? "0" : dt.Rows[i][11].ToString());
 
-                    receivedTwitters[i].message_topics = TopicController.SearchTopicsInTwitter(receivedTwitters[i].message_content);
-                    receivedTwitters[i].message_ats = AtController.SearchAtsInTwitter(receivedTwitters[i].message_content);
+                    receivedTwitters[i].message_topics = await TopicController.SearchTopicsInTwitter(receivedTwitters[i].message_content);
+                    receivedTwitters[i].message_ats = await AtController.SearchAtsInTwitter(receivedTwitters[i].message_content);
 
                 }
                 for (int i = 0; i < dt.Rows.Count; i++)
@@ -477,8 +477,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
                         throw new Exception("failed");
                     }
 
-                    TopicController.AddTopicsInTwitter(message.message_content, int.Parse(p6.Value.ToString()));
-                    AtController.AddAtsInTwitter(message.message_content, int.Parse(p6.Value.ToString()), userId);
+                    await TopicController.AddTopicsInTwitter(message.message_content, int.Parse(p6.Value.ToString()));
+                    await AtController.AddAtsInTwitter(message.message_content, int.Parse(p6.Value.ToString()), userId);
 
                     //若推特含图，从POST体内获得图的内容并保存到服务器
                     if (message.message_has_image == 1)
@@ -586,8 +586,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     throw new Exception("failed");
                 }
 
-                TopicController.AddTopicsInTwitter(message.message_content, int.Parse(p5.Value.ToString()));
-                AtController.AddAtsInTwitter(message.message_content, int.Parse(p5.Value.ToString()), userId);
+                await TopicController.AddTopicsInTwitter(message.message_content, int.Parse(p5.Value.ToString()));
+                await AtController.AddAtsInTwitter(message.message_content, int.Parse(p5.Value.ToString()), userId);
 
                 RestfulResult.RestfulData rr = new RestfulResult.RestfulData(200, "success");
                 return new JsonResult(rr);
