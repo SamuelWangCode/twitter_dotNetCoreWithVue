@@ -109,7 +109,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             public int message_transpond_message_id { get; set; }
 
         }
-        
+
 
         //推特中包含的艾特类
         public class AtInfos
@@ -118,7 +118,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             public List<int> atIds = new List<int>();
         }
 
-        
+
 
         /// <summary>
         /// 查看推特详情时调用的api
@@ -206,8 +206,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 return new JsonResult(rr);
 
             });
-            
-                    
+
+
         }
 
         //内部调用的，根据ID查询返回MessageForShow类型的函数
@@ -348,13 +348,13 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     receivedTwitters[i].message_ats = AtController.SearchAtsInTwitter(receivedTwitters[i].message_content);
 
                 }
-                for (int i=0;i<dt.Rows.Count;i++)
+                for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     if (receivedTwitters[i].message_has_image == 1)
                     {
                         string path = @"wwwroot\Messages\" + receivedTwitters[i].message_id.ToString() + @"\";
                         receivedTwitters[i].message_image_urls = new string[receivedTwitters[i].message_image_count];
-                        for (int j = 0; j<receivedTwitters[i].message_image_count; j++)
+                        for (int j = 0; j < receivedTwitters[i].message_image_count; j++)
                         {
                             if (System.IO.File.Exists(path + j.ToString() + ".jpg"))
                             {
@@ -362,7 +362,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                             }
                             else break;
                         }
-                        
+
                     }
                 }
 
@@ -372,7 +372,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 rr.Data = receivedTwitters;
                 return new JsonResult(rr);
             });
-            
+
         }
 
         /// <summary>
@@ -395,7 +395,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             List<string> ats = new List<string>();
             System.Text.RegularExpressions.Regex topicRegex = new System.Text.RegularExpressions.Regex(@"#(\w+)#");
             System.Text.RegularExpressions.Regex atRegex = new System.Text.RegularExpressions.Regex(@"@(\w+)");
-            
+
             if (HttpContext.User.Identity.IsAuthenticated)
             {
                 userId = int.Parse(HttpContext.User.Claims.First().Value);
@@ -417,11 +417,11 @@ namespace twitter_dotNetCoreWithVue.Controllers
             }
 
             using (OracleConnection conn = new OracleConnection(ConnStr.getConnStr()))
-            { 
-                    try
-                    {
-                        conn.ConnectionString = ConnStr.getConnStr();
-                        conn.Open();
+            {
+                try
+                {
+                    conn.ConnectionString = ConnStr.getConnStr();
+                    conn.Open();
                     //FUNC_SEND_MESSAGE(message_content in VARCHAR2, message_has_image in INTEGER, user_id in INTEGER, message_image_count in INTEGER, message_id out INTEGER)
                     //return INTEGER
                     string procedureName = "FUNC_SEND_MESSAGE";
@@ -472,7 +472,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     AtController.AddAtsInTwitter(message.message_content, int.Parse(p6.Value.ToString()), userId);
 
                     //若推特含图，从POST体内获得图的内容并保存到服务器
-                    if (message.message_has_image==1)
+                    if (message.message_has_image == 1)
                     {
                         var images = Request.Form.Files;
                         int img_num = 0;
@@ -492,19 +492,21 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     }
 
                     RestfulResult.RestfulData rr = new RestfulResult.RestfulData(200, "success");
+                    conn.Close();
                     return new JsonResult(rr);
-                    }
-                    catch (Exception e)
-                    {
-                        RestfulResult.RestfulData rr = new RestfulResult.RestfulData(500, "fail");
-                        Console.Write(e.Message);
-                        Console.Write(e.StackTrace);
-                        return new JsonResult(rr);
-                    }
                 }
-           
+                catch (Exception e)
+                {
+                    RestfulResult.RestfulData rr = new RestfulResult.RestfulData(500, "fail");
+                    Console.Write(e.Message);
+                    Console.Write(e.StackTrace);
+                    conn.Close();
+                    return new JsonResult(rr);
+                }
+            }
 
-            
+
+
         }
 
         /// <summary>
@@ -523,7 +525,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             if (HttpContext.User.Identity.IsAuthenticated)
             {
                 userId = int.Parse(HttpContext.User.Claims.First().Value);
-                
+
             }
             else
             {
@@ -636,13 +638,13 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 if (int.Parse(p1.Value.ToString()) == 0)
                 {
                     throw new Exception("failed");
-                }                
+                }
 
                 //根据返回内容，表示推特是否有图片。如果推特有图片，则把这条推特ID所对应的图片下的文件夹删掉
                 if (int.Parse(p3.Value.ToString()) == 1)
                 {
                     string path = @"wwwroot\Messages\" + message_id.ToString() + ".jpg";
-                    if(Directory.Exists(path))
+                    if (Directory.Exists(path))
                     {
                         Directory.Delete(path, true);
                     }

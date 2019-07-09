@@ -603,6 +603,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             {
                 return "/avatars/0.jpg";
             }
+            conn.Close();
             return "/avatars/" + int.Parse(p3.Value.ToString()).ToString() + ".jpg";
         }
 
