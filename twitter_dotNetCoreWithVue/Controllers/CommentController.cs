@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Oracle.ManagedDataAccess.Client;
 using twitter_dotNetCoreWithVue.Controllers.Utils;
@@ -45,7 +46,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <param name="message_id">Message identifier.</param>
         /// <param name="comment">Comment.</param>
         [HttpPost("add/{message_id}")]
-        public IActionResult Add([Required]int message_id, [Required][FromBody]CommentForSender comment)
+        public async Task<IActionResult> Add([Required]int message_id, [Required][FromBody]CommentForSender comment)
         {
             //TODO 需要身份验证
             //返回是否成功
@@ -64,7 +65,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 return new JsonResult(rr);
             }
 
-            return Wrapper.wrap((OracleConnection conn)=> {
+            return await Wrapper.wrap(async (OracleConnection conn)=> {
                 //FUNC_ADD_COMMENT(user_id in INTEGER, message_id in INTEGER, content in VARCHAR2(255))
                 //return INTEGER
                 string procudureName = "FUNC_ADD_COMMENT";
@@ -91,7 +92,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p4.Value = comment.comment_content;
                 p4.Direction = ParameterDirection.Input;
 
-                cmd.ExecuteReader();
+                await cmd.ExecuteReaderAsync();
                 Console.WriteLine(p1.Value);
 
                 if (int.Parse(p1.Value.ToString()) == 0)
@@ -110,9 +111,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <param name="message_id"></param>
         /// <returns></returns>
         [HttpPost("queryComments/{message_id}")]
-        public IActionResult QueryComments([Required]int message_id, [Required][FromBody]Range range)
+        public async Task<IActionResult> QueryComments([Required]int message_id, [Required][FromBody]Range range)
         {
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //function FUNC_QUERY_COMMENT_BY_RANGE(message_id in INTEGER, rangeStart in INTEGER, rangeLimitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
@@ -151,7 +152,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 //Get the result table
                 OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
                 DataTable dt = new DataTable();
-                DataAdapter.Fill(dt);
+                await Task.FromResult(DataAdapter.Fill(dt));
 
                 if (int.Parse(p1.Value.ToString()) == 0)
                 {
@@ -169,7 +170,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     commentsForShows[i].comment.comment_sender_id = int.Parse(dt.Rows[i][3].ToString());
                     commentsForShows[i].comment.comment_message_id = int.Parse(dt.Rows[i][4].ToString());
                     commentsForShows[i].comment.comment_create_time = dt.Rows[i][5].ToString();
-                    commentsForShows[i].userPublicInfo = UserController.getUserPublicInfo(commentsForShows[i].comment.comment_sender_id);
+                    commentsForShows[i].userPublicInfo = await UserController.getUserPublicInfo(commentsForShows[i].comment.comment_sender_id);
                 }
                 
 

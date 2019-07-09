@@ -47,13 +47,13 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>搜索的内容，分三个部分，推特/用户/话题</returns>
         /// <param name="searchKey">Identifier.</param>
         [HttpPost("{searchKey}")]
-        public IActionResult getSearchResult(string searchKey, [FromBody]Range range)
+        public async Task<IActionResult> getSearchResult(string searchKey, [FromBody]Range range)
         {
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
-                MessageController.MessageForShow[] twitterResults = GetTwitterResults(conn, searchKey, range);
-                UserController.UserPublicInfo[] userResults = GetUserResults(conn, searchKey, range);
-                TopicResult[] topicResults = GetTopicResults(conn, searchKey, range);
+                MessageController.MessageForShow[] twitterResults = await GetTwitterResults(conn, searchKey, range);
+                UserController.UserPublicInfo[] userResults = await GetUserResults(conn, searchKey, range);
+                TopicResult[] topicResults = await GetTopicResults(conn, searchKey, range);
                 ResultSet resultSet = new ResultSet();
                 resultSet.twitters = twitterResults;
                 resultSet.users = userResults;
@@ -68,7 +68,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
 
 
-        private MessageController.MessageForShow[] GetTwitterResults(OracleConnection conn, string searchKey, Range range)
+        private async Task<MessageController.MessageForShow[]> GetTwitterResults(OracleConnection conn, string searchKey, Range range)
         {
             //FUNC_SEARCH_MESSAGE(searchKey in VARCHAR2(50), startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
             //return INTEGER
@@ -102,7 +102,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
             OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
             DataTable dt = new DataTable();
-            DataAdapter.Fill(dt);
+            await Task.FromResult(DataAdapter.Fill(dt));
             
             //dt: sender_user_id, private_letter_id, content, timestamp
             MessageController.MessageForShow[] receivedTwitters = new MessageController.MessageForShow[dt.Rows.Count];
@@ -110,12 +110,12 @@ namespace twitter_dotNetCoreWithVue.Controllers
             {
                 
                 int message_id = int.Parse(dt.Rows[i][0].ToString());
-                receivedTwitters[i] = MessageController.InnerQuery(message_id);
+                receivedTwitters[i] = await MessageController.InnerQuery(message_id);
             }
             return receivedTwitters;
         }
 
-        private UserController.UserPublicInfo[] GetUserResults(OracleConnection conn, string searchKey, Range range)
+        private async Task<UserController.UserPublicInfo[]> GetUserResults(OracleConnection conn, string searchKey, Range range)
         {
             //FUNC_SEARCH_USER(searchKey in VARCHAR2(50), startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
             //return INTEGER
@@ -149,7 +149,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
             OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
             DataTable dt = new DataTable();
-            DataAdapter.Fill(dt);
+            await Task.FromResult(DataAdapter.Fill(dt));
 
 
             //dt: user\_id,user\_nickname,user\_avatar\_image\_id
@@ -157,12 +157,12 @@ namespace twitter_dotNetCoreWithVue.Controllers
             for (int i = 0; i < dt.Rows.Count; ++i)
             {
                 int user_id = int.Parse(dt.Rows[i][0].ToString());
-                receivedUsers[i] = UserController.getUserPublicInfo(user_id);
+                receivedUsers[i] = await UserController.getUserPublicInfo(user_id);
             }
             return receivedUsers;
         }
 
-        private TopicResult[] GetTopicResults(OracleConnection conn, string searchKey, Range range)
+        private async Task<TopicResult[]> GetTopicResults(OracleConnection conn, string searchKey, Range range)
         {
             //FUNC_SEARCH_TOPICS(searchKey in VARCHAR2(50), startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
             //return INTEGER
@@ -196,7 +196,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
             OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
             DataTable dt = new DataTable();
-            DataAdapter.Fill(dt);
+            await Task.FromResult(DataAdapter.Fill(dt));
 
 
             //dt: topics_id, topic_content

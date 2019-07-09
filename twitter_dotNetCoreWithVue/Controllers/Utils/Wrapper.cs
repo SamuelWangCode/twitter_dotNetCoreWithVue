@@ -71,6 +71,25 @@ namespace twitter_dotNetCoreWithVue.Controllers.Utils
             }
         }
 
+        static public async Task<int> wrap(Func<OracleConnection, Task<int>> func)
+        {
+            using (OracleConnection conn = new OracleConnection(ConnStr.getConnStr()))
+            {
+                try
+                {
+                    conn.ConnectionString = ConnStr.getConnStr();
+                    conn.Open();
+                    var re = await func(conn);
+                    conn.Close();
+                    return re;
+                }
+                catch (Exception e)
+                {
+                    return -1;
+                }
+            }
+        }
+
         static public async Task<Boolean> wrap(Func<OracleConnection, Task<Boolean>> func)
         {
             using (OracleConnection conn = new OracleConnection(ConnStr.getConnStr()))
@@ -110,7 +129,7 @@ namespace twitter_dotNetCoreWithVue.Controllers.Utils
                 }
             }
         }
-        static public UserController.UserPublicInfo wrap(Func<OracleConnection, UserController.UserPublicInfo> func)
+        static public async Task<UserController.UserPublicInfo> wrap(Func<OracleConnection, Task<UserController.UserPublicInfo>> func)
         {
             using (OracleConnection conn = new OracleConnection(ConnStr.getConnStr()))
             {
@@ -118,7 +137,7 @@ namespace twitter_dotNetCoreWithVue.Controllers.Utils
                 {
                     conn.ConnectionString = ConnStr.getConnStr();
                     conn.Open();
-                    var re = func(conn);
+                    var re = await func(conn);
                     conn.Close();
                     return re;
                 }
