@@ -208,10 +208,18 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     message_ids[i] = int.Parse(dt.Rows[i][0].ToString());
                 }
 
-                RestfulResult.RestfulArray<int> rr = new RestfulResult.RestfulArray<int>();
+                MessageController.MessageForShow[] messages = new MessageController.MessageForShow[dt.Rows.Count];
+                for(int i = 0; i < dt.Rows.Count; ++i)
+                {
+                    messages[i] = MessageController.InnerQuery(message_ids[i]);
+                }
+
+                //RestfulResult.RestfulArray<int> rr = new RestfulResult.RestfulArray<int>();
+
+                RestfulResult.RestfulArray<MessageController.MessageForShow> rr = new RestfulResult.RestfulArray<MessageController.MessageForShow>();
                 rr.Code = 200;
                 rr.Message = "success";
-                rr.Data = message_ids;
+                rr.Data = messages;
 
                 return new JsonResult(rr);
             });
