@@ -1,25 +1,32 @@
 ----------------FUNC_ADD_COLLECTION----------------------
 ---------------添加收藏---------------------------------
 create or replace function
-FUNC_ADD_COLLECTION(user_id in INTEGER, be_collected_id in INTEGER)
+FUNC_ADD_COLLECTION(userid in INTEGER, be_collected_id in INTEGER)
 return INTEGER
 is 
 PRAGMA AUTONOMOUS_TRANSACTION;
 state INTEGER:=1;
 own_topic_num INTEGER:=0;
+isrepeat INTEGER:=0;
 
 begin
+select count(*) into isrepeat
+from Message_Collection
+where MESSAGE_ID=be_collected_id and USER_ID=userid;
+
+if isrepeat=0 then
 insert into Message_Collection(user_id, message_id)
-values(user_id, be_collected_id);
+values(userid, be_collected_id);
 
 update Message set message_heat = message_heat + 1 where message_id = be_collected_id; 
 
 select count(*) into own_topic_num from Message_Owns_Topic where message_id = be_collected_id;
 
-if own_topic_num >0 then 
-update Topic set topic_heat = topic_heat + 1
-where topic_id in (select topic_id from Message_Owns_Topic
+  if own_topic_num >0 then 
+  update Topic set topic_heat = topic_heat + 1
+  where topic_id in (select topic_id from Message_Owns_Topic
 					where message_id = be_collected_id);
+  end if;
 end if;
 commit;
 return state;
@@ -41,20 +48,20 @@ from message
 where message_id = message_id_input;
 
 if state != 0 then 
-state:=1;
+  state:=1;
+else
+  delete from message_collection
+  where message_id = message_id_input and user_id=user_id_input;
 
-delete from message_collection
-where message_id = message_id_input and user_id=user_id_input;
+  update MESSAGE 
+  set message_heat=message_heat-1
+  where message_id =message_id_input;
 
-update MESSAGE 
-set message_heat=message_heat-1
-where message_id =message_id_input;
-
-update TOPIC 
-set TOPIC_HEAT=TOPIC_HEAT-1
-where topic_id in ( select TOPIC_ID 
-from message_owns_topic
-where message_id = message_id_input);
+  update TOPIC 
+  set TOPIC_HEAT=TOPIC_HEAT-1
+  where topic_id in ( select TOPIC_ID 
+  from message_owns_topic
+  where message_id = message_id_input);
 end if;
 
 commit;

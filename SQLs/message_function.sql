@@ -259,3 +259,31 @@ BEGIN
 	RETURN state;
 END;
 /
+
+------------FUNC_SHOW_MESSAGE_BY_TIME---------------
+----------------Show all twitters by send time----------------------
+create or replace function 
+FUNC_SHOW_MESSAGE_BY_TIME(startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+return INTEGER
+is 
+state INTEGER:=0;
+
+begin
+
+open search_result for 
+  select * from 
+    (select * 
+     from (message natural left join message_image) natural left join transpond
+     order by message_create_time desc)
+  where rownum <limitation+startFrom
+  MINUS
+  select * from 
+    (select * 
+     from (message natural left join message_image) natural left join transpond
+     order by message_create_time desc)
+  where rownum <startFrom;
+  
+
+state:=1;
+return state;
+end;
