@@ -109,7 +109,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             public int message_transpond_message_id { get; set; }
 
         }
-        
+
 
         //推特中包含的艾特类
         public class AtInfos
@@ -118,7 +118,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             public List<int> atIds = new List<int>();
         }
 
-        
+
 
         /// <summary>
         /// 查看推特详情时调用的api
@@ -128,13 +128,13 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <returns>The message.</returns>
         /// <param name="message_id">Message identifier.</param>
         [HttpPost("query")]
-        public IActionResult Query([Required]int message_id)
+        public async Task<IActionResult> Query([Required]int message_id)
         {
             //获得推特的详细信息
             //无需验证登录态
             //除了基本的推特信息以外，我们需要根据这条推特是否含有图，来把MessageForShow的图片url列表填好
 
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //function FUNC_SHOW_MESSAGE_BY_ID(message_id in INTEGER, result out sys_refcursor)
                 //return INTEGER
@@ -161,7 +161,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 //Get the result table
                 OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
                 DataTable dt = new DataTable();
-                DataAdapter.Fill(dt);
+                await Task.FromResult(DataAdapter.Fill(dt));
 
                 if (int.Parse(p1.Value.ToString()) == 0)
                 {
@@ -206,8 +206,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 return new JsonResult(rr);
 
             });
-            
-                    
+
+
         }
 
         //内部调用的，根据ID查询返回MessageForShow类型的函数
@@ -288,9 +288,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <param name="range">Range.</param>
         /// <param name="user_id">user_id</param>
         [HttpPost("queryMessage/{user_id}")]
-        public IActionResult QueryMessages([Required]int user_id, [Required][FromBody]Range range)
+        public async Task<IActionResult> QueryMessages([Required]int user_id, [Required][FromBody]Range range)
         {
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
                 //function FUNC_SHOW_HOME_MESSAGE_BY_RANGE(user_id in INTEGER, rangeStart in INTEGER, rangeLimitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
@@ -329,7 +329,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 //Get the result table
                 OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
                 DataTable dt = new DataTable();
-                DataAdapter.Fill(dt);
+                await Task.FromResult(DataAdapter.Fill(dt));
 
                 if (int.Parse(p1.Value.ToString()) == 0)
                 {
@@ -357,13 +357,13 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     receivedTwitters[i].message_ats = AtController.SearchAtsInTwitter(receivedTwitters[i].message_content);
 
                 }
-                for (int i=0;i<dt.Rows.Count;i++)
+                for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     if (receivedTwitters[i].message_has_image == 1)
                     {
                         string path = @"wwwroot\Messages\" + receivedTwitters[i].message_id.ToString() + @"\";
                         receivedTwitters[i].message_image_urls = new string[receivedTwitters[i].message_image_count];
-                        for (int j = 0; j<receivedTwitters[i].message_image_count; j++)
+                        for (int j = 0; j < receivedTwitters[i].message_image_count; j++)
                         {
                             if (System.IO.File.Exists(path + j.ToString() + ".jpg"))
                             {
@@ -371,7 +371,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                             }
                             else break;
                         }
-                        
+
                     }
                 }
 
@@ -381,7 +381,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 rr.Data = receivedTwitters;
                 return new JsonResult(rr);
             });
-            
+
         }
 
         /// <summary>
@@ -404,7 +404,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             List<string> ats = new List<string>();
             System.Text.RegularExpressions.Regex topicRegex = new System.Text.RegularExpressions.Regex(@"#(\w+)#");
             System.Text.RegularExpressions.Regex atRegex = new System.Text.RegularExpressions.Regex(@"@(\w+)");
-            
+
             if (HttpContext.User.Identity.IsAuthenticated)
             {
                 userId = int.Parse(HttpContext.User.Claims.First().Value);
@@ -426,11 +426,11 @@ namespace twitter_dotNetCoreWithVue.Controllers
             }
 
             using (OracleConnection conn = new OracleConnection(ConnStr.getConnStr()))
-            { 
-                    try
-                    {
-                        conn.ConnectionString = ConnStr.getConnStr();
-                        conn.Open();
+            {
+                try
+                {
+                    conn.ConnectionString = ConnStr.getConnStr();
+                    conn.Open();
                     //FUNC_SEND_MESSAGE(message_content in VARCHAR2, message_has_image in INTEGER, user_id in INTEGER, message_image_count in INTEGER, message_id out INTEGER)
                     //return INTEGER
                     string procedureName = "FUNC_SEND_MESSAGE";
@@ -471,7 +471,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     p6 = cmd.Parameters.Add("message_id", OracleDbType.Int32);
                     p6.Direction = ParameterDirection.Output;
 
-                    cmd.ExecuteReader();
+                    await cmd.ExecuteReaderAsync();
                     if (int.Parse(p1.Value.ToString()) == 0)
                     {
                         throw new Exception("failed");
@@ -481,7 +481,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     AtController.AddAtsInTwitter(message.message_content, int.Parse(p6.Value.ToString()), userId);
 
                     //若推特含图，从POST体内获得图的内容并保存到服务器
-                    if (message.message_has_image==1)
+                    if (message.message_has_image == 1)
                     {
                         var images = Request.Form.Files;
                         int img_num = 0;
@@ -501,19 +501,21 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     }
 
                     RestfulResult.RestfulData rr = new RestfulResult.RestfulData(200, "success");
+                    conn.Close();
                     return new JsonResult(rr);
-                    }
-                    catch (Exception e)
-                    {
-                        RestfulResult.RestfulData rr = new RestfulResult.RestfulData(500, "fail");
-                        Console.Write(e.Message);
-                        Console.Write(e.StackTrace);
-                        return new JsonResult(rr);
-                    }
                 }
-           
+                catch (Exception e)
+                {
+                    RestfulResult.RestfulData rr = new RestfulResult.RestfulData(500, "fail");
+                    Console.Write(e.Message);
+                    Console.Write(e.StackTrace);
+                    conn.Close();
+                    return new JsonResult(rr);
+                }
+            }
 
-            
+
+
         }
 
         /// <summary>
@@ -523,7 +525,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <param name="message_id">Message identifier.</param>
         /// <param name="message">Message.</param>
         [HttpPost("transpond")]
-        public IActionResult Transpond([Required][FromBody]MessageForTransponder message)
+        public async Task<IActionResult> Transpond([Required][FromBody]MessageForTransponder message)
         {
             //需要验证身份
             //返回是否转发成功
@@ -532,7 +534,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             if (HttpContext.User.Identity.IsAuthenticated)
             {
                 userId = int.Parse(HttpContext.User.Claims.First().Value);
-                
+
             }
             else
             {
@@ -542,9 +544,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 return new JsonResult(rr);
             }
 
-            return Wrapper.wrap((OracleConnection conn) =>
+            return await Wrapper.wrap(async (OracleConnection conn) =>
             {
-                //FUNC_TRANSPOND_MESSAGE(userID in INTEGER, content in VARCHAR2, transpondID in INTEGER, messageID out INTEGER)
+                //FUNC_TRANSPOND_MESSAGE(userID in INTEGER, message_content in VARCHAR2, transpondID in INTEGER, messageID out INTEGER)
                 //return INTEGER
                 string procedureName = "FUNC_TRANSPOND_MESSAGE";
                 OracleCommand cmd = new OracleCommand(procedureName, conn);
@@ -561,9 +563,9 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p2.Direction = ParameterDirection.Input;
                 p2.Value = userId;
 
-                //Add second parameter message_is_transpond
+                //Add second parameter message_content
                 OracleParameter p3 = new OracleParameter();
-                p3 = cmd.Parameters.Add("content", OracleDbType.Varchar2);
+                p3 = cmd.Parameters.Add("message_content", OracleDbType.Varchar2);
                 p3.Direction = ParameterDirection.Input;
                 p3.Value = message.message_content;
 
@@ -578,7 +580,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p5 = cmd.Parameters.Add("messageID", OracleDbType.Int32);
                 p5.Direction = ParameterDirection.Output;
 
-                cmd.ExecuteReader();
+                await cmd.ExecuteReaderAsync();
                 if (int.Parse(p1.Value.ToString()) == 0)
                 {
                     throw new Exception("failed");
@@ -645,13 +647,13 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 if (int.Parse(p1.Value.ToString()) == 0)
                 {
                     throw new Exception("failed");
-                }                
+                }
 
                 //根据返回内容，表示推特是否有图片。如果推特有图片，则把这条推特ID所对应的图片下的文件夹删掉
                 if (int.Parse(p3.Value.ToString()) == 1)
                 {
                     string path = @"wwwroot\Messages\" + message_id.ToString() + ".jpg";
-                    if(Directory.Exists(path))
+                    if (Directory.Exists(path))
                     {
                         Directory.Delete(path, true);
                     }

@@ -142,7 +142,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// <param name="user_id">接收私信用户的id</param>
         /// <param name="letterInfo">私信内容</param>
         [HttpPost("send/{user_id}")]
-        public IActionResult Send([Required]int user_id, [Required][FromBody]SendingPrivateLetter letterInfo)
+        public async Task<IActionResult> Send([Required]int user_id, [Required][FromBody]SendingPrivateLetter letterInfo)
         {
             //TODO 需要验证登录态
             //返回成功与否
@@ -160,7 +160,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 return new JsonResult(rr);
             }
 
-            return Wrapper.wrap((OracleConnection conn) => {
+            return await Wrapper.wrap(async (OracleConnection conn) => {
                 //FUNC_ADD_PRIVATE_LETTER(sender_user_id in INTEGER, receiver_user_id in INTEGER, content in VARCHAR2(255))
                 //return INTEGER
                 string procudureName = "FUNC_ADD_PRIVATE_LETTER";
@@ -187,7 +187,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p4.Value = letterInfo.private_letter_content;
                 p4.Direction = ParameterDirection.Input;
 
-                cmd.ExecuteReader();
+                await cmd.ExecuteReaderAsync();
                 Console.WriteLine(p1.Value);
 
                 if (int.Parse(p1.Value.ToString()) == 0)

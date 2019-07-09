@@ -603,8 +603,10 @@ namespace twitter_dotNetCoreWithVue.Controllers
             cmd.ExecuteReader();
             if (int.Parse(p1.Value.ToString()) == 0)
             {
+                conn.Close();
                 return "/avatars/0.jpg";
             }
+            conn.Close();
             return "/avatars/" + int.Parse(p3.Value.ToString()).ToString() + ".jpg";
         }
 

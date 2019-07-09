@@ -206,13 +206,15 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 }
                 catch (Exception e)
                 {
+                    conn.Close();
                     RestfulResult.RestfulData rr = new RestfulResult.RestfulData(500, "fail");
                     Console.Write(e.Message);
                     Console.Write(e.StackTrace);
                     return new AtInfos[] { };
                 }
+                conn.Close();
             }
-
+            
             return atInfos;
         }
 
@@ -273,11 +275,13 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 }
                 catch (Exception e)
                 {
+                    conn.Close();
                     RestfulResult.RestfulData rr = new RestfulResult.RestfulData(500, "fail");
                     Console.Write(e.Message);
                     Console.Write(e.StackTrace);
                     return new AtInfos[] { };
                 }
+                conn.Close();
             }
 
             return atInfos;
