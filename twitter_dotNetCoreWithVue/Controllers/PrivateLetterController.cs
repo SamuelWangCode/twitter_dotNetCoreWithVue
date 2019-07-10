@@ -47,6 +47,24 @@ namespace twitter_dotNetCoreWithVue.Controllers
             public string timeStamp { get; set; }
         }
 
+        public class ContactPerson
+        {
+            [Display(Name = "联系人ID")]
+            [Required]
+            public int contact_person_id { get; set; }
+
+            [Display(Name = "联系人昵称")]
+            [Required]
+            public string contact_nickname { get; set; }
+
+            [Display(Name = "联系人头像")]
+            [Required]
+            public string contact_person_avator_url { get; set; }
+
+            [Required]
+            [Display(Name = "最近联系时间")]
+            public string contact_time { get; set; }
+        }
 
         /// <summary>
         /// 查询发送给自己的私信列表
@@ -211,6 +229,85 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 }
 
                 RestfulResult.RestfulArray<ReceivedPrivateLetter> rr = new RestfulResult.RestfulArray<ReceivedPrivateLetter>();
+                rr.Code = 200;
+                rr.Message = "success";
+                rr.Data = receiveds;
+
+                return new JsonResult(rr);
+            });
+        }
+
+        /// <summary>
+        /// 查询最近给自己发过私信的人
+        /// 需要长度的参数
+        /// </summary>
+        /// <returns>这些人PublicInfo信息的列表</returns>
+        [HttpPost("queryLatestContact")]
+        public async Task<IActionResult> QueryLatestContact([Required][FromBody]Range range)
+        {
+            int my_user_id = -1;
+            if (HttpContext.User.Identity.IsAuthenticated)
+            {
+                my_user_id = int.Parse(HttpContext.User.Claims.ElementAt(0).Value);
+            }
+            else
+            {
+                //进入到这部分意味着用户登录态已经失效，需要返回给客户端信息，即需要登录。
+                RestfulResult.RestfulData rr = new RestfulResult.RestfulData();
+                rr.Code = 200;
+                rr.Message = "Need Authentication";
+                return new JsonResult(rr);
+            }
+
+            return await Wrapper.wrap(async (OracleConnection conn) =>
+            {
+                //FUNC_QUERY_LATEST_CONTACT(userid in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+                //return INTEGER
+                string procudureName = "FUNC_QUERY_LATEST_CONTACT";
+                OracleCommand cmd = new OracleCommand(procudureName, conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                //Add return value
+                OracleParameter p1 = new OracleParameter();
+                p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                p1.Direction = ParameterDirection.ReturnValue;
+                //Add input parameter user_id
+                OracleParameter p2 = new OracleParameter();
+                p2 = cmd.Parameters.Add("userid", OracleDbType.Int32);
+                p2.Value = my_user_id;
+                p2.Direction = ParameterDirection.Input;
+                //Add input parameter follower_id
+                OracleParameter p3 = new OracleParameter();
+                //Add input parameter be_followed_id
+                p3 = cmd.Parameters.Add("startFrom", OracleDbType.Int32);
+                p3.Value = range.startFrom;
+                p3.Direction = ParameterDirection.Input;
+                OracleParameter p4 = new OracleParameter();
+                //Add input parameter be_followed_id
+                p4 = cmd.Parameters.Add("limitation", OracleDbType.Int32);
+                p4.Value = range.limitation;
+                p4.Direction = ParameterDirection.Input;
+                //Add input parameter search_result
+                OracleParameter p5 = new OracleParameter();
+                p5 = cmd.Parameters.Add("search_result", OracleDbType.RefCursor);
+                p5.Direction = ParameterDirection.Output;
+
+                OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                await Task.FromResult(DataAdapter.Fill(dt));
+
+                //dt: sender_user_id, private_letter_id, content, timestamp
+                ContactPerson[] receiveds = new ContactPerson[dt.Rows.Count];
+                for (int i = 0; i < dt.Rows.Count; ++i)
+                {
+                    receiveds[i] = new ContactPerson();
+                    receiveds[i].contact_person_id = int.Parse(dt.Rows[i][0].ToString());
+                    receiveds[i].contact_nickname = dt.Rows[i][1].ToString();
+                    receiveds[i].contact_time = dt.Rows[i][2].ToString();
+                    receiveds[i].contact_person_avator_url = await UserController.getAvatarUrl(receiveds[i].contact_person_id);
+                }
+
+                RestfulResult.RestfulArray<ContactPerson> rr = new RestfulResult.RestfulArray<ContactPerson>();
                 rr.Code = 200;
                 rr.Message = "success";
                 rr.Data = receiveds;
