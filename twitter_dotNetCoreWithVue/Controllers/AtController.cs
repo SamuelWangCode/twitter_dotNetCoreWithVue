@@ -102,7 +102,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// </summary>
         /// <returns>未读艾特数，int值</returns>
         /// <param name="range">Range.</param>
-        [HttpPost("queryUnreadAt")]
+        [HttpGet("queryUnreadAt")]
         public async Task<IActionResult> QueryUnreadAt()
         {
             //TODO 需要身份验证
