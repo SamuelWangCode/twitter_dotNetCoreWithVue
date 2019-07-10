@@ -136,6 +136,90 @@ namespace twitter_dotNetCoreWithVue.Controllers
         }
 
         /// <summary>
+        /// 查询自己和某人之间所有私信的列表
+        /// 需要长度的参数和对方的ID
+        /// </summary>
+        /// <returns>私信列表</returns>
+        [HttpPost("querySpecified")]
+        public async Task<IActionResult> QuerySpecified([Required]int opposingId, [Required][FromBody]Range range)
+        {
+            int my_user_id = -1;
+            if (HttpContext.User.Identity.IsAuthenticated)
+            {
+                my_user_id = int.Parse(HttpContext.User.Claims.ElementAt(0).Value);
+            }
+            else
+            {
+                //进入到这部分意味着用户登录态已经失效，需要返回给客户端信息，即需要登录。
+                RestfulResult.RestfulData rr = new RestfulResult.RestfulData();
+                rr.Code = 200;
+                rr.Message = "Need Authentication";
+                return new JsonResult(rr);
+            }
+
+            return await Wrapper.wrap(async (OracleConnection conn) =>
+            {
+                //FUNC_QUERY_SPECIFIED_PRILETTERS(senderid in INTEGER, receiverid in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+                //return INTEGER
+                string procudureName = "FUNC_QUERY_SPECIFIED_PRILETTERS";
+                OracleCommand cmd = new OracleCommand(procudureName, conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                //Add return value
+                OracleParameter p1 = new OracleParameter();
+                p1 = cmd.Parameters.Add("state", OracleDbType.Int32);
+                p1.Direction = ParameterDirection.ReturnValue;
+                //Add input parameter user_id
+                OracleParameter p2 = new OracleParameter();
+                p2 = cmd.Parameters.Add("senderid", OracleDbType.Int32);
+                p2.Value = my_user_id;
+                p2.Direction = ParameterDirection.Input;
+                OracleParameter p3 = new OracleParameter();
+                p3 = cmd.Parameters.Add("receiverid", OracleDbType.Int32);
+                p3.Value = opposingId;
+                p3.Direction = ParameterDirection.Input;
+                //Add input parameter follower_id
+                OracleParameter p4 = new OracleParameter();
+                //Add input parameter be_followed_id
+                p4 = cmd.Parameters.Add("startFrom", OracleDbType.Int32);
+                p4.Value = range.startFrom;
+                p4.Direction = ParameterDirection.Input;
+                OracleParameter p5 = new OracleParameter();
+                //Add input parameter be_followed_id
+                p5 = cmd.Parameters.Add("limitation", OracleDbType.Int32);
+                p5.Value = range.limitation;
+                p5.Direction = ParameterDirection.Input;
+                //Add input parameter search_result
+                OracleParameter p6 = new OracleParameter();
+                p6 = cmd.Parameters.Add("search_result", OracleDbType.RefCursor);
+                p6.Direction = ParameterDirection.Output;
+
+                OracleDataAdapter DataAdapter = new OracleDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                await Task.FromResult(DataAdapter.Fill(dt));
+
+                //dt: sender_user_id, private_letter_id, content, timestamp
+                ReceivedPrivateLetter[] receiveds = new ReceivedPrivateLetter[dt.Rows.Count];
+                for (int i = 0; i < dt.Rows.Count; ++i)
+                {
+                    receiveds[i] = new ReceivedPrivateLetter();
+                    receiveds[i].private_letter_id = int.Parse(dt.Rows[i][0].ToString());
+                    receiveds[i].private_letter_content = dt.Rows[i][1].ToString();
+                    receiveds[i].timeStamp = dt.Rows[i][3].ToString();
+                    receiveds[i].sender_user_id = int.Parse(dt.Rows[i][4].ToString());
+                    receiveds[i].sender_info = await UserController.getUserPublicInfo(receiveds[i].sender_user_id);
+                }
+
+                RestfulResult.RestfulArray<ReceivedPrivateLetter> rr = new RestfulResult.RestfulArray<ReceivedPrivateLetter>();
+                rr.Code = 200;
+                rr.Message = "success";
+                rr.Data = receiveds;
+
+                return new JsonResult(rr);
+            });
+        }
+
+        /// <summary>
         /// 给某人发送私信
         /// </summary>
         /// <returns>success or not</returns>

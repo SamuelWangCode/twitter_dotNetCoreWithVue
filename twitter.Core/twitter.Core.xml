@@ -204,6 +204,13 @@
             </summary>
             <returns>私信列表</returns>
         </member>
+        <member name="M:twitter_dotNetCoreWithVue.Controllers.PrivateLetterController.QuerySpecified(System.Int32,twitter_dotNetCoreWithVue.Controllers.Utils.Range)">
+            <summary>
+            查询自己和某人之间所有私信的列表
+            需要长度的参数和对方的ID
+            </summary>
+            <returns>私信列表</returns>
+        </member>
         <member name="M:twitter_dotNetCoreWithVue.Controllers.PrivateLetterController.Send(System.Int32,twitter_dotNetCoreWithVue.Controllers.PrivateLetterController.SendingPrivateLetter)">
             <summary>
             给某人发送私信

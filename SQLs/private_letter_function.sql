@@ -92,3 +92,56 @@ BEGIN
 	RETURN state;
 END;
 /
+
+
+--------------FUNC_QUERY_SPECIFIED_PRILETTERS--------------------------------
+create or replace FUNCTION FUNC_QUERY_SPECIFIED_PRILETTERS
+(senderid IN INTEGER, receiverid IN INTEGER, startFrom IN INTEGER, limitation IN INTEGER,search_result OUT sys_refcursor)
+RETURN INTEGER
+AS
+state integer:=0;
+
+BEGIN
+    open search_result for 
+    SELECT* FROM 
+         (SELECT *
+         from PRIVATE_LETTER
+         WHERE (PRIVATE_LETTER_RECEIVER_ID=receiverid and PRIVATE_LETTER_SENDER_ID=senderid)
+         or (PRIVATE_LETTER_RECEIVER_ID=senderid and PRIVATE_LETTER_SENDER_ID=receiverid)
+         ORDER BY PRIVATE_LETTER.PRIVATE_LETTER_CREATE_TIME DESC)
+    WHERE ROWNUM<startFrom+limitation
+    MINUS
+    SELECT* FROM 
+         (SELECT *
+         from PRIVATE_LETTER
+         WHERE (PRIVATE_LETTER_RECEIVER_ID=receiverid and PRIVATE_LETTER_SENDER_ID=senderid)
+         or (PRIVATE_LETTER_RECEIVER_ID=senderid and PRIVATE_LETTER_SENDER_ID=receiverid)
+         ORDER BY PRIVATE_LETTER.PRIVATE_LETTER_CREATE_TIME DESC)
+    WHERE ROWNUM<startFrom;
+    
+    UPDATE PRIVATE_LETTER
+    SET PRIVATE_LETTER_IS_READ = 1
+    WHERE PRIVATE_LETTER_ID in
+    (
+    SELECT* FROM 
+         (SELECT private_letter_id
+         from PRIVATE_LETTER
+         WHERE (PRIVATE_LETTER_RECEIVER_ID=receiverid and PRIVATE_LETTER_SENDER_ID=senderid)
+         or (PRIVATE_LETTER_RECEIVER_ID=senderid and PRIVATE_LETTER_SENDER_ID=receiverid)
+         ORDER BY PRIVATE_LETTER.PRIVATE_LETTER_CREATE_TIME DESC)
+    WHERE ROWNUM<startFrom+limitation
+    MINUS
+    SELECT* FROM 
+         (SELECT private_letter_id
+         from PRIVATE_LETTER
+         WHERE (PRIVATE_LETTER_RECEIVER_ID=receiverid and PRIVATE_LETTER_SENDER_ID=senderid)
+         or (PRIVATE_LETTER_RECEIVER_ID=senderid and PRIVATE_LETTER_SENDER_ID=receiverid)
+         ORDER BY PRIVATE_LETTER.PRIVATE_LETTER_CREATE_TIME DESC)
+    WHERE ROWNUM<startFrom
+    );
+
+
+    state:=1;
+	RETURN state;
+END;
+/
