@@ -158,7 +158,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
         /// 需要长度的参数和对方的ID
         /// </summary>
         /// <returns>私信列表</returns>
-        [HttpPost("querySpecified")]
+        [HttpPost("querySpecified/{opposingId}")]
         public async Task<IActionResult> QuerySpecified([Required]int opposingId, [Required][FromBody]Range range)
         {
             int my_user_id = -1;
@@ -179,7 +179,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             {
                 //FUNC_QUERY_SPECIFIED(senderid in INTEGER, receiverid in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
-                string procudureName = "FUNC_QUERY_SPECIFIED_PRILETTERS";
+                string procudureName = "FUNC_QUERY_SPECIFIED";
                 OracleCommand cmd = new OracleCommand(procudureName, conn);
                 cmd.CommandType = CommandType.StoredProcedure;
 
