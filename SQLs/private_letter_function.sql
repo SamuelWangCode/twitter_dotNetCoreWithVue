@@ -95,7 +95,7 @@ END;
 
 
 --------------FUNC_QUERY_SPECIFIED_PRILETTERS--------------------------------
-create or replace FUNCTION FUNC_QUERY_SPECIFIED_PRILETTERS
+create or replace FUNCTION FUNC_QUERY_SPECIFIED
 (senderid IN INTEGER, receiverid IN INTEGER, startFrom IN INTEGER, limitation IN INTEGER,search_result OUT sys_refcursor)
 RETURN INTEGER
 AS
