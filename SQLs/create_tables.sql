@@ -119,7 +119,7 @@ CREATE TABLE Relation(
 -------------Message-------------------------
 CREATE TABLE Message(
   message_id INTEGER GENERATED ALWAYS AS IDENTITY,
-  message_content VARCHAR2(280) NOT NULL,
+  message_content VARCHAR2(560) NOT NULL,
   message_create_time VARCHAR2(30) NOT NULL,
   message_agree_num INTEGER NOT NULL,
   message_transponded_num INTEGER NOT NULL,

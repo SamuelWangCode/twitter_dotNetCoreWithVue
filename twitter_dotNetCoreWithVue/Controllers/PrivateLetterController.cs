@@ -177,7 +177,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
             return await Wrapper.wrap(async (OracleConnection conn) =>
             {
-                //FUNC_QUERY_SPECIFIED_PRILETTERS(senderid in INTEGER, receiverid in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+                //FUNC_QUERY_SPECIFIED(senderid in INTEGER, receiverid in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
                 string procudureName = "FUNC_QUERY_SPECIFIED_PRILETTERS";
                 OracleCommand cmd = new OracleCommand(procudureName, conn);
