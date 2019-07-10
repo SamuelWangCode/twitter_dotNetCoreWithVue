@@ -277,3 +277,5 @@ CREATE TABLE Message_Owns_Topic(
       Topic(topic_id)
         ON DELETE CASCADE
 );
+
+@@create_data.sql;
