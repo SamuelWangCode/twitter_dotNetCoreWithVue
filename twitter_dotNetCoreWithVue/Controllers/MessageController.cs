@@ -866,6 +866,10 @@ namespace twitter_dotNetCoreWithVue.Controllers
         {
             string[] messageImageUrls = new string[message_image_count];
             string path = @"wwwroot\Messages\" + message_id.ToString() + @"\";
+            if (!Directory.Exists(path))
+            {
+                return new string[0];
+            }
             DirectoryInfo folder = new DirectoryInfo(path);
             FileInfo[] fileInfos = folder.GetFiles("*.*");
             for (int i = 0; i < fileInfos.Length; i++)
