@@ -549,15 +549,8 @@ namespace twitter_dotNetCoreWithVue.Controllers
                     if (receivedTwitters[i].message_has_image == 1)
                     {
                         string path = @"wwwroot\Messages\" + receivedTwitters[i].message_id.ToString() + @"\";
-                        receivedTwitters[i].message_image_urls = new string[receivedTwitters[i].message_image_count];
-                        for (int j = 0; j < receivedTwitters[i].message_image_count; j++)
-                        {
-                            if (System.IO.File.Exists(path + j.ToString() + ".jpg"))
-                            {
-                                receivedTwitters[i].message_image_urls[j] = "http://localhost:12293/Messages/" + receivedTwitters[i].message_id.ToString() + "/" + j.ToString() + ".jpg";
-                            }
-                            else break;
-                        }
+                        receivedTwitters[i].message_image_urls =
+                        getMessageImageUrls(receivedTwitters[i].message_id, receivedTwitters[i].message_image_count);
 
                     }
                 }

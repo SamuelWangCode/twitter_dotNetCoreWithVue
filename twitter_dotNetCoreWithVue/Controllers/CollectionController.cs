@@ -151,7 +151,6 @@ namespace twitter_dotNetCoreWithVue.Controllers
             //TODO 需要验证登录态
             //需要range作为参数
             //从数据库取出message_id们 加油
-            int my_user_id = user_id;
             
 
             return await Wrapper.wrap(async (OracleConnection conn) =>
@@ -170,7 +169,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 OracleParameter p2 = new OracleParameter();
                 p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
                 p2.Direction = ParameterDirection.Input;
-                p2.Value = my_user_id;
+                p2.Value = user_id;
                 OracleParameter p3 = new OracleParameter();
                 //Add input parameter startFrom
                 p3 = cmd.Parameters.Add("startFrom", OracleDbType.Int32);
