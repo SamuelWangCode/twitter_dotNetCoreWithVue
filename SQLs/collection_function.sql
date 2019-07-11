@@ -75,7 +75,7 @@ end;
 -----------------------------查询收藏信息----------------------------------
 create or replace 
 function 
-FUNC_QUERY_COLLECTIONS_OF_MINE(user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+FUNC_QUERY_COLLECTIONS_OF_MINE(userid in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
 return INTEGER
 is 
 state INTEGER:=0;
@@ -83,9 +83,9 @@ state INTEGER:=0;
 begin
 select count(*) into state
 from MESSAGE_COLLECTION
-where MESSAGE_COLLECTION.USER_ID = user_id;
+where MESSAGE_COLLECTION.USER_ID = userid;
 
-if state=0 then 
+if state=0 then state:=1;
 return state;
 else
 state:=1;
@@ -93,7 +93,7 @@ open search_result for
 select * from(
 select MESSAGE_COLLECTION.MESSAGE_ID
 from MESSAGE_COLLECTION
-where MESSAGE_COLLECTION.USER_ID= user_id)
+where MESSAGE_COLLECTION.USER_ID= userid)
 where ROWNUM >= startFrom and ROWNUM < startFrom + limitation;
 
 end if;

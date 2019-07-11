@@ -155,7 +155,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
             return await Wrapper.wrap(async (OracleConnection conn) =>
             {
-                //FUNC_QUERY_COLLECTIONS_OF_MINE(user_id in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
+                //FUNC_QUERY_COLLECTIONS_OF_MINE(userid in INTEGER, startFrom in INTEGER, limitation in INTEGER, search_result out sys_refcursor)
                 //return INTEGER
                 string procudureName = "FUNC_QUERY_COLLECTIONS_OF_MINE";
                 OracleCommand cmd = new OracleCommand(procudureName, conn);
@@ -167,7 +167,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
                 p1.Direction = ParameterDirection.ReturnValue;
                 //Add input parameter user_id
                 OracleParameter p2 = new OracleParameter();
-                p2 = cmd.Parameters.Add("user_id", OracleDbType.Int32);
+                p2 = cmd.Parameters.Add("userid", OracleDbType.Int32);
                 p2.Direction = ParameterDirection.Input;
                 p2.Value = user_id;
                 OracleParameter p3 = new OracleParameter();
