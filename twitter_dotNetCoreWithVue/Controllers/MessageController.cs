@@ -868,7 +868,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             for (int i = 0; i < fileInfos.Length; i++)
             {
                 Console.WriteLine(fileInfos[i].Name);
-                messageImageUrls[i] = "http://localhost:12293/Messages/" + message_id.ToString() + "/" + fileInfos[i].Name;
+                messageImageUrls[i] = "/Messages/" + message_id.ToString() + "/" + fileInfos[i].Name;
             }
             return messageImageUrls;
         }

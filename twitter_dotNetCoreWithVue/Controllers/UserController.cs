@@ -605,10 +605,10 @@ namespace twitter_dotNetCoreWithVue.Controllers
             if (int.Parse(p1.Value.ToString()) == 0)
             {
                 conn.Close();
-                return "http://localhost:12293/avatars/0.jpg";
+                return "/avatars/0.jpg";
             }
             conn.Close();
-            return "http://localhost:12293/avatars/" + user_id.ToString() + "/" + int.Parse(p3.Value.ToString()).ToString() + ".jpg";
+            return "/avatars/" + user_id.ToString() + "/" + int.Parse(p3.Value.ToString()).ToString() + ".jpg";
         }
 
 
