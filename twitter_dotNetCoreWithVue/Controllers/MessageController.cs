@@ -865,7 +865,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
             }
             DirectoryInfo folder = new DirectoryInfo(path);
             FileInfo[] fileInfos = folder.GetFiles("*.*");
-            for (int i = 0; i < fileInfos.Length; i++)
+            for (int i = 0; i < message_image_count; i++)
             {
                 Console.WriteLine(fileInfos[i].Name);
                 messageImageUrls[i] = "http://localhost:12293/Messages/" + message_id.ToString() + "/" + fileInfos[i].Name;
