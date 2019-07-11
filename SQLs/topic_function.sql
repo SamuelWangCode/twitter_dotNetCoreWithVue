@@ -1,7 +1,8 @@
 -------------------FUNC_ADD_TOPIC----------------------------
 -------------------添加话题/增加话题热度---------------------
-create or replace function
-FUNC_ADD_TOPIC(topic_name in VARCHAR2, message_id in INTEGER)
+create or replace 
+function
+FUNC_ADD_TOPIC(topic_name in VARCHAR2, messageid in INTEGER)
 return INTEGER
 is 
 PRAGMA AUTONOMOUS_TRANSACTION;
@@ -26,10 +27,10 @@ commit;
 end if;
 
 select count(*) into own_exist from Message_Owns_Topic 
-where Message_Owns_Topic.message_id = message_id and Message_Owns_Topic.topic_id = temp_topic_id;
+where Message_Owns_Topic.message_id = messageid and Message_Owns_Topic.topic_id = temp_topic_id;
 
 if own_exist=0 then
-insert into Message_Owns_Topic(message_id, topic_id)values(message_id, temp_topic_id); 
+insert into Message_Owns_Topic(message_id, topic_id)values(messageid, temp_topic_id); 
 end if;
 
 commit;

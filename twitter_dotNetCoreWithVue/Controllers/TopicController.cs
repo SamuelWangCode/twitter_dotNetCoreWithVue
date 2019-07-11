@@ -209,7 +209,7 @@ namespace twitter_dotNetCoreWithVue.Controllers
 
                         //Add second parameter message_id
                         OracleParameter p3 = new OracleParameter();
-                        p3 = cmd.Parameters.Add("message_id", OracleDbType.Int32);
+                        p3 = cmd.Parameters.Add("messageid", OracleDbType.Int32);
                         p3.Direction = ParameterDirection.Input;
                         p3.Value = messageID;
 
